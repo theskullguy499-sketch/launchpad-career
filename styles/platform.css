@@ -540,6 +540,9 @@ th,
 body.dark .button-primary {
   color: #0b1630;
 }
+body.dark .button-primary:hover {
+  background: #6b96ff;
+}
 body.dark .eyebrow {
   color: #a4c5ff;
 }
