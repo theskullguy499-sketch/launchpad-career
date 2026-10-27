@@ -703,6 +703,7 @@
     $("#roadmapPercent").textContent = `${pct}%`;
     $("#roadmapProgressBar").style.width = `${pct}%`;
   }
+  let activeView = null;
   function setView(view) {
     const routes = [
       "home",
@@ -729,6 +730,11 @@
     });
     if (!location.hash || routes.some((route) => location.hash === "#" + route))
       location.hash = current;
+    // A navigation click updates immediately; its later hashchange must not
+    // render the same screen again and overwrite edits made in the meantime.
+    // Still update visibility above when platform.js adds its screens at startup.
+    if (activeView === current) return;
+    activeView = current;
     window.dispatchEvent(
       new CustomEvent("launchpad:navigate", { detail: current }),
     );

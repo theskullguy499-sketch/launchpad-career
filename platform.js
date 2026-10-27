@@ -1145,21 +1145,23 @@ $("#coachForm").addEventListener("submit", async (event) => {
 });
 $("#profileForm").addEventListener("submit", (event) => {
   event.preventDefault();
+  // Capture the submitted values now: an earlier queued cloud save can render
+  // the form before this update runs.
+  const profile = {
+    display_name: $("#profileName").value.trim(),
+    title: $("#profileTitle").value.trim(),
+    country: $("#profileCountry").value.trim(),
+    age_band: $("#profileAge").value,
+  };
+  const preferences = {
+    onboarded: true,
+    saveCoachHistory: $("#historyPreference").checked,
+    emailReminders: $("#emailPreference").checked,
+  };
   store
     .update((next) => {
-      next.profile = {
-        ...next.profile,
-        display_name: $("#profileName").value.trim(),
-        title: $("#profileTitle").value.trim(),
-        country: $("#profileCountry").value.trim(),
-        age_band: $("#profileAge").value,
-      };
-      next.preferences = {
-        ...next.preferences,
-        onboarded: true,
-        saveCoachHistory: $("#historyPreference").checked,
-        emailReminders: $("#emailPreference").checked,
-      };
+      next.profile = { ...next.profile, ...profile };
+      next.preferences = { ...next.preferences, ...preferences };
     })
     .then(() => {
       $("#settingsStatus").textContent =

@@ -201,13 +201,35 @@ test("personal roadmap, tasks, reminders and profile survive reload and extended
   await page
     .getByRole("button", { name: "Save profile & preferences" })
     .click();
+  await expect(page.locator("#settingsStatus")).toContainText(
+    "Profile and preferences saved",
+  );
   await page.reload();
   await expect(page.locator("#profileName")).toHaveValue("Career Planner");
+  await nav(page, "roadmap");
+  await expect(
+    page.locator("#personalMilestones input[type=checkbox]").first(),
+  ).toBeChecked();
   await nav(page, "applications");
   const dl = page.waitForEvent("download");
   await page.click("#backupBtn");
   const bytes = require("node:fs").readFileSync(await (await dl).path());
-  expect(JSON.parse(bytes).extras.tasks[0].title).toBe("Prepare portfolio");
+  const backup = JSON.parse(bytes);
+  expect(backup.extras.tasks[0].title).toBe("Prepare portfolio");
+  expect(backup.extras.goals[0].title).toBe("International frontend role");
+  expect(backup.extras.milestones).toHaveLength(5);
+  expect(backup.extras.milestones[0].completed).toBe(true);
+  expect(backup.extras.profile.display_name).toBe("Career Planner");
+  // Restore into a genuinely empty guest workspace, rather than over the same data.
+  await nav(page, "settings");
+  page.once("dialog", (d) => d.accept());
+  await page
+    .getByRole("button", { name: "Clear guest records", exact: true })
+    .click();
+  await expect(page.locator("#profileName")).toHaveValue("");
+  await nav(page, "roadmap");
+  await expect(page.locator("#personalMilestones .list-item")).toHaveCount(0);
+  await nav(page, "applications");
   page.once("dialog", (d) => d.accept());
   await page.locator("#restoreFile").setInputFiles({
     name: "extended.json",
@@ -215,10 +237,104 @@ test("personal roadmap, tasks, reminders and profile survive reload and extended
     buffer: bytes,
   });
   await expect(page.locator("#toast")).toContainText("restored successfully");
+  await page.reload();
+  await nav(page, "settings");
+  await expect(page.locator("#profileName")).toHaveValue("Career Planner");
+  await expect(page.locator("#profileAge")).toHaveValue("18+");
+  await nav(page, "dashboard");
+  await expect(page.locator("#taskList")).toContainText("Prepare portfolio");
+  await expect(page.locator("#reminderList")).toContainText("Overdue");
   await nav(page, "roadmap");
+  await expect(page.locator("#careerGoals")).toContainText(
+    "International frontend role",
+  );
+  await expect(page.locator("#personalMilestones .list-item")).toHaveCount(5);
   await expect(
     page.locator("#personalMilestones input[type=checkbox]").first(),
   ).toBeChecked();
+});
+test("same-route hashchange and repeated navigation preserve profile drafts", async ({
+  page,
+}) => {
+  await page.goto("/#settings");
+  await page.fill("#profileName", "Career Planner");
+  await page.selectOption("#profileAge", "18+");
+  // A click sets the hash synchronously, but browsers deliver hashchange later.
+  // Deliver the trailing event after editing to make the original race deterministic.
+  await page.evaluate(() =>
+    window.dispatchEvent(new HashChangeEvent("hashchange")),
+  );
+  await expect(page.locator("#profileName")).toHaveValue("Career Planner");
+  await nav(page, "settings");
+  await expect(page.locator("#profileName")).toHaveValue("Career Planner");
+  await expect(page.locator("#profileAge")).toHaveValue("18+");
+  await page
+    .getByRole("button", { name: "Save profile & preferences" })
+    .click();
+  await expect(page.locator("#settingsStatus")).toContainText(
+    "Profile and preferences saved",
+  );
+  await nav(page, "roadmap");
+  await page.goBack();
+  await expect(page.locator("#settingsView")).toBeVisible();
+  await expect(page.locator("#profileName")).toHaveValue("Career Planner");
+  await page.reload();
+  await expect(page.locator("#profileName")).toHaveValue("Career Planner");
+});
+test("profile submit keeps its values behind an earlier cloud save", async ({
+  page,
+}) => {
+  await configure(page);
+  await page.goto("/");
+  await login(page);
+  await expect(page.locator("#syncStatus")).toContainText(
+    "Cloud workspace loaded",
+  );
+  await nav(page, "settings");
+  let release, started;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  const requestStarted = new Promise((resolve) => {
+    started = resolve;
+  });
+  let first = true;
+  await page.route("**/rpc/commit_workspace", async (route) => {
+    if (first) {
+      first = false;
+      started();
+      await gate;
+    }
+    await route.fallback();
+  });
+  // Hold a real SDK RPC response so the profile update queues behind it.
+  await page.evaluate(() => {
+    window.pendingTrackerSave = window.launchpadWorkspace.saveTracker([]);
+  });
+  await requestStarted;
+  try {
+    await page.fill("#profileName", "Queued Career Planner");
+    await page.selectOption("#profileAge", "18+");
+    await page
+      .getByRole("button", { name: "Save profile & preferences" })
+      .click();
+  } finally {
+    release();
+  }
+  await expect(page.locator("#settingsStatus")).toContainText(
+    "Profile and preferences saved",
+  );
+  await expect(page.locator("#profileName")).toHaveValue(
+    "Queued Career Planner",
+  );
+  await page.evaluate(() => window.pendingTrackerSave);
+  await page.reload();
+  await expect(page.locator("#syncStatus")).toContainText(
+    "Cloud workspace loaded",
+  );
+  await expect(page.locator("#profileName")).toHaveValue(
+    "Queued Career Planner",
+  );
 });
 test("private account workspaces synchronize, isolate users, and retain original guest records", async ({
   page,
