@@ -1,3 +1,5 @@
+> Historical 4.0 report. For the current 5.0 RC, see [commercial release evidence](commercial/RELEASE.md).
+
 # Launchpad 4.0 RC — production-readiness status
 
 Target: `improve/launchpad-responsive-supabase-auth` → `main`.

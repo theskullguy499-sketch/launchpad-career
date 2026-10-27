@@ -95,3 +95,27 @@ test('all v4 routes, static styles/modules/logo and legal pages load from the bu
  for(const file of ['tracker.js','platform.js','styles/platform.css','assets/launchpad.svg','lib/model.mjs','lib/workspace.mjs','data/companies.mjs','legal/privacy.html','legal/terms.html'])expect((await request.get(base+file)).status(),file).toBe(200);
  expect(checks.loaded).toContain(base+'styles/platform.css');expect(checks.loaded).toContain(base+'platform.js');expect(checks.failures).toEqual([]);
 });
+
+test('mobile Pages drawer works with touch and deploys its navigation module', async ({ browser, request }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+  try {
+    const page = await context.newPage();
+    const checks = audit(page);
+    await page.goto(base + '#home');
+    for (const view of ['applications', 'companies', 'jobs', 'roadmap', 'coach', 'settings']) {
+      await page.locator('#menuToggle').tap();
+      await page.locator(`.nav-list [data-view="${view}"]`).tap();
+      await expect(page.locator(`#${view}View`)).toBeVisible();
+      await expect(page.locator('#menuToggle')).toHaveAttribute('aria-expanded', 'false');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+    expect((await request.get(base + 'navigation.js')).status()).toBe(200);
+    expect(checks.loaded).toContain(base + 'navigation.js');
+    expect(checks.failures).toEqual([]);
+  } finally { await context.close(); }
+});
+test('commercial RC routes and assets load under the Pages prefix without activating billing',async({page,request})=>{
+ const checks=audit(page);await page.goto(base+'#billing');await expect(page.locator('#pricingCards .pricing-card')).toHaveCount(3);await expect(page.locator('#billingMode')).toContainText('not activated');
+ for(const file of ['commerce.js','lib/plans.mjs','legal/billing.html','assets/dashboard-preview.jpg','_headers'])expect((await request.get(base+file)).status(),file).toBe(200);
+ await page.evaluate(()=>window.launchpadData.navigate('business'));await expect(page.locator('#businessMetrics .metric-card')).toHaveCount(0);expect(checks.failures).toEqual([]);
+});

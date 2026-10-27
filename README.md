@@ -1,8 +1,12 @@
-# Launchpad 4.0 — Release Candidate
+# Launchpad 5.0 — Commercial Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
 Production address remains https://theskullguy499-sketch.github.io/launchpad-career/ . The product landing screen is `#home`; the root retains the existing application-tracker route for returning users.
+
+The 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
+
+The [4.1 audit](docs/RELEASE_4_1.md) remains historical background; its accessible mobile drawer is included in this branch.
 
 ## Functional scope
 
@@ -15,11 +19,11 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 - Secure Edge Function implementations for sourced Remotive jobs, consent-scoped OpenAI coaching/roadmaps and optional scheduled reminder digests. Unconfigured services show honest unavailable states.
 - Feedback collection, personal exports, optional AI history/deletion, privacy and Terms drafts for legal review.
 
-**This RC is not declared fully production-ready.** No live Supabase project, SMTP mailbox, AI account or scheduler is configured here. Mocked HTTP tests and local PostgreSQL policy tests do not establish real email delivery, provider licensing/availability, live RLS, deployed Edge Functions or the public site's current state. See the [release gates](docs/LAUNCHPAD_4_SETUP.md#7-release-gates).
+**This RC is not declared fully production-ready.** No live Supabase project, Paddle merchant, SMTP mailbox, AI account, commercial domain or scheduler is configured here. Mocked HTTP tests and local PostgreSQL policy tests do not establish real email delivery, provider licensing/availability, live RLS, deployed Edge Functions or the public site's current state. See the [release gates](docs/LAUNCHPAD_4_SETUP.md#7-release-gates).
 
 ## Development and validation
 
-Node **24.19.0** is pinned in `.node-version`. Python 3 serves the source development app.
+Node **24.19.0** is pinned in `.node-version`. The same Node HTTP server serves the source app and the project-prefixed production artifact, using a shared public-file allowlist.
 
 ```sh
 npm ci
@@ -49,9 +53,24 @@ Before clearing browser storage, changing origins or intentionally restoring ano
 
 ## Deployment and commercial evaluation
 
-1. Follow [Launchpad 4.0 setup](docs/LAUNCHPAD_4_SETUP.md), [Supabase email configuration](docs/SUPABASE_SETUP.md) and the [Pages checklist](docs/GITHUB_PAGES.md).
+1. Follow [Backend setup](docs/LAUNCHPAD_4_SETUP.md), [Supabase email configuration](docs/SUPABASE_SETUP.md) and the [Pages checklist](docs/GITHUB_PAGES.md).
 2. Apply both migrations in order, deploy the server functions, configure provider secrets securely and run live acceptance checks.
 3. Review/merge yourself. Publishing requires a manual workflow dispatch on `main` with `deploy=true`; pushes and PRs only test/build.
 4. Complete legal/operator/support/retention details and operational validation before a commercial launch. No subscriptions, payments, endorsements or revenue claims are fabricated. See [commercial evaluation](docs/COMMERCIAL_READINESS.md).
 
-Architecture: `tracker.js` retains and extends the original tracker; `platform.js` composes the new screens; `lib/` holds the model/workspace logic; `supabase/migrations/` and `supabase/functions/` hold the server implementation. Live integration status and limitations are documented separately from local test results. The [RC review package](docs/RELEASE_CANDIDATE.md) includes the complete changed-file list and validation summary.
+Architecture: `commerce.js` adds billing/pricing/business screens; [the commercial architecture](docs/commercial/ARCHITECTURE.md) describes its trust boundaries. `navigation.js` enhances the existing sidebar with a mobile modal drawer; `tracker.js` retains and extends the original tracker; `platform.js` composes the new screens; `lib/` holds the model/workspace logic; `supabase/migrations/` and `supabase/functions/` hold the server implementation. Live integration status and limitations are documented separately from local test results. The [4.1 release audit](docs/RELEASE_4_1.md) records current release gates; the [4.0 review package](docs/RELEASE_CANDIDATE.md) remains historical reference.
+
+## Commercial operations and launch assets
+
+- [Paddle/Supabase setup and real acceptance](docs/commercial/SETUP.md)
+- [Cloudflare staging, domains and manual production release](docs/commercial/DEPLOYMENT.md)
+- [Reconciliation, monitoring, costs and refunds/support](docs/commercial/OPERATIONS.md)
+- [Honest launch drafts, onboarding emails and 30-day checklist](docs/commercial/LAUNCH_PACKAGE.md)
+- [Buyer-readiness and IP/vendor diligence](docs/commercial/BUYER_READINESS.md)
+
+Plans and quotas are centralized in `lib/plans.mjs`. After an intentional edit,
+run `node scripts/generate-plans.mjs`, review the generated SQL seed and apply it
+as owner in the intended environment. Price changes also require matching Paddle
+prices before launch; live-contract price-version migrations need separate review.
+The app never stores cards, manually stores passwords or accepts browser plan
+flags as payment authority. Legacy grants and portfolio tools are preserved.
