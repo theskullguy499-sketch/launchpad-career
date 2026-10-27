@@ -1,8 +1,10 @@
-# Launchpad 4.0 — Release Candidate
+# Launchpad 4.1 — Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
 Production address remains https://theskullguy499-sketch.github.io/launchpad-career/ . The product landing screen is `#home`; the root retains the existing application-tracker route for returning users.
+
+For the 4.1 audit, release gates and manual publishing checklist, see [RELEASE_4_1.md](docs/RELEASE_4_1.md).
 
 ## Functional scope
 
@@ -19,7 +21,7 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 
 ## Development and validation
 
-Node **24.19.0** is pinned in `.node-version`. Python 3 serves the source development app.
+Node **24.19.0** is pinned in `.node-version`. The same Node HTTP server serves the source app and the project-prefixed production artifact, using a shared public-file allowlist.
 
 ```sh
 npm ci
@@ -49,9 +51,9 @@ Before clearing browser storage, changing origins or intentionally restoring ano
 
 ## Deployment and commercial evaluation
 
-1. Follow [Launchpad 4.0 setup](docs/LAUNCHPAD_4_SETUP.md), [Supabase email configuration](docs/SUPABASE_SETUP.md) and the [Pages checklist](docs/GITHUB_PAGES.md).
+1. Follow [Backend setup](docs/LAUNCHPAD_4_SETUP.md), [Supabase email configuration](docs/SUPABASE_SETUP.md) and the [Pages checklist](docs/GITHUB_PAGES.md).
 2. Apply both migrations in order, deploy the server functions, configure provider secrets securely and run live acceptance checks.
 3. Review/merge yourself. Publishing requires a manual workflow dispatch on `main` with `deploy=true`; pushes and PRs only test/build.
 4. Complete legal/operator/support/retention details and operational validation before a commercial launch. No subscriptions, payments, endorsements or revenue claims are fabricated. See [commercial evaluation](docs/COMMERCIAL_READINESS.md).
 
-Architecture: `tracker.js` retains and extends the original tracker; `platform.js` composes the new screens; `lib/` holds the model/workspace logic; `supabase/migrations/` and `supabase/functions/` hold the server implementation. Live integration status and limitations are documented separately from local test results. The [RC review package](docs/RELEASE_CANDIDATE.md) includes the complete changed-file list and validation summary.
+Architecture: `navigation.js` enhances the existing sidebar with a mobile modal drawer; `tracker.js` retains and extends the original tracker; `platform.js` composes the new screens; `lib/` holds the model/workspace logic; `supabase/migrations/` and `supabase/functions/` hold the server implementation. Live integration status and limitations are documented separately from local test results. The [4.1 release audit](docs/RELEASE_4_1.md) records current release gates; the [4.0 review package](docs/RELEASE_CANDIDATE.md) remains historical reference.

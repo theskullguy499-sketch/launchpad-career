@@ -4,7 +4,7 @@
   "scripts": {
     "build": "node scripts/build.cjs",
     "test": "npm run build && npm run test:build && npm run test:db && npm run test:backend && playwright test && npm run test:production",
-    "start": "python3 -m http.server 8000 --bind 127.0.0.1",
+    "start": "node scripts/serve-production.cjs --source",
     "test:db": "node --test supabase/tests/*.test.cjs",
     "build:check": "node scripts/build.cjs --check",
     "test:production": "playwright test --config playwright.production.config.js",
@@ -21,5 +21,5 @@
     "axe-core": "4.10.3",
     "esbuild": "0.28.2"
   },
-  "version": "4.0.0-rc.1"
+  "version": "4.1.0-rc.1"
 }

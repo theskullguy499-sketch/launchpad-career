@@ -4,7 +4,7 @@ Production: **https://theskullguy499-sketch.github.io/launchpad-career/**
 
 Status: the application and migration are prepared. No live Supabase project URL, key, SMTP service, or mailbox is configured in this checkout. Automated browser tests mock Supabase HTTP responses through the real SDK. Database tests run the migration in an actual PostgreSQL WASM engine (PGlite), with an emulated Supabase Auth schema and JWT context. Neither test proves live email delivery, the state of your Supabase dashboard, or production authorization. Complete and test the following setup before calling live authentication ready.
 
-> **Launchpad 4.0:** follow [the current setup guide](LAUNCHPAD_4_SETUP.md) for both migrations, private account workspaces, server functions and age onboarding. The email templates and exact callback URLs below remain valid. Live services are still unverified.
+> **Launchpad 4.1:** follow [the current setup guide](LAUNCHPAD_4_SETUP.md) for both migrations, private account workspaces, server functions and age onboarding. The email templates and exact callback URLs below remain valid. Live services are still unverified.
 
 ## 1. Create the project and public configuration
 
@@ -137,7 +137,9 @@ This is separate from deploying the public files. None of the live items below i
 - [ ] Allow the exact production callback `https://theskullguy499-sketch.github.io/launchpad-career/auth/callback.html` and only the development callbacks actually used.
 - [ ] Configure the confirmation and reset email templates from section 4. Use the token-hash template for cross-device verification; default PKCE links require the initiating browser/origin.
 - [ ] Configure custom SMTP, a verified sender/domain, TLS and provider DNS records inside Supabase/provider dashboards. Never put these secrets in frontend files.
-- [ ] Back up the database, review and apply `supabase/migrations/202610270001_launchpad.sql` once. Confirm all four tables have RLS enabled/forced and that anonymous users have no privileges.
+- [ ] Back up the database; apply only unapplied migrations in order: `202610270001_launchpad.sql`, then `202610270002_launchpad_v4.sql`. Do not rerun an applied migration or drop existing tables. Confirm every user-owned table has RLS enabled/forced and anonymous access is denied.
+- [ ] Under **Authentication → Hooks → Before User Created**, enable `public.launchpad_before_user_created` after reviewing the age-range and Terms acknowledgement requirements. This is self-attestation, not verified age assurance.
+- [ ] Deploy the existing `ai-coach`, `job-explorer`, `delete-account` and optional `reminder-worker` functions as documented in [LAUNCHPAD_4_SETUP.md](LAUNCHPAD_4_SETUP.md#4-deploy-secure-edge-functions). Keep their internal authentication guards; configure exact CORS origins and backend-only secrets. 4.1 requires no additional SQL migration.
 - [ ] Test two real confirmed users with the publishable key: owned CRUD works, cross-user reads/writes and task links fail, and unconfirmed/anonymous access is denied. Do not use a service-role key for this test, since it bypasses RLS.
 - [ ] Confirm a real email arrives; verify unconfirmed password sign-in is denied, the confirmation link completes, sign-in/out/session reload work, resend is delivered, and expired/used links show recovery guidance.
 - [ ] Test real password-reset delivery and new-password sign-in. Do not share or log emailed tokens.

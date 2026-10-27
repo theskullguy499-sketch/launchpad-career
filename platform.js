@@ -9,6 +9,7 @@ import {
   starterRoadmap,
   backupPayload,
   validateApplication,
+  validateJobResults,
 } from "./lib/model.mjs";
 import { companies as catalog } from "./data/companies.mjs";
 import { countries } from "./data/countries.mjs";
@@ -51,6 +52,7 @@ let snapshot,
   boardMode = false,
   currentJobs = [],
   currentPlan = null;
+let coachRequest = 0;
 // Expand the original country/currency controls without changing their persisted values.
 $("#country").replaceChildren(
   new Option("Select a country", ""),
@@ -67,7 +69,7 @@ if (Intl.supportedValuesOf) {
   $("#currency").value = "USD";
 }
 const screens = {
-  home: `<div class="landing-hero"><span class="release-badge">LAUNCHPAD 4.0 · RELEASE CANDIDATE</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, research employers and build a learning plan you can actually follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>A roadmap with momentum.</h2><p>Set your objective, make weekly milestones and see progress from your own activity.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. No invented vacancies, success claims or subscription charges.</p><div id="landingLinks" class="button-row"></div></div>`,
+  home: `<div class="landing-hero"><span class="release-badge">LAUNCHPAD 4.1 · RELEASE CANDIDATE</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, research employers and build a learning plan you can actually follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>A roadmap with momentum.</h2><p>Set your objective, make weekly milestones and see progress from your own activity.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. No invented vacancies, success claims or subscription charges.</p><div id="landingLinks" class="button-row"></div></div>`,
   dashboard: `<div class="screen-heading"><div><p class="eyebrow">YOUR NEXT CHAPTER</p><h1>Small steps.<br><em>Higher ambitions.</em></h1><p class="intro-copy">A clear view of what matters next, based on your own activity.</p></div><div id="dashboardActions" class="button-row"></div></div><div id="onboardingCard" class="panel section-pad"></div><div id="dashboardMetrics" class="metrics-grid"></div><div class="split-grid"><section class="panel section-pad"><div class="section-head"><h2>Upcoming & overdue</h2><button id="refreshReminders" class="button button-outline" type="button">Refresh</button></div><p class="helper">In-app reminders update while Launchpad is open. Background/email delivery requires a configured scheduler.</p><div id="reminderList"></div></section><section class="panel section-pad"><div class="section-head"><h2>Your tasks</h2><button id="addTaskBtn" class="button button-primary" type="button">Add task</button></div><div id="taskList"></div></section></div><section class="panel section-pad"><h2>Favorite employers</h2><div id="dashboardCompanies" class="directory-grid"></div></section>`,
   companies: `<div class="screen-heading"><div><p class="eyebrow">RESEARCH WITH INTENT</p><h1>Find your<br><em>next employer.</em></h1><p class="intro-copy">A curated directory, not a worldwide catalog or a claim that these companies are hiring. Website links are curated; availability has not been live-verified. Headquarters and career-page links are omitted until verified.</p></div><button id="addCompanyBtn" class="button button-primary" type="button">Add a company</button></div><div class="panel section-pad"><div class="explorer-filters"><label>Search companies<input id="companySearch" type="search" placeholder="Company or industry" /></label><label>Industry<select id="companyIndustry"><option value="all">All industries</option></select></label><label>Country (verified or user supplied)<input id="companyCountry" type="search" placeholder="Country, if known" /></label><label class="check-label"><input type="checkbox" id="favoritesOnly" /> Favorites only</label></div><p id="companyCount" class="helper" role="status"></p><div id="companyList" class="directory-grid"></div></div>`,
   jobs: `<div class="screen-heading"><div><p class="eyebrow">SOURCED OPPORTUNITIES</p><h1>A real opening.<br><em>A considered move.</em></h1><p class="intro-copy">Search retrieved vacancies from Remotive through the configured backend. This source covers remote roles, is delayed by 24 hours, and is not a complete jobs database. Listings remain accessible to guests; no signup is required to view them.</p></div></div><form id="jobSearchForm" class="panel section-pad"><div class="explorer-filters"><label>Job title<input id="jobTitle" type="search" maxlength="100" placeholder="e.g. Frontend developer" /></label><label>Country or region<input id="jobCountry" maxlength="100" placeholder="e.g. Brazil or Worldwide" /></label><label>Company<input id="jobCompany" maxlength="100" /></label><label>Technology keyword<input id="jobStack" maxlength="100" placeholder="e.g. JavaScript" /></label><label>Experience (title text match)<select id="jobExperience"><option value="">All levels</option><option>Junior</option><option>Senior</option><option>Lead</option><option>Intern</option></select></label><label>Arrangement<select id="jobRemote"><option>Remote</option></select></label><label class="check-label"><input type="checkbox" id="jobSalary" /> Salary provided</label></div><button class="button button-primary" type="submit">Find opportunities</button><p id="jobStatus" class="helper" role="status">No job source has been contacted. Search to check the configured service. No sample vacancies are shown.</p><a href="https://remotive.com/" target="_blank" rel="noopener noreferrer">Job data source: Remotive</a></form><div id="jobResults" class="directory-grid"></div>`,
@@ -184,6 +186,12 @@ function editor(title, fields, value, save) {
 }
 let activeScope = null;
 function clearPrivateView() {
+  coachRequest++;
+  const coachForm = $("#coachForm");
+  coachForm.removeAttribute("aria-busy");
+  const coachSubmit = coachForm.querySelector('button[type="submit"]');
+  coachSubmit.disabled = false;
+  coachSubmit.textContent = "Ask coach";
   window.launchpadData.resetFilters?.();
   for (const id of [
     "companySearch",
@@ -627,8 +635,8 @@ function renderCompanies() {
     industry.append(opt);
   }
   industry.value = selected || "all";
-  const query = $("#companySearch").value.toLowerCase(),
-    country = $("#companyCountry").value.toLowerCase();
+  const query = $("#companySearch").value.trim().toLowerCase(),
+    country = $("#companyCountry").value.trim().toLowerCase();
   const visible = all.filter(
     (c) =>
       (c.name + " " + c.industry).toLowerCase().includes(query) &&
@@ -948,7 +956,14 @@ function renderHistory() {
 }
 async function invoke(name, body) {
   const expectedUser = store.owner?.id;
-  const client = await getAuthClient();
+  let client;
+  try {
+    client = await getAuthClient();
+  } catch (error) {
+    if (error.message === "not-configured")
+      throw new Error("This service is not configured yet. You can continue using guest features.");
+    throw error;
+  }
   if (["ai-coach", "delete-account"].includes(name))
     body = { ...body, expected_user: body.expected_user || expectedUser };
   const { data, error } = await client.functions.invoke(name, { body });
@@ -967,13 +982,14 @@ async function invoke(name, body) {
 $("#jobSearchForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const submit = event.currentTarget.querySelector("button[type=submit]");
+  if (submit.disabled) return;
   submit.disabled = true;
+  submit.textContent = "Finding opportunities…";
+  $("#jobSearchForm").setAttribute("aria-busy", "true");
   $("#jobStatus").textContent = "Checking the configured job source…";
   try {
     const result = await invoke("job-explorer", {});
-    if (!Array.isArray(result.jobs))
-      throw new Error("The job source returned an invalid response.");
-    currentJobs = result.jobs;
+    currentJobs = validateJobResults(result.jobs);
     renderJobs();
     $("#jobStatus").textContent =
       `Source: ${result.source || "Remotive"} · fetched ${result.fetchedAt || "time not supplied"}${result.stale ? " · cached data; refresh unavailable" : ""}. Only retrieved listings are displayed.`;
@@ -983,15 +999,17 @@ $("#jobSearchForm").addEventListener("submit", async (event) => {
     $("#jobStatus").textContent = "Job Explorer unavailable: " + error.message;
   } finally {
     submit.disabled = false;
+    submit.textContent = "Find opportunities";
+    $("#jobSearchForm").removeAttribute("aria-busy");
   }
 });
 function renderJobs() {
   const list = $("#jobResults");
   list.replaceChildren();
-  const title = $("#jobTitle").value.toLowerCase(),
-    country = $("#jobCountry").value.toLowerCase(),
-    company = $("#jobCompany").value.toLowerCase(),
-    stack = $("#jobStack").value.toLowerCase(),
+  const title = $("#jobTitle").value.trim().toLowerCase(),
+    country = $("#jobCountry").value.trim().toLowerCase(),
+    company = $("#jobCompany").value.trim().toLowerCase(),
+    stack = $("#jobStack").value.trim().toLowerCase(),
     experience = $("#jobExperience").value.toLowerCase();
   const jobs = currentJobs.filter(
     (j) =>
@@ -1077,7 +1095,12 @@ $("#coachForm").addEventListener("submit", async (event) => {
     return;
   }
   const submit = event.currentTarget.querySelector("button[type=submit]");
+  if (submit.disabled) return;
+  const requestTicket = ++coachRequest;
   submit.disabled = true;
+  submit.textContent = "Thinking…";
+  $("#coachForm").setAttribute("aria-busy", "true");
+  $("#coachResponse").textContent = "";
   $("#coachStatus").textContent = "Waiting for the configured AI provider…";
   currentPlan = null;
   const requestOwner = store.owner.id;
@@ -1094,7 +1117,7 @@ $("#coachForm").addEventListener("submit", async (event) => {
         historyContext: $("#shareHistory").checked,
       },
     });
-    if (store.mode !== "account" || store.owner?.id !== requestOwner) return;
+    if (requestTicket !== coachRequest || store.mode !== "account" || store.owner?.id !== requestOwner) return;
     $("#coachResponse").textContent =
       typeof result.response === "string"
         ? result.response
@@ -1138,9 +1161,14 @@ $("#coachForm").addEventListener("submit", async (event) => {
     }
     if ($("#saveExchange").checked) await store.refresh();
   } catch (error) {
-    $("#coachStatus").textContent = "AI Coach unavailable: " + error.message;
+    if (requestTicket === coachRequest)
+      $("#coachStatus").textContent = "AI Coach unavailable: " + error.message;
   } finally {
-    submit.disabled = false;
+    if (requestTicket === coachRequest) {
+      submit.disabled = false;
+      submit.textContent = "Ask coach";
+      $("#coachForm").removeAttribute("aria-busy");
+    }
   }
 });
 $("#profileForm").addEventListener("submit", (event) => {

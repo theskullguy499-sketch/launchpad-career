@@ -9,8 +9,11 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(async ({ page }) => {
   expect(errorsByPage.get(page)).toEqual([]);
 });
-const nav = (page, view) =>
-  page.locator(`.nav-list [data-view="${view}"]`).click();
+const nav = async (page, view) => {
+  if (await page.locator("#menuToggle").isVisible())
+    await page.click("#menuToggle");
+  await page.locator(`.nav-list [data-view="${view}"]`).click();
+};
 async function add(page, name = "Launchpad Test Company") {
   await page.click("#addApplicationBtn");
   await page.fill("#company", name);
@@ -631,4 +634,127 @@ test("restored IDs remain stable so repeated guest migration cannot duplicate re
         JSON.parse(localStorage.getItem("launchpad-opportunities-v1"))[0].id,
     ),
   ).toBe(original);
+});
+
+test("job loading, trimmed filters, external text and invalid responses are handled safely", async ({
+  page,
+}) => {
+  let release,
+    started,
+    invalid = false;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  const began = new Promise((resolve) => {
+    started = resolve;
+  });
+  await configure(page, {
+    service: async (route) => {
+      started();
+      await gate;
+      await route.fulfill({
+        json: {
+          source: "Remotive",
+          jobs: [
+            {
+              id: "mocked-security-fixture",
+              title: "Frontend Engineer",
+              company: '<img src=x onerror="window.jobXss=true">',
+              location: "Worldwide",
+              tags: ["JavaScript"],
+              url: invalid
+                ? "javascript:alert(1)"
+                : "https://remotive.com/remote-jobs/mock-fixture",
+            },
+          ],
+        },
+      });
+    },
+  });
+  await page.goto("/#jobs");
+  await page.fill("#jobTitle", " Frontend ");
+  await page.getByRole("button", { name: "Find opportunities" }).click();
+  await began;
+  await expect(
+    page.getByRole("button", { name: "Finding opportunities…" }),
+  ).toBeDisabled();
+  await expect(page.locator("#jobSearchForm")).toHaveAttribute(
+    "aria-busy",
+    "true",
+  );
+  release();
+  await expect(page.locator("#jobResults")).toContainText("<img src=x");
+  await expect(page.locator("#jobResults img")).toHaveCount(0);
+  expect(await page.evaluate(() => window.jobXss)).toBeUndefined();
+  await expect(
+    page.getByRole("button", { name: "Find opportunities" }),
+  ).toBeEnabled();
+  invalid = true;
+  await page.getByRole("button", { name: "Find opportunities" }).click();
+  await expect(page.locator("#jobStatus")).toContainText("invalid listings");
+  await expect(page.locator("#jobResults .directory-card")).toHaveCount(0);
+});
+
+test("late AI errors cannot replace another account status and loading resets on account switch", async ({
+  page,
+}) => {
+  let release, started;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  const began = new Promise((resolve) => {
+    started = resolve;
+  });
+  await configure(page, {
+    service: async (route) => {
+      started();
+      await gate;
+      await route.fulfill({
+        status: 503,
+        json: { error: "Alice private diagnostic" },
+      });
+    },
+  });
+  await page.goto("/");
+  await login(page);
+  await expect(page.locator("#syncStatus")).toContainText(
+    "Cloud workspace loaded",
+  );
+  await nav(page, "coach");
+  await page.fill("#coachPrompt", "Help me prepare for a frontend interview");
+  await page.getByRole("button", { name: "Ask coach" }).click();
+  await began;
+  await expect(page.getByRole("button", { name: "Thinking…" })).toBeDisabled();
+  await expect(page.locator("#coachForm")).toHaveAttribute("aria-busy", "true");
+  await logout(page);
+  await login(page, "bob@example.com");
+  await expect(page.locator("#syncStatus")).toContainText(
+    "Cloud workspace loaded",
+  );
+  await nav(page, "coach");
+  await expect(page.getByRole("button", { name: "Ask coach" })).toBeEnabled();
+  await expect(page.locator("#coachPrompt")).toHaveValue("");
+  const response = page.waitForResponse((r) =>
+    r.url().includes("/functions/v1/ai-coach"),
+  );
+  release();
+  await (await response).finished();
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator("#coachStatus")).not.toContainText(
+    "Alice private diagnostic",
+  );
+  await expect(page.locator("#coachResponse")).toHaveText("");
+  await expect(page.getByRole("button", { name: "Ask coach" })).toBeEnabled();
+});
+
+test("unconfigured job service gives actionable English guidance and retains guest features", async ({
+  page,
+}) => {
+  await page.goto("/#jobs");
+  await page.getByRole("button", { name: "Find opportunities" }).click();
+  await expect(page.locator("#jobStatus")).toContainText("not configured yet");
+  await expect(page.locator("#jobStatus")).not.toContainText("not-configured");
+  await nav(page, "applications");
+  await add(page, "Guest remains available");
+  await expect(page.locator("td strong")).toHaveText("Guest remains available");
 });

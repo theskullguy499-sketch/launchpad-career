@@ -27,7 +27,7 @@ GitHub Pages does not run npm automatically. This branch now supports both of th
 6. Verify local JSON export/restore using a disposable browser profile. Existing data stays at the same origin; deploying does not migrate or erase it.
 7. Complete the real-mailbox checks separately. Pages workflow success does not establish SMTP delivery or live RLS readiness.
 
-Launchpad 4.0 also stages `tracker.js`, `platform.js`, `lib/*.mjs`, `data/companies.mjs`, `styles/platform.css`, `assets/launchpad.svg` and both `legal/` drafts. Backend functions, secrets and SQL stay out of the browser artifact.
+Launchpad 4.1 also stages `tracker.js`, `navigation.js`, `platform.js`, `lib/*.mjs`, `data/companies.mjs`, `styles/platform.css`, `assets/launchpad.svg` and both `legal/` drafts. Backend functions, secrets and SQL stay out of the browser artifact.
 
 The original artifact files remain:
 
@@ -51,3 +51,13 @@ The original CSS is inline; the new platform stylesheet and SVG logo are explici
 For static branch hosting instead, select **Deploy from a branch → main → /(root)** after the reviewed commit is merged. Disable the Actions deployment workflow if choosing that mode to avoid competing deployments. The committed bundle is what makes this no-build route work. Any SDK upgrade still requires regeneration and review before committing.
 
 The local production-artifact server is for internal tests only: `node scripts/serve-production.cjs`. It intentionally returns 404 outside the project prefix, catching broken absolute-root asset imports. This task does not claim the workflow has run on GitHub or that the updated Pages site has been published.
+
+## 4.1 mobile release gate
+
+Use [the 4.1 release audit](RELEASE_4_1.md) alongside this checklist. Confirm the
+closed/open drawer, focus return, Escape, touch navigation and all sections at
+320, 375, 390, 428 and 768 px. Check desktop navigation at 1024 and 1440 px.
+`navigation.js` must load from the project prefix with a JavaScript MIME type.
+The production-artifact tests exercise touch emulation; real Safari/Firefox and
+physical-device checks remain separate acceptance steps. A successful workflow
+alone does not prove those checks or real email delivery.
