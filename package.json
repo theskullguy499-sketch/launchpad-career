@@ -2,10 +2,13 @@
   "name": "launchpad-career",
   "private": true,
   "scripts": {
-    "build": "esbuild node_modules/@supabase/supabase-js/dist/index.mjs --bundle --format=esm --platform=browser --outfile=vendor/supabase.js --minify",
-    "test": "npm run build && npm run test:db && playwright test",
+    "build": "node scripts/build.cjs",
+    "test": "npm run build && npm run test:build && npm run test:db && playwright test && npm run test:production",
     "start": "python3 -m http.server 8000 --bind 127.0.0.1",
-    "test:db": "node --test supabase/tests/rls.test.cjs"
+    "test:db": "node --test supabase/tests/rls.test.cjs",
+    "build:check": "node scripts/build.cjs --check",
+    "test:production": "playwright test --config playwright.production.config.js",
+    "test:build": "node --test scripts/public-config.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0"

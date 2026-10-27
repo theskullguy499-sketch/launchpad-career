@@ -1,0 +1,9 @@
+{
+  "supabase": "2.118.0",
+  "esbuild": "0.28.2",
+  "target": "es2022",
+  "sha256": {
+    "supabase.js": "a5e5632da0e4538be06950acbfab62b76d68af8abea86dfa41d3710773c0a4f7",
+    "LICENSES.txt": "a910470f3dd9154e631fd353493a9b3013dd3b784aca2153c91bf18c7a73accb"
+  }
+}

@@ -8,7 +8,7 @@ Optional Supabase accounts support email/password registration, real server-side
 
 ## Run locally
 
-Guest features still work by opening `index.html`. Authentication needs an HTTP origin (HTTPS in production). For build/testing use Node.js 22+ and Python 3:
+Guest features still work by opening `index.html`. Authentication needs an HTTP origin (HTTPS in production). For reproducible builds use Node.js **24.19.0** (pinned in `.node-version`) and Python 3 for the development server:
 
 ```sh
 npm ci
@@ -16,7 +16,9 @@ npm run build
 npm start
 ```
 
-The build bundles the pinned official Supabase SDK into `vendor/supabase.js`. No runtime CDN is used. `auth-config.example.js` shows safe public placeholders; edit `auth-config.js` only after setting up your Supabase project. Blank configuration leaves guest features fully usable.
+The pinned official Supabase SDK **2.118.0** is committed in `vendor/supabase.js`, with dependency license notices and a SHA-256 manifest. It works on static branch hosting without an npm build. `npm ci && npm run build:check` verifies the committed bundle matches the pinned esbuild build; `npm run build` regenerates it and stages all required public files in `_site/`. The Actions workflow publishes that tested artifact. No runtime CDN is used. `auth-config.example.js` shows safe public placeholders; edit `auth-config.js` only after setting up your Supabase project. Blank configuration leaves guest features fully usable.
+
+See the [production audit](docs/PRODUCTION_READINESS.md) for passed checks and remaining external blockers. Local guest data is **not private per account**; Supabase cloud ownership protection is not a live claim until the migration and real-project RLS checks pass.
 
 ## Validation
 
@@ -37,6 +39,6 @@ Database tests execute the SQL migration in PostgreSQL WASM (PGlite), with a **s
 
 Original browser keys for opportunities, roadmap and theme are unchanged. Signing in, signing out and resetting passwords never clear, migrate or replace existing local records. Guests remain fully supported. Different accounts in the same browser profile share that local guest dashboard; use separate profiles on shared devices.
 
-The migration creates `user_profiles`, `job_applications`, `tasks` and `roadmap_progress` with ownership/confirmed-email RLS. **Save local data to account** explicitly requests an additive, atomic cloud copy; it never overwrites cloud records or deletes guest data. **Download account backup** exports cloud records separately. Restore remains an explicit, confirmed local replacement action. Tasks have secure storage prepared without adding an unrelated tasks UI. Automatic two-way synchronization is not included.
+The migration creates `user_profiles`, `job_applications`, `tasks` and `roadmap_progress` with ownership/confirmed-email RLS. **Save local data to account** explicitly requests an additive, atomic cloud copy; it never overwrites cloud records or deletes guest data. **Download account backup** exports cloud records separately. Restore remains an explicit, confirmed local replacement action. Task storage and RLS are prepared in SQL, without adding an unrelated tasks UI; they still require live migration and verification. Automatic two-way synchronization is not included.
 
 Export a JSON backup before clearing browser storage, moving to a different origin or intentionally replacing local records. Account sessions use SDK-managed tokens under a separate key; secrets and user passwords are never committed.

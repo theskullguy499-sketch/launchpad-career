@@ -1,5 +1,5 @@
 node_modules/
-vendor/
+# The pinned browser SDK in vendor/ is deliberately committed.
 test-results/
 playwright-report/
 

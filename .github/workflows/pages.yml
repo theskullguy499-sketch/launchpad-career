@@ -17,18 +17,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: '.node-version'
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - run: npm run build:check
       - run: npm test
-      - name: Stage public files only
-        run: |
-          mkdir -p _site/vendor
-          cp index.html auth.js auth-client.js cloud-data.js auth-config.js _site/
-          cp -R auth _site/auth
-          cp vendor/supabase.js _site/vendor/
-          touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:

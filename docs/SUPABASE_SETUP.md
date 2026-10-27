@@ -125,3 +125,21 @@ Verify live RLS using two real confirmed users and the publishable key, never a 
 7. Check **Authentication → Logs** and provider delivery logs for failed sends; never copy credentials or full email links into reports.
 
 Only after these checks pass against the configured production project can live confirmation and recovery be called verified.
+
+## Production configuration checklist
+
+This is separate from deploying the public files. None of the live items below is claimed complete by local tests.
+
+- [ ] Supply the real project HTTPS URL and public `sb_publishable_` key in `auth-config.js`; leave both blank to retain guest-only deployment until ready. Use `auth-config.example.js` as the safe example.
+- [ ] Enable Email sign-ups and **Confirm email**; enforce the intended password policy and rate limits server-side.
+- [ ] Set Site URL to `https://theskullguy499-sketch.github.io/launchpad-career/`.
+- [ ] Allow the exact production callback `https://theskullguy499-sketch.github.io/launchpad-career/auth/callback.html` and only the development callbacks actually used.
+- [ ] Configure the confirmation and reset email templates from section 4. Use the token-hash template for cross-device verification; default PKCE links require the initiating browser/origin.
+- [ ] Configure custom SMTP, a verified sender/domain, TLS and provider DNS records inside Supabase/provider dashboards. Never put these secrets in frontend files.
+- [ ] Back up the database, review and apply `supabase/migrations/202610270001_launchpad.sql` once. Confirm all four tables have RLS enabled/forced and that anonymous users have no privileges.
+- [ ] Test two real confirmed users with the publishable key: owned CRUD works, cross-user reads/writes and task links fail, and unconfirmed/anonymous access is denied. Do not use a service-role key for this test, since it bypasses RLS.
+- [ ] Confirm a real email arrives; verify unconfirmed password sign-in is denied, the confirmation link completes, sign-in/out/session reload work, resend is delivered, and expired/used links show recovery guidance.
+- [ ] Test real password-reset delivery and new-password sign-in. Do not share or log emailed tokens.
+- [ ] Test explicit cloud copying/downloads with non-sensitive records. Guest records remain shared in the browser profile; applying RLS does not make the local dashboard private per account.
+
+No real configured Supabase project, SMTP provider or mailbox was available during the local production audit. Live email verification and cloud isolation remain unverified until this checklist is completed.
