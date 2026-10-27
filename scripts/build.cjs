@@ -23,7 +23,7 @@ async function main() {
     const files = (await fs.readdir(path.join(root,dir))).filter(f=>/^licen[sc]e(?:\.|$)/i.test(f)).sort();
     if (!files.length) throw new Error(`Missing license for ${metadata.name}`);
     notices += `\n===== ${metadata.name}@${metadata.version} (${metadata.license}) =====\n`;
-    for (const file of files) notices += (await fs.readFile(path.join(root,dir,file),'utf8')).trim()+'\n';
+    for (const file of files) notices += (await fs.readFile(path.join(root,dir,file),'utf8')).replace(/\r\n/g,'\n').trim()+'\n';
   }
   const manifest = JSON.stringify({supabase:sdk.version,esbuild:esbuild.version,target:'es2022',sha256:{'supabase.js':sha(bundle),'LICENSES.txt':sha(notices)}},null,2)+'\n';
   const vendor = {'supabase.js':bundle,'LICENSES.txt':notices,'manifest.json':manifest};
