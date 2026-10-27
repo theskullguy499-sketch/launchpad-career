@@ -276,7 +276,7 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
     return respond(
       {
         error:
-          "The daily AI allowance is exhausted or onboarding is incomplete. Try again tomorrow.",
+          "The AI request allowance is exhausted, your plan is ineligible, or onboarding is incomplete. Check Billing and your profile before retrying.",
       },
       429,
     );
@@ -383,7 +383,13 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
       },
       502,
     );
-  const output = extractOutput(await response.json());
+  const providerResult = await response.json();
+  let costWarning;
+  if (Number.isInteger(providerResult.usage?.input_tokens) && Number.isInteger(providerResult.usage?.output_tokens)) {
+    const report = await admin.rpc("record_commercial_ai_cost", { owner_id: user.id, request_id: crypto.randomUUID(), input_tokens: providerResult.usage.input_tokens, output_tokens: providerResult.usage.output_tokens, model_name: model });
+    if (report.error) costWarning = "Usage reporting is incomplete; contact the operator.";
+  } else costWarning = "Token usage was not supplied by the provider; cost reporting is incomplete.";
+  const output = extractOutput(providerResult);
   if (!output || output.length > 20000)
     return respond(
       { error: "The AI provider returned no usable response." },
@@ -411,7 +417,7 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
       );
     }
   }
-  let warning;
+  let warning = costWarning;
   if (consent.history === true) {
     const id = crypto.randomUUID();
     const saved = await client.from("ai_planning_history").insert({

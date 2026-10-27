@@ -9,7 +9,7 @@ test('migration enforces ownership, verified users, atomic imports and cross-use
  const bob='00000000-0000-0000-0000-000000000002';
  const pending='00000000-0000-0000-0000-000000000003';
  try {
- await db.exec(`create role anon;create role authenticated;create schema auth;
+ await db.exec(`create role anon;create role authenticated;create schema auth;create function auth.role() returns text language sql stable as $$select current_setting('role')$$;
  create table auth.users(id uuid primary key,email_confirmed_at timestamptz);
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
  grant usage on schema auth,public to authenticated,anon;grant execute on function auth.uid() to authenticated,anon;
