@@ -1,0 +1,49 @@
+name: Review and deploy Cloudflare staging
+on:
+  workflow_dispatch:
+    inputs:
+      approve_staging:
+        description: 'Explicitly approve a staging-only deployment after tests'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: cloudflare-staging
+  cancel-in-progress: false
+jobs:
+  staging:
+    if: inputs.approve_staging == true
+    runs-on: ubuntu-latest
+    environment: cloudflare-staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:check
+      - run: npm test
+      - name: Retain test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-staging-tests
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Build with staging public configuration
+        run: npm run build
+        env:
+          PUBLIC_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          PUBLIC_PUBLISHABLE_KEY: ${{ vars.STAGING_PUBLISHABLE_KEY }}
+      - name: Publish reviewed staging artifact
+        run: |
+          [[ "$CF_PROJECT" == *-staging ]] || { echo "Use a dedicated project ending in -staging"; exit 1; }
+          npx --yes wrangler@4.153.0 pages deploy _site --project-name "$CF_PROJECT" --branch staging
+        env:
+          CF_PROJECT: ${{ vars.CLOUDFLARE_STAGING_PROJECT }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

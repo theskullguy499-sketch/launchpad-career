@@ -647,3 +647,4 @@ body.dark .status-Withdrawn {
   .check-label { min-height: 44px; align-items: center; }
   .check-label input { margin-top: 0; }
 }
+.pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.pricing-card{display:flex;flex-direction:column;margin:0}.pricing-card .price{font-size:28px;font-weight:800;color:var(--ink)}.pricing-card ul{padding-left:20px;line-height:1.9;color:var(--sub);flex:1}.product-preview{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:12px;margin:22px 0}#commercialFeatures details{padding:14px 0;border-bottom:1px solid var(--border)}#commercialFeatures summary{cursor:pointer;font-weight:700}#commercialFeatures footer{margin-top:32px}#billingView .button-row{margin:16px 0}@media(max-width:1000px){.pricing-grid{grid-template-columns:1fr}}#billingView{overflow-wrap:anywhere}#billingView ul{min-width:0}

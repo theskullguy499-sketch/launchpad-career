@@ -53,6 +53,20 @@ function setOpen(next, destination = "toggle") {
 }
 toggle.addEventListener("click", () => setOpen(!open));
 close.addEventListener("click", () => setOpen(false));
+// During a rapid reopen, an inert background may retarget the first pointer
+// event to body before the fading backdrop is hit-testable. Dismiss from the
+// capture phase too, so a real outside touch never depends on an animation frame.
+document.addEventListener(
+  "pointerdown",
+  (event) => {
+    if (open && !sidebar.contains(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(false);
+    }
+  },
+  true,
+);
 document
   .querySelector("#navigationBackdrop")
   .addEventListener("click", () => setOpen(false));

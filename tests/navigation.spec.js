@@ -44,7 +44,7 @@ for (const width of [320, 375, 390, 428, 768]) {
     }
     await toggle.click();
     await page.keyboard.press("Shift+Tab");
-    await expect(sidebar.locator('[data-view="settings"]')).toBeFocused();
+    await expect(sidebar.locator('[data-view="billing"]')).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(page.locator("#closeNavigation")).toBeFocused();
     await page.keyboard.press("Escape");
@@ -131,4 +131,22 @@ test("dismissing the drawer preserves scroll and selecting a page starts at the 
   await page.locator('.nav-list [data-view="dashboard"]').click();
   await expect(page.locator("#dashboardView")).toBeVisible();
   expect(await page.evaluate(() => scrollY)).toBe(0);
+});
+test("rapid drawer reopens dismiss on an immediate outside pointer during animation", async ({
+  page,
+}) => {
+  test.setTimeout(60000);
+  await page.setViewportSize({ width: 375, height: 844 });
+  await page.goto("/#settings");
+  for (let i = 0; i < 12; i++) {
+    await page.click("#menuToggle");
+    await page.mouse.click(367, 400);
+    await expect(page.locator("#menuToggle")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(await page.locator("#mainContent").evaluate((e) => e.inert)).toBe(
+      false,
+    );
+  }
 });

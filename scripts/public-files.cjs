@@ -1,5 +1,10 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "_headers",
+  "commerce.js",
+  "lib/plans.mjs",
+  "legal/billing.html",
+  "assets/dashboard-preview.jpg",
   "assets/launchpad.svg",
   "index.html",
   "tracker.js",

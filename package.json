@@ -8,7 +8,7 @@
     "test:db": "node --test supabase/tests/*.test.cjs",
     "build:check": "node scripts/build.cjs --check",
     "test:production": "playwright test --config playwright.production.config.js",
-    "test:build": "node --test scripts/public-config.test.cjs",
+    "test:build": "node --test scripts/*test.cjs",
     "test:backend": "node scripts/check-functions.cjs && node --test tests-unit/*.test.mjs",
     "test:live": "node scripts/live-smoke.mjs"
   },
@@ -21,5 +21,5 @@
     "axe-core": "4.10.3",
     "esbuild": "0.28.2"
   },
-  "version": "4.1.0-rc.1"
+  "version": "5.0.0-rc.1"
 }

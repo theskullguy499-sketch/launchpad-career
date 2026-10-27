@@ -114,3 +114,8 @@ test('mobile Pages drawer works with touch and deploys its navigation module', a
     expect(checks.failures).toEqual([]);
   } finally { await context.close(); }
 });
+test('commercial RC routes and assets load under the Pages prefix without activating billing',async({page,request})=>{
+ const checks=audit(page);await page.goto(base+'#billing');await expect(page.locator('#pricingCards .pricing-card')).toHaveCount(3);await expect(page.locator('#billingMode')).toContainText('not activated');
+ for(const file of ['commerce.js','lib/plans.mjs','legal/billing.html','assets/dashboard-preview.jpg','_headers'])expect((await request.get(base+file)).status(),file).toBe(200);
+ await page.evaluate(()=>window.launchpadData.navigate('business'));await expect(page.locator('#businessMetrics .metric-card')).toHaveCount(0);expect(checks.failures).toEqual([]);
+});

@@ -347,6 +347,10 @@
     const fields = Object.fromEntries(
       new FormData(event.currentTarget).entries(),
     );
+    if (!state.editId) {
+      try { window.launchpadCommercial?.checkNewApplication(state.applications.length); }
+      catch (error) { $('#formError').textContent=error.message;$('#formError').hidden=false;return; }
+    }
     [
       "company",
       "role",
@@ -715,6 +719,8 @@
       "coach",
       "analytics",
       "settings",
+      "billing",
+      "business",
     ];
     const current = routes.includes(view) ? view : "applications";
     document
