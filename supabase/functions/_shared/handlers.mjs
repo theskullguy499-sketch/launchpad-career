@@ -140,6 +140,19 @@ export function makeHandler(
             },
             403,
           );
+        const billingGuard = await admin.rpc("billing_deletion_status", {
+          owner_id: user.id,
+        });
+        if (billingGuard.error)
+          return respond(
+            {
+              error:
+                "Account deletion requires the current billing safety migration. Contact the operator; nothing has been deleted.",
+            },
+            503,
+          );
+        if (billingGuard.data?.blocked)
+          return respond({ error: billingGuard.data.reason }, 409);
         const { error } = await admin.auth.admin.deleteUser(user.id);
         if (error)
           return respond(
@@ -383,12 +396,27 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
       },
       502,
     );
+  const allowance = await admin.rpc("commercial_ai_allowance", {
+    owner_id: user.id,
+  });
   const providerResult = await response.json();
   let costWarning;
-  if (Number.isInteger(providerResult.usage?.input_tokens) && Number.isInteger(providerResult.usage?.output_tokens)) {
-    const report = await admin.rpc("record_commercial_ai_cost", { owner_id: user.id, request_id: crypto.randomUUID(), input_tokens: providerResult.usage.input_tokens, output_tokens: providerResult.usage.output_tokens, model_name: model });
-    if (report.error) costWarning = "Usage reporting is incomplete; contact the operator.";
-  } else costWarning = "Token usage was not supplied by the provider; cost reporting is incomplete.";
+  if (
+    Number.isInteger(providerResult.usage?.input_tokens) &&
+    Number.isInteger(providerResult.usage?.output_tokens)
+  ) {
+    const report = await admin.rpc("record_commercial_ai_cost", {
+      owner_id: user.id,
+      request_id: crypto.randomUUID(),
+      input_tokens: providerResult.usage.input_tokens,
+      output_tokens: providerResult.usage.output_tokens,
+      model_name: model,
+    });
+    if (report.error)
+      costWarning = "Usage reporting is incomplete; contact the operator.";
+  } else
+    costWarning =
+      "Token usage was not supplied by the provider; cost reporting is incomplete.";
   const output = extractOutput(providerResult);
   if (!output || output.length > 20000)
     return respond(
@@ -432,7 +460,12 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
       },
     });
     if (saved.error)
-      warning = "The response was received, but history could not be saved.";
+      warning = [
+        warning,
+        "The response was received, but history could not be saved.",
+      ]
+        .filter(Boolean)
+        .join(" ");
   }
   return respond({
     response: plan ? JSON.stringify(plan, null, 2) : output,
@@ -531,16 +564,14 @@ async function reminderWorker(req, admin, env, request, now, respond) {
       .eq("user_id", owner)
       .maybeSingle();
     if (!prefs.data?.data?.emailReminders) continue;
-    const queued = await admin
-      .from("reminder_outbox")
-      .upsert(
-        {
-          user_id: owner,
-          day: start,
-          payload: items.map((i) => ({ title: i.title, date: i.date })),
-        },
-        { onConflict: "user_id,day", ignoreDuplicates: true },
-      );
+    const queued = await admin.from("reminder_outbox").upsert(
+      {
+        user_id: owner,
+        day: start,
+        payload: items.map((i) => ({ title: i.title, date: i.date })),
+      },
+      { onConflict: "user_id,day", ignoreDuplicates: true },
+    );
     if (queued.error) throw queued.error;
   }
   if (env("RESEND_API_KEY") && env("REMINDER_FROM")) {
