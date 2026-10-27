@@ -1,0 +1,11 @@
+project_id = "launchpad-career"
+# New publishable keys are not JWTs. These handlers validate user tokens with Auth.getUser.
+# Public jobs are cached/rate-limited; reminder-worker requires its separate server-only secret.
+[functions.ai-coach]
+verify_jwt = false
+[functions.job-explorer]
+verify_jwt = false
+[functions.delete-account]
+verify_jwt = false
+[functions.reminder-worker]
+verify_jwt = false

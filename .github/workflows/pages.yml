@@ -5,6 +5,11 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Explicitly approve deployment of reviewed main'
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -24,11 +29,11 @@ jobs:
       - run: npm run build:check
       - run: npm test
       - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref == 'refs/heads/main'
         with:
           path: _site
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref == 'refs/heads/main'
     needs: test-and-build
     runs-on: ubuntu-latest
     permissions:

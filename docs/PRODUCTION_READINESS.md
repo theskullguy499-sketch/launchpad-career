@@ -1,49 +1,42 @@
-# Production-readiness audit
+# Launchpad 4.0 RC — production-readiness status
 
-Target branch: `improve/launchpad-responsive-supabase-auth` → `main`
+Target: `improve/launchpad-responsive-supabase-auth` → `main`.
 
-Production URL: https://theskullguy499-sketch.github.io/launchpad-career/
+Public URL remains https://theskullguy499-sketch.github.io/launchpad-career/ . No merge or deployment is performed by this task. Production deployment now requires an explicit manual dispatch on `main` with `deploy=true`.
 
-## Outcome
+## Completed implementation
 
-The deployment asset blocker is fixed in source: the pinned SDK, licenses and hash manifest are now committed under `vendor/`. Static branch publishing no longer depends on Pages running npm. The Actions workflow additionally verifies reproducibility, builds the complete `_site/` artifact and tests that artifact under the actual project prefix before deployment.
+- Preserved/extracted original tracker, storage keys, sample data, exports/restores and legacy roadmap; added detailed fields, company suggestions, filters and accessible Kanban stages.
+- Added the landing page, dashboard, curated/custom company directory, favorites, tasks, editable goals/milestones, real-data analytics, profile/preferences, feedback and personal-data controls. A custom SVG logo avoids font-dependent branding.
+- Added isolated account workspaces, bounded atomic snapshot synchronization, optimistic revision conflicts, owner guards and explicit non-destructive guest import. Account data is not stored in guest keys. Leaving an account clears private editors/coach content; queued saves and late AI replies are discarded across workspace switches.
+- Added Supabase SQL for all owned collections, confirmed-owner RLS, cross-user constraints, server-only quotas/cache/outbox, revision invalidation for legacy/direct writes and the optional age/terms signup hook.
+- Implemented secure Edge Functions for official OpenAI Responses, Remotive retrieval, recent-login account deletion and opt-in scheduled reminder digests. Missing configuration returns unavailable states, never simulated output or fake vacancies.
+- Added privacy/Terms drafts, setup, release gates, commercial-evaluation notes and backup/rollback procedures. No billing, customer metrics, partnerships or legal compliance claims are invented.
 
-Guest functionality and the prepared account implementation are locally validated. **Live Supabase authentication, SMTP, cloud RLS and the updated live Pages deployment are not certified ready.** No real project configuration or mailbox was available, and this environment's proxy rejected requests to the production hostname and GitHub API with HTTP 403.
+## Local evidence
 
-## Findings and corrections
+The complete suite includes **50 Playwright tests** (40 source app/platform/accessibility tests and 10 built-artifact tests), **12 backend/model/workspace tests**, **2 PostgreSQL policy tests**, and **2 public-build configuration tests**. Tests include actual browser interactions, scripted provider responses through the real SDK, and the real PostgreSQL WASM engine with simulated Supabase Auth/JWT context.
 
-| Area | Evidence and final behavior |
+Coverage includes original features, detailed applications/stages, company search/favorites, personal planning/tasks, reminders, analytics, signup/confirmation/recovery, account isolation/synchronization, repeat imports, deletion reauthentication, background-response privacy, stable restored IDs, keyboard interaction, light/dark WCAG scans, 320–1440px layouts, no broken built assets, expected MIME types, and hash routing under the real project prefix.
+
+`npm run build:check` verifies the committed SDK **2.118.0** against pinned Node/esbuild/dependency integrity inputs. The production artifact includes all required modules, stylesheet, SVG artwork, legal pages and callback files. Negative-control wrong-root requests intentionally return 404; required assets return 200. Four server entrypoints bundle locally with the pinned npm SDK import externalized for the Deno runtime. This is syntax/bundle validation, not a claim of deployed Deno execution.
+
+The production dependency audit reports no known vulnerabilities. Automated scans do not establish complete security or accessibility compliance; human assistive-technology testing and operational review remain necessary.
+
+## Explicit unverified integrations and blockers
+
+| Item | Status / action required |
 | --- | --- |
-| Missing SDK on static publishing | `vendor/` is no longer ignored. SDK 2.118.0 is committed with licenses and SHA-256 hashes. Both app and callback import the same local bundle through `auth-client.js`. |
-| Reproducible build | Node 24.19.0, esbuild 0.28.2, exact SDK and lockfile dependency integrity pins. Clean `npm ci` followed by `npm run build:check` matches committed bytes. No runtime CDN or timestamp-dependent output. |
-| Complete artifact | `npm run build` explicitly stages all browser modules, callback HTML, SDK/notices, `.nojekyll` and a public-file hash manifest in `_site/`. No dependencies, SQL or private files are copied. |
-| Browser asset loading | Tests serve only `_site/` under `/launchpad-career/`. Every manifest file returns 200 with a matching hash and JavaScript MIME type. Signup/confirmation/resend/signin/signout flows load the real bundle with no failed same-origin asset requests or page exceptions. A deliberate wrong-root negative-control request returns 404, proving checkout files cannot hide path mistakes. CSS and favicon are inline, fonts local. |
-| Invisible field text | Controls, native options, placeholders, caret and autofill text have explicit app-theme colors. Tests verify ≥4.5:1 computed text contrast for opportunity/account fields, filters, company text, country options and placeholders across all browser/app light/dark combinations. Real third-party password-manager autofill remains a manual post-deploy check. |
-| Guest mode and privacy | Clear on-page/account messaging states that local records are shared across accounts in the browser profile. Signup/signout do not make the guest dashboard private or upload it automatically. No local storage keys were renamed or cleared. |
-| Data safety | JSON backups remain supported. Failed create/edit/delete/sample/milestone saves keep prior in-memory data; failed restore writes roll back earlier successful writes when storage permits. Errors no longer get overwritten with success toasts. Storage-failure tests verify original records and backup contents remain available. |
-| Secrets | Actual config contains blank public fields. Build validation rejects secret/legacy keys, URL credentials and extra configuration fields. No service-role, database or SMTP credentials are included. SDK-managed session tokens remain separate from local guest data. |
-| Supabase database | A migration prepares all four tables, confirmed-owner RLS, anonymous denial, cross-user task constraints and additive atomic imports. Tests execute it in PostgreSQL WASM with simulated Auth/JWT context. It has **not** been applied or verified against a live Supabase project. |
-| Authentication | Official SDK flows are tested with mocked HTTP responses, including email-token and PKCE callbacks, expired links, resend, sessions, recovery/reset and errors. This is **not** evidence of actual email delivery or production dashboard configuration. |
+| Supabase Auth / real email | No live project URL/key or mailbox configured. Complete Confirm email, exact callback URLs, templates and custom SMTP, then test actual arrival, confirmation, resend and recovery. |
+| Live database/RLS | SQL passes isolated policy tests, including stale saves, spoofed ownership, service budgets and outbox claims. Apply both migrations to the intended project and verify two real users/anonymous/unconfirmed access with the publishable key. |
+| AI | Real server implementation, mocked provider tests, bounded requests and opt-in context. No AI key/account was available; no real generative response is claimed. |
+| Job source | Real Remotive API adapter, attribution, lease/cache and maximum four refreshes/day. Direct live retrieval was rejected by the environment proxy. Review current commercial/provider terms and validate actual results after deployment. |
+| Reminder emails | Worker, daily outbox, bounded retries, idempotency and opt-in checks are implemented and tested locally/mocked. Deploy Cron, its secret and optional Resend sender; prove live delivery and capacity. |
+| Public Pages | Built artifact passes local project-prefix tests. The public hostname is blocked by the current environment's proxy, and no update was deployed. Live HTTPS acceptance remains unverified. |
+| Pull Request | Git authentication/push works. GitHub API/GraphQL is blocked by HTTP 403, so PR inspection/creation may require the supplied comparison form. No PR number/link is fabricated. |
+| Commercial/legal operations | Operator/contact/retention details, qualified legal review, age-policy review, support, provider agreements, incident response and recovery drills remain open. No commercial readiness certification is made. |
+| Scale | Snapshot limits (1,000 items/collection, 2 MB) and bounded worker batches are explicit. Load-test expected usage; add incremental editing and worker pagination before serving large accounts/populations. |
 
-## Validation
+No live product integrations are reported as successfully validated. Local correctness and mocked-provider evidence are kept separate from the live checklist.
 
-Run on the pinned Node runtime:
-
-```sh
-npm ci
-npm run build:check
-CHROMIUM_PATH=/usr/bin/chromium npm test
-npm audit --omit=dev
-```
-
-The test command covers 23 application Playwright tests, 9 production-artifact Playwright tests, 2 public-build configuration tests and 1 PostgreSQL policy test. The audit found no reported production dependency vulnerabilities. A green local suite does not establish that the GitHub Actions workflow or live deployment has run.
-
-## Remaining release/activation blockers
-
-1. **Supabase project configuration:** real public URL/key, Confirm email, exact redirect allowlist and email templates are not supplied/configured here.
-2. **SMTP and email delivery:** custom SMTP, verified sender and real-mailbox confirmation/recovery have not been tested.
-3. **Live database isolation:** apply the reviewed SQL migration and test two-user/anonymous/unconfirmed access with the publishable key before claiming secure account cloud storage. Local records remain shared even after this step.
-4. **Pages publication:** select one deployment method in repository settings, review/merge the PR yourself, wait for deployment and perform the documented live browser smoke checks. The updated production URL was not reachable from this environment because the proxy rejected the request.
-5. **PR creation:** Git pushes work, but GitHub GraphQL/API requests are rejected by the proxy. A pushed feature branch and prepared PR form/description are provided; no automatic merge is performed.
-
-Use the separate [Pages checklist](GITHUB_PAGES.md) and [Supabase/SMTP checklist](SUPABASE_SETUP.md#production-configuration-checklist). A guest-only release may retain blank Supabase configuration; account activation must wait for the applicable live checks.
+Start with [LAUNCHPAD_4_SETUP.md](LAUNCHPAD_4_SETUP.md), then the separate [Pages checklist](GITHUB_PAGES.md), [Auth/SMTP instructions](SUPABASE_SETUP.md), [operations guide](OPERATIONS.md) and [commercial review](COMMERCIAL_READINESS.md).

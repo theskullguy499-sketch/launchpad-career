@@ -1,3 +1,4 @@
+const {cloudFixture}=require('./helpers/cloud-fixture.cjs');
 const { test, expect } = require('@playwright/test');
 const company = 'International Technology and Career Development Company '.repeat(2).slice(0,80);
 async function add(page, name = company) {
@@ -55,14 +56,15 @@ test('invalid form and unsafe links are rejected; HTML is rendered as text',asyn
 });
 async function configureAuth(page, handler, confirmed=true) {
   await page.route('**/auth-config.js',r=>r.fulfill({contentType:'text/javascript',body:`window.LAUNCHPAD_AUTH_CONFIG={supabaseUrl:'https://launchpad-test.supabase.co',publishableKey:'sb_publishable_testkey'};`}));
-  await page.route('https://launchpad-test.supabase.co/**',r=>new URL(r.request().url()).pathname === '/auth/v1/user' ? r.fulfill({json:{...user,email_confirmed_at:confirmed?user.email_confirmed_at:null}}) : handler(r));
+  const cloud=cloudFixture();
+  await page.route('https://launchpad-test.supabase.co/**',async r=>{if(new URL(r.request().url()).pathname === '/auth/v1/user')return r.fulfill({json:{...user,email_confirmed_at:confirmed?user.email_confirmed_at:null}});if(await cloud(r))return;return handler(r);});
 }
 const user={id:'00000000-0000-0000-0000-000000000001',email:'person@example.com',email_confirmed_at:'2026-01-01T00:00:00Z',aud:'authenticated',role:'authenticated'};
 function tokens(confirmed=true){return {access_token:'test-access-token',refresh_token:'test-refresh-token',token_type:'bearer',expires_in:3600,user:{...user,email_confirmed_at:confirmed?user.email_confirmed_at:null}};}
 test('Supabase signup uses PKCE, requests verification, and resends without saving passwords',async({page})=>{
   const requests=[];
   await configureAuth(page,r=>{requests.push({url:r.request().url(),body:r.request().postDataJSON()});return r.fulfill({json:r.request().url().includes('/signup')?{user:{...user,email_confirmed_at:null},session:null}:{}});});
-  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');
+  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');
   await expect(page.locator('#authStatus')).toContainText('verification email');
   const signup=requests.find(r=>r.url.includes('/signup'));expect(signup.body.code_challenge).toBeTruthy();expect(signup.body.code_challenge_method).toBe('s256');expect(signup.url).toContain('redirect_to=');
   await expect(page.locator('#authPassword')).toHaveValue('');
@@ -87,9 +89,9 @@ test('PKCE verification callback establishes a confirmed session without touchin
     if(url.includes('/token')) {exchange=r.request().postDataJSON();return r.fulfill({json:tokens()});}
     return r.fulfill({json:url.includes('/user')?user:{user:{...user,email_confirmed_at:null},session:null}});
   });
-  await page.goto('/');await add(page,'Preserved through verification');await page.click('#accountBtn');await page.click('#signUpMode');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('verification email');
+  await page.goto('/');await add(page,'Preserved through verification');await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('verification email');
   await page.goto('/auth/callback.html?code=test-confirmation-code');
-  await expect(page.locator('#authStatus')).toContainText(/verified|Signed in as/);expect(exchange.auth_code).toBe('test-confirmation-code');expect(exchange.code_verifier).toBeTruthy();if(await page.locator('#authDialog').isVisible()) await page.click('#closeAuthBtn');await expect(page.locator('td strong')).toHaveText('Preserved through verification');expect(page.url()).not.toContain('code=');
+  await expect(page.locator('#authStatus')).toContainText(/verified|Signed in as/);expect(exchange.auth_code).toBe('test-confirmation-code');expect(exchange.code_verifier).toBeTruthy();if(await page.locator('#authDialog').isVisible()) await page.click('#closeAuthBtn');await page.click('#useGuestBtn');await expect(page.locator('td strong')).toHaveText('Preserved through verification');expect(page.url()).not.toContain('code=');
 });
 test('expired verification fragment is preserved for authentication and displays recovery guidance',async({page})=>{
   await configureAuth(page,r=>r.fulfill({json:{}}));
@@ -98,7 +100,7 @@ test('expired verification fragment is preserved for authentication and displays
 });
 test('registration rejects immediate sessions when server email confirmation is disabled',async({page})=>{
   await configureAuth(page,r=>r.fulfill({json:r.request().url().includes('/signup')?tokens():{}}));
-  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('must be enabled');await expect(page.locator('#signOutBtn')).toBeHidden();
+  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('must be enabled');await expect(page.locator('#signOutBtn')).toBeHidden();
 });
 
 test('forgot password and emailed recovery link reset password without changing guest records',async({page})=>{
@@ -139,7 +141,7 @@ test('expired email tokens and fabricated reset query never allow password updat
 });
 test('friendly validation rejects invalid email, weak passwords and mismatched confirmation',async({page})=>{
   let requests=0;await configureAuth(page,r=>{requests++;return r.fulfill({json:{}});});
-  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');await page.fill('#authEmail','not-an-email');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('valid email');
+  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');await page.fill('#authEmail','not-an-email');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('valid email');
   await page.fill('#authEmail',user.email);await page.fill('#authPassword','short');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('at least 12');
   await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','different-password');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('passwords do not match');expect(requests).toBe(0);
 });
@@ -147,20 +149,14 @@ test('rate limits produce friendly guidance and allow retry',async({page})=>{
   await configureAuth(page,r=>r.fulfill({status:429,json:{code:'over_email_send_rate_limit',message:'rate limit'}}));
   await page.goto('/');await page.click('#accountBtn');await page.fill('#authEmail',user.email);await page.click('#resendEmailBtn');await expect(page.locator('#authStatus')).toContainText('Too many attempts');await expect(page.locator('#resendEmailBtn')).toBeEnabled();
 });
-test('cloud copy is explicit, additive, and downloads a backup without replacing guest data',async({page})=>{
-  const rpc=[];
-  await configureAuth(page,r=>{
-    const url=new URL(r.request().url());
-    if(url.pathname.includes('/token')) return r.fulfill({json:tokens()});
-    if(url.pathname.includes('/rpc/')) {rpc.push(r.request().postDataJSON());return r.fulfill({json:null});}
-    if(url.pathname.endsWith('/job_applications')) return r.fulfill({json:[{id:'cloud-id',company:'Cloud Company',role:'Engineer',country:'Brazil',status:'Saved',url:'',notes:'',created_at:'2026-01-01T00:00:00Z'}]});
-    return r.fulfill({json:[]});
-  });
-  await page.goto('/');await add(page,'Local Company');await page.click('#accountBtn');await page.fill('#authEmail',user.email);await page.fill('#authPassword','password');await page.click('#authSubmit');await expect(page.locator('#cloudActions')).toBeVisible();expect(rpc).toHaveLength(0);
-  page.once('dialog',d=>d.dismiss());await page.click('#saveCloudBtn');expect(rpc).toHaveLength(0);
-  page.once('dialog',d=>d.accept());await page.click('#saveCloudBtn');await expect(page.locator('#authStatus')).toContainText('copy was saved');expect(rpc[0].backup.applications[0].company).toBe('Local Company');
-  const dl=page.waitForEvent('download');await page.click('#downloadCloudBtn');const file=await dl;const backup=JSON.parse(require('node:fs').readFileSync(await file.path(),'utf8'));expect(backup.applications[0].company).toBe('Cloud Company');
-  await page.click('#closeAuthBtn');await expect(page.locator('td strong')).toHaveText('Local Company');
+test('cloud copy is explicit, additive, and keeps guest data separate',async({page})=>{
+ const imports=[];page.on('request',r=>{if(r.url().includes('/rpc/import_guest_workspace'))imports.push(r.postDataJSON());});
+ await configureAuth(page,r=>r.fulfill({json:r.request().url().includes('/token')?tokens():{}}));
+ await page.goto('/');await add(page,'Local Company');await page.click('#accountBtn');await page.fill('#authEmail',user.email);await page.fill('#authPassword','password');await page.click('#authSubmit');await expect(page.locator('#syncStatus')).toContainText('Cloud workspace loaded');expect(imports).toHaveLength(0);
+ page.once('dialog',d=>d.dismiss());await page.click('#saveCloudBtn');expect(imports).toHaveLength(0);
+ page.once('dialog',d=>d.accept());await page.click('#saveCloudBtn');await expect.poll(()=>imports.length).toBe(1);await expect(page.locator('#syncStatus')).toContainText('Cloud workspace loaded');expect(imports[0].guest.applications[0].company).toBe('Local Company');
+ const dl=page.waitForEvent('download');await page.click('#downloadCloudBtn');const file=await dl;const backup=JSON.parse(require('node:fs').readFileSync(await file.path(),'utf8'));expect(backup.applications[0].company).toBe('Local Company');
+ await page.click('#closeAuthBtn');await page.click('#useGuestBtn');await expect(page.locator('td strong')).toHaveText('Local Company');
 });
 test('GitHub Pages subpath uses a real static callback and fixed return path',async({page})=>{
   const path=require('node:path');
@@ -173,7 +169,7 @@ test('GitHub Pages subpath uses a real static callback and fixed return path',as
     if(r.request().url().includes('/signup')) {signup=r.request().url();return r.fulfill({json:{user:{...user,email_confirmed_at:null},session:null}});}
     return r.fulfill({json:tokens()});
   });
-  await page.goto('/launchpad-career/');await page.click('#accountBtn');await page.click('#signUpMode');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('verification email');
+  await page.goto('/launchpad-career/');await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('verification email');
   expect(new URL(signup).searchParams.get('redirect_to')).toBe('http://127.0.0.1:8000/launchpad-career/auth/callback.html');
   await page.goto('/launchpad-career/auth/callback.html#token_hash=confirmation&type=email&next=https://attacker.example');
   await expect(page.locator('#accountBtn')).toHaveText('Account ✓');await expect(page).toHaveURL(/127\.0\.0\.1:8000\/launchpad-career\//);
@@ -185,7 +181,7 @@ test('client rejects service-role keys and keeps guest mode available',async({pa
 test('account form remains readable on a narrow screen',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.setViewportSize({width:320,height:900});await configureAuth(page,r=>r.fulfill({json:{}}));
-  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');
+  await page.goto('/');await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');
   for(const field of ['authEmail','authPassword','authConfirmPassword']) await expect(page.locator(`#${field}`)).toBeVisible();
   expect(await page.locator('#authDialog').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
   await page.screenshot({path:'test-results/account-320.png',fullPage:true});

@@ -20,14 +20,16 @@ GitHub Pages does not run npm automatically. This branch now supports both of th
 ## Publish with Actions
 
 1. In **Repository Settings → Pages → Build and deployment**, select **GitHub Actions**. Enable Actions if disabled; review any `github-pages` deployment environment protections.
-2. Merge the approved PR into `main` yourself. This task does **not** merge automatically. The `Test and publish Launchpad` workflow installs the locked dependencies, verifies the committed SDK, builds `_site/`, runs policy/build/browser tests and uploads only the public artifact.
-3. Wait for the deployment job to succeed. You may also dispatch the workflow manually on `main`; dispatching on a feature branch does not deploy.
+2. Merge the approved PR into `main` yourself. Pushes/PRs now test and build only. To publish, explicitly dispatch the workflow on `main` with **deploy=true**. This task does **not** merge automatically. The `Test and publish Launchpad` workflow installs the locked dependencies, verifies the committed SDK, builds `_site/`, runs policy/build/browser tests and uploads only the public artifact.
+3. Wait for the deployment job to succeed. Dispatching without **deploy=true** or on a feature branch does not deploy.
 4. Check the deployed URL and the files below, including direct navigation to `auth/callback.html`. An invalid-link message without a token is expected; a 404 is not.
 5. In browser DevTools, confirm no failed same-origin JavaScript/CSS/asset requests and no module errors. Check light and dark app themes with both system themes.
 6. Verify local JSON export/restore using a disposable browser profile. Existing data stays at the same origin; deploying does not migrate or erase it.
 7. Complete the real-mailbox checks separately. Pages workflow success does not establish SMTP delivery or live RLS readiness.
 
-The generated `_site/` artifact contains:
+Launchpad 4.0 also stages `tracker.js`, `platform.js`, `lib/*.mjs`, `data/companies.mjs`, `styles/platform.css`, `assets/launchpad.svg` and both `legal/` drafts. Backend functions, secrets and SQL stay out of the browser artifact.
+
+The original artifact files remain:
 
 ```text
 index.html
@@ -44,7 +46,7 @@ vendor/manifest.json
 build-manifest.json
 ```
 
-CSS and favicon artwork are inline; fonts use the local system stack. The SDK is a self-contained browser bundle with no external runtime imports/CDN. `build-manifest.json` records a SHA-256 for each deployed input, without timestamps or secrets. The artifact excludes development dependencies, SQL tests and private configuration.
+The original CSS is inline; the new platform stylesheet and SVG logo are explicitly staged. Fonts use the local system stack. The SDK is a self-contained browser bundle with no external runtime imports/CDN. `build-manifest.json` records a SHA-256 for each deployed input, without timestamps or secrets. The artifact excludes development dependencies, SQL tests and private configuration.
 
 For static branch hosting instead, select **Deploy from a branch → main → /(root)** after the reviewed commit is merged. Disable the Actions deployment workflow if choosing that mode to avoid competing deployments. The committed bundle is what makes this no-build route work. Any SDK upgrade still requires regeneration and review before committing.
 

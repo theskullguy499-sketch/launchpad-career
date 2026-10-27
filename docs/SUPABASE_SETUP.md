@@ -4,6 +4,8 @@ Production: **https://theskullguy499-sketch.github.io/launchpad-career/**
 
 Status: the application and migration are prepared. No live Supabase project URL, key, SMTP service, or mailbox is configured in this checkout. Automated browser tests mock Supabase HTTP responses through the real SDK. Database tests run the migration in an actual PostgreSQL WASM engine (PGlite), with an emulated Supabase Auth schema and JWT context. Neither test proves live email delivery, the state of your Supabase dashboard, or production authorization. Complete and test the following setup before calling live authentication ready.
 
+> **Launchpad 4.0:** follow [the current setup guide](LAUNCHPAD_4_SETUP.md) for both migrations, private account workspaces, server functions and age onboarding. The email templates and exact callback URLs below remain valid. Live services are still unverified.
+
 ## 1. Create the project and public configuration
 
 1. Create/select your Supabase project. In **Project Settings → API / API Keys** (or the project's **Connect** dialog), copy the project HTTPS URL and a modern **publishable** key starting with `sb_publishable_`.
@@ -87,6 +89,7 @@ Back up any existing production database first. In **SQL Editor → New query**,
 
 ```text
 supabase/migrations/202610270001_launchpad.sql
+supabase/migrations/202610270002_launchpad_v4.sql
 ```
 
 Alternatively apply it using your normal Supabase CLI migration workflow. Run it once with the project's database owner. It uses a transaction and creates new tables; it does not drop existing tables or touch browser storage. If any named table/function/trigger already exists, stop and compare schemas; do not drop production data to force the migration through. The local migration has not been run against your live project.
@@ -106,13 +109,11 @@ All four tables have RLS enabled and forced; authenticated CRUD policies require
 
 Verify live RLS using two real confirmed users and the publishable key, never a service-role key: each should see/edit/delete only their own rows; forged owner IDs, cross-user task links, unconfirmed users and unauthenticated requests must fail. Also verify repeated guest imports preserve existing cloud edits. The local test covers those rules with a simulated Auth schema, but live grants and project-specific policies must still be checked.
 
-## 7. Understand local and cloud data
+## 7. Understand guest and account data in 4.0
 
-- Guest mode, opportunity editing, filters, sorting, deadlines, roadmap, themes, CSV export and JSON backup/restore continue to use the original localStorage keys. Signing in/out or resetting a password never clears or silently replaces those records.
-- After sign-in, **Account → Save local data to account** asks before making an additive cloud copy. **Download account backup** downloads a separate file. To replace local records, the user must explicitly choose **Restore** and accept its existing replacement confirmation.
-- The guest dashboard is shared by browser profile and origin, even across signed-in accounts. It is not automatically converted into an account workspace. Use separate browser profiles on shared devices. Changing the hosting origin/path is not a data migration; export a JSON backup first.
-- The `tasks` table is ready for owned task storage and is included in account exports. There was no local tasks interface to migrate; no unrelated task UI is added. Existing local Restore ignores this extra export field, so preserve the account export if you need task records. Cloud task records are unaffected by local Restore.
-- No automatic bidirectional synchronization is claimed. Saving a guest copy does not overwrite later cloud edits, and unchecking a local milestone does not reset an existing cloud row.
+Guest mode keeps the original browser keys and supports extended local favorites, goals, tasks and milestones. It is shared within the browser profile. A verified account now opens a separate private cloud workspace, provided both migrations have been applied. Account writes never replace guest records. Failed account initialization blocks editing and offers an explicit guest-mode switch.
+
+Guest import is explicit, named to the current account and non-destructive. Existing account IDs win conflicts. New-format backups contain extended fields; preserve the full file. Tasks now have a functioning interface. The complete behavior, synchronization limits and server setup are documented in [LAUNCHPAD_4_SETUP.md](LAUNCHPAD_4_SETUP.md).
 
 ## 8. Live acceptance checklist (not yet executed)
 

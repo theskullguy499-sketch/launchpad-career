@@ -1,3 +1,4 @@
+const {cloudFixture}=require('./helpers/cloud-fixture.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const {createHash}=require('node:crypto');
@@ -6,7 +7,7 @@ const user={id:'00000000-0000-0000-0000-000000000001',email:'production-test@exa
 const tokens=()=>({access_token:'test-access-token',refresh_token:'test-refresh-token',token_type:'bearer',expires_in:3600,user});
 async function configured(page,handler){
  await page.route('**/auth-config.js',r=>r.fulfill({contentType:'text/javascript',body:"window.LAUNCHPAD_AUTH_CONFIG={supabaseUrl:'https://production-test.supabase.co',publishableKey:'sb_publishable_testkey'};"}));
- await page.route('https://production-test.supabase.co/**',r=>new URL(r.request().url()).pathname.endsWith('/user')?r.fulfill({json:user}):handler(r));
+ const cloud=cloudFixture();await page.route('https://production-test.supabase.co/**',async r=>{if(new URL(r.request().url()).pathname.endsWith('/user'))return r.fulfill({json:user});if(await cloud(r))return;return handler(r);});
 }
 function audit(page){
  const failures=[];const loaded=new Set();
@@ -34,7 +35,7 @@ test('built Pages artifact loads real SDK and complete mocked email/password flo
   if(path.endsWith('/token') && reject)return r.fulfill({status:400,json:{code:'invalid_credentials',message:'Invalid credentials'}});
   return r.fulfill({json:path.endsWith('/signup')?{user:{...user,email_confirmed_at:null},session:null}:path.endsWith('/token')||path.endsWith('/verify')?tokens():{}});
  });
- await page.goto(base);await add(page);await page.click('#accountBtn');await page.click('#signUpMode');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('verification email');
+ await page.goto(base);await add(page);await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');await page.fill('#authEmail',user.email);await page.fill('#authPassword','a-secure-password-123');await page.fill('#authConfirmPassword','a-secure-password-123');await page.click('#authSubmit');await expect(page.locator('#authStatus')).toContainText('verification email');
  await page.click('#resendEmailBtn');await expect(page.locator('#authStatus')).toContainText('If verification is pending');
  await page.goto(base+'auth/callback.html#token_hash=mock-verification&type=email');await expect(page.locator('#accountBtn')).toHaveText('Account ✓');
  await page.reload();await page.click('#accountBtn');await expect(page.locator('#authStatus')).toContainText('Signed in as');await page.click('#signOutBtn');await expect(page.locator('#authStatus')).toContainText('Signed out');
@@ -70,7 +71,7 @@ for(const browserMode of ['light','dark'])for(const appMode of ['light','dark'])
  expect(await contrast(page.locator('#country option').last())).toBeGreaterThanOrEqual(4.5);
  for(const id of ['company','role','url','notes'])expect(await contrast(page.locator('#'+id),'::placeholder'),id+' placeholder').toBeGreaterThanOrEqual(4.5);await page.screenshot({path:`test-results/production-fields-${browserMode}-${appMode}.png`,fullPage:true});
  await page.click('#submitDialogBtn');await expect(page.locator('td strong')).toHaveText('Visible Company');expect(await contrast(page.locator('td strong'))).toBeGreaterThanOrEqual(4.5);
- await page.click('#accountBtn');await page.click('#signUpMode');for(const id of ['authEmail','authPassword','authConfirmPassword'])expect(await contrast(page.locator('#'+id)),id).toBeGreaterThanOrEqual(4.5);
+ await page.click('#accountBtn');await page.click('#signUpMode');await page.selectOption('#signupAge','18+');await page.check('#signupTerms');for(const id of ['authEmail','authPassword','authConfirmPassword'])expect(await contrast(page.locator('#'+id)),id).toBeGreaterThanOrEqual(4.5);
 });
 test('storage failure never reports a successful save or loses previous records',async({page})=>{
  await page.goto(base);await add(page);
@@ -87,4 +88,10 @@ test('JSON restore rolls back the first write if roadmap persistence fails',asyn
  const backup={app:'launchpad',formatVersion:1,applications:[{id:'new',company:'Replacement',role:'Engineer',country:'Brazil',status:'Saved'}],completed:[0]};
  page.once('dialog',d=>d.accept());await page.locator('#restoreFile').setInputFiles({name:'restore.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('#toast')).toContainText('No changes were saved');await expect(page.locator('td strong')).toHaveText('Visible Production Company');expect(await page.evaluate(()=>localStorage.getItem('launchpad-opportunities-v1'))).toBe(original);
  await page.reload();await expect(page.locator('td strong')).toHaveText('Visible Production Company');
+});
+test('all v4 routes, static styles/modules/logo and legal pages load from the built Pages artifact',async({page,request})=>{
+ const checks=audit(page);await page.goto(base);
+ for(const view of ['home','dashboard','companies','jobs','roadmap','coach','analytics','settings','applications']){await page.locator(`.nav-list [data-view="${view}"]`).click();await expect(page.locator('#'+view+'View')).toBeVisible();}
+ for(const file of ['tracker.js','platform.js','styles/platform.css','assets/launchpad.svg','lib/model.mjs','lib/workspace.mjs','data/companies.mjs','legal/privacy.html','legal/terms.html'])expect((await request.get(base+file)).status(),file).toBe(200);
+ expect(checks.loaded).toContain(base+'styles/platform.css');expect(checks.loaded).toContain(base+'platform.js');expect(checks.failures).toEqual([]);
 });

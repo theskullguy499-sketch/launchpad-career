@@ -4,3 +4,9 @@ test-results/
 playwright-report/
 
 _site/
+
+# Never commit local credentials, Supabase CLI state, or personal data exports.
+.env
+.env.*
+supabase/.temp/
+private-backups/

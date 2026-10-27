@@ -3,12 +3,14 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.cjs",
-    "test": "npm run build && npm run test:build && npm run test:db && playwright test && npm run test:production",
+    "test": "npm run build && npm run test:build && npm run test:db && npm run test:backend && playwright test && npm run test:production",
     "start": "python3 -m http.server 8000 --bind 127.0.0.1",
-    "test:db": "node --test supabase/tests/rls.test.cjs",
+    "test:db": "node --test supabase/tests/*.test.cjs",
     "build:check": "node scripts/build.cjs --check",
     "test:production": "playwright test --config playwright.production.config.js",
-    "test:build": "node --test scripts/public-config.test.cjs"
+    "test:build": "node --test scripts/public-config.test.cjs",
+    "test:backend": "node scripts/check-functions.cjs && node --test tests-unit/*.test.mjs",
+    "test:live": "node scripts/live-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0"
@@ -16,6 +18,8 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.12",
     "@playwright/test": "1.64.1",
+    "axe-core": "4.10.3",
     "esbuild": "0.28.2"
-  }
+  },
+  "version": "4.0.0-rc.1"
 }

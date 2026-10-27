@@ -34,7 +34,7 @@ async function main() {
     } else {await fs.mkdir(path.dirname(destination),{recursive:true});await fs.writeFile(destination,bytes);}
   }
   if (process.argv.includes('--check')) { console.log('Committed SDK bundle, versions, licenses and hashes match the reproducible build.');return; }
-  const publicFiles = ['index.html','auth.js','auth-client.js','cloud-data.js','auth-config.js','auth/callback.html','auth/callback.js','.nojekyll',...Object.keys(vendor).map(f=>`vendor/${f}`)];
+  const publicFiles = ['assets/launchpad.svg','index.html','tracker.js','platform.js','styles/platform.css','lib/model.mjs','lib/workspace.mjs','data/companies.mjs','data/countries.mjs','legal/privacy.html','legal/terms.html','auth.js','auth-client.js','cloud-data.js','auth-config.js','auth/callback.html','auth/callback.js','.nojekyll',...Object.keys(vendor).map(f=>`vendor/${f}`)];
   const output = path.join(root,'_site');
   await fs.rm(output,{recursive:true,force:true});
   const hashes = {};
