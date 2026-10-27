@@ -17,6 +17,21 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:720px){.backup-actions{justify-content:flex-start}.backup-actions .button{padding:10px 12px}}
 
+
+/* Keep intrinsic field/table widths from squeezing user content. */
+.panel-head{gap:18px;flex-wrap:wrap}.panel-head>div{min-width:0}
+.backup-actions{flex-shrink:0}.topbar{gap:12px}.top-actions{flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid label,.form-grid input,.form-grid select,.form-grid textarea,.search-field input{min-width:0}
+.form-grid input,.form-grid select,.form-grid textarea{font-size:16px;line-height:1.5}.form-grid input::placeholder,.form-grid textarea::placeholder{color:var(--sub);opacity:1}
+table{table-layout:fixed;min-width:740px}th:first-child{width:30%}th:last-child{width:24%}td{overflow-wrap:anywhere}td strong,td small{white-space:normal;overflow-wrap:anywhere}td small{display:block;line-height:1.5}
+td.actions{display:table-cell}.row-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.milestone>div,.resource-grid a{min-width:0;overflow-wrap:anywhere}.toast{max-width:calc(100vw - 32px)}
+.auth-copy{font-size:13px;line-height:1.6;color:var(--sub);overflow-wrap:anywhere}.auth-fields{display:grid;gap:16px}.auth-fields label{display:grid;gap:8px;font-weight:650}.auth-fields input{width:100%;min-width:0;padding:12px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink);font-size:16px}.auth-status{line-height:1.6;overflow-wrap:anywhere}.auth-mode{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.button:disabled{cursor:wait;opacity:.65;transform:none}
+@media(max-width:1050px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-decoration{flex-shrink:0}.offline-pill{display:none}}
+@media(max-width:740px){.form-grid{grid-template-columns:minmax(0,1fr)}.topbar{height:auto;min-height:70px;padding:12px 0;flex-wrap:wrap}.breadcrumb{line-height:1.8}.panel-head{align-items:flex-start}.backup-actions{flex-shrink:1}.dialog-actions{flex-wrap:wrap}.application-dialog{max-height:calc(100dvh - 28px)}.application-dialog form{max-height:calc(100dvh - 29px)}
+.table-wrap{overflow:visible;padding:0 16px 16px}table,tbody,tr,td{display:block;width:100%;min-width:0}thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}tr{border:1px solid var(--border);border-radius:12px;margin-bottom:12px;padding:14px}td{border:0;padding:8px 0}td:first-child{padding-top:0}td strong{font-size:15px;line-height:1.5}td[data-label]::before{content:attr(data-label);display:block;color:var(--sub);font-size:10px;font-weight:750;letter-spacing:.6px;margin-bottom:6px}td.actions{display:block}.row-actions{justify-content:flex-start}td .tiny-action{padding:10px 12px}.resource-panel{padding:20px}.milestone{padding:18px;gap:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+
 </style>
   
 </head>
@@ -39,7 +54,7 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
     </aside>
 
     <main class="main-content" id="mainContent">
-      <header class="topbar"><div class="breadcrumb">MY WORKSPACE <span>/</span> <strong id="breadcrumbPage">APPLICATIONS</strong></div><div class="top-actions"><span class="offline-pill"><span class="status-dot"></span> LOCAL DATA ONLY</span><button type="button" class="icon-btn" id="themeToggle" aria-label="Toggle color theme" title="Toggle theme">☾</button></div></header>
+      <header class="topbar"><div class="breadcrumb">MY WORKSPACE <span>/</span> <strong id="breadcrumbPage">APPLICATIONS</strong></div><div class="top-actions"><span class="offline-pill"><span class="status-dot"></span> LOCAL DATA ONLY</span><button type="button" class="button button-outline" id="accountBtn">Account</button><button type="button" class="icon-btn" id="themeToggle" aria-label="Toggle color theme" title="Toggle theme">☾</button></div></header>
 
       <section id="applicationsView" class="view" aria-labelledby="pageTitle">
         <div class="page-intro"><div><p class="eyebrow">THE NEXT CHAPTER STARTS HERE</p><h1 id="pageTitle">Your future has<br><em>no borders.</em></h1><p class="intro-copy">Organize your opportunities, stay on top of deadlines, and build a career that can take you anywhere.</p></div><div class="hero-decoration" aria-hidden="true"><div class="halo halo-1"></div><div class="halo halo-2"></div><div class="halo halo-3"></div><span>↗</span></div></div>
@@ -52,7 +67,7 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
         </div>
         <div class="panel"><div class="panel-head"><div><h2>Opportunities <span id="visibleCount" class="muted-count">0</span></h2><p>Keep all your applications organized and actionable.</p></div><div class="backup-actions"><button id="exportBtn" class="button button-outline" type="button">↓ CSV</button><button id="backupBtn" class="button button-outline" type="button">↓ JSON backup</button><button id="restoreBtn" class="button button-outline" type="button">↑ Restore</button><input id="restoreFile" class="visually-hidden" type="file" accept=".json,application/json" aria-label="Select Launchpad JSON backup" /></div></div>
           <div class="filters"><label class="search-field"><span class="search-ico" aria-hidden="true">⌕</span><span class="sr-only">Search opportunities</span><input id="searchInput" type="search" placeholder="Search company, role, country..." /></label><label class="sr-only" for="statusFilter">Filter by status</label><select id="statusFilter"><option value="all">All statuses</option><option value="Saved">Saved</option><option value="Applied">Applied</option><option value="Interview">Interview</option><option value="Offer">Offer</option><option value="Rejected">Rejected</option></select><label class="sr-only" for="sortSelect">Sort applications</label><select id="sortSelect"><option value="newest">Newest first</option><option value="deadline">Nearest deadline</option><option value="company">Company A–Z</option></select></div>
-          <div id="tableWrap" class="table-wrap" hidden><table><thead><tr><th>COMPANY / ROLE</th><th>COUNTRY</th><th>STATUS</th><th>DEADLINE</th><th class="action-col">ACTIONS</th></tr></thead><tbody id="applicationsBody"></tbody></table></div>
+          <div id="tableWrap" class="table-wrap" role="region" aria-label="Opportunities" hidden><table><thead><tr><th>COMPANY / ROLE</th><th>COUNTRY</th><th>STATUS</th><th>DEADLINE</th><th class="action-col">ACTIONS</th></tr></thead><tbody id="applicationsBody"></tbody></table></div>
           <div id="emptyState" class="empty-state"><span class="empty-icon" aria-hidden="true">✧</span><h3>Your journey starts with one opportunity.</h3><p>Save internships, apprenticeships, or junior developer roles that interest you.</p><div class="empty-actions"><button type="button" class="button button-primary" id="emptyAddBtn">＋ Add first opportunity</button><button type="button" class="button button-quiet" id="loadDemoBtn">Try sample data</button></div></div>
           <div id="noMatches" class="no-matches" hidden>No opportunities match these filters. Try another search.</div>
         </div>
@@ -70,6 +85,18 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
   </div>
 
   <dialog id="applicationDialog" class="application-dialog" aria-labelledby="formTitle"><form id="applicationForm" novalidate><div class="dialog-head"><div><p class="eyebrow">YOUR NEXT OPPORTUNITY</p><h2 id="formTitle">Add opportunity</h2></div><button id="closeDialogBtn" class="icon-btn" aria-label="Close form" type="button">×</button></div><div class="form-grid"><label>Company *<input name="company" id="company" maxlength="80" placeholder="e.g. Example Tech" required /></label><label>Role *<input name="role" id="role" maxlength="100" placeholder="e.g. Software Development Apprentice" required /></label><label>Country *<select name="country" id="country" required><option value="">Select a country</option><option>Germany</option><option>Ireland</option><option>Netherlands</option><option>United States</option><option>Portugal</option><option>United Kingdom</option><option>Canada</option><option>Brazil</option><option>Other</option></select></label><label>Status<select name="status" id="status"><option>Saved</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Rejected</option></select></label><label>Application deadline<input type="date" id="deadline" name="deadline" /></label><label>Job posting URL<input type="url" id="url" name="url" placeholder="https://..." /></label><label class="full-width">Notes<textarea name="notes" id="notes" rows="3" maxlength="700" placeholder="Recruiter, documents needed, visa sponsorship, next steps..."></textarea></label></div><p class="error-msg" id="formError" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="button button-outline" id="cancelDialogBtn">Cancel</button><button type="submit" class="button button-primary" id="submitDialogBtn">Save opportunity</button></div></form></dialog>
+  <dialog id="authDialog" class="application-dialog" aria-labelledby="authTitle">
+    <form id="authForm">
+      <div class="dialog-head"><h2 id="authTitle">Your account</h2><button id="closeAuthBtn" class="icon-btn" type="button" aria-label="Close account">×</button></div>
+      <p class="auth-copy">Accounts are optional. Opportunities and roadmap progress stay in this browser; signing in does not upload, replace, or delete them.</p>
+      <p id="authStatus" class="auth-status" role="status" aria-live="polite"></p>
+      <div id="authModes" class="auth-mode"><button type="button" class="button button-outline" id="signInMode" aria-pressed="true">Sign in</button><button type="button" class="button button-outline" id="signUpMode" aria-pressed="false">Create account</button></div>
+      <div id="authFields" class="auth-fields"><label>Email<input id="authEmail" type="email" autocomplete="email" maxlength="254" required /></label><label>Password<input id="authPassword" type="password" autocomplete="current-password" required /></label><p id="passwordHint" class="auth-copy" hidden>Use at least 12 characters. You must verify your email before signing in.</p></div>
+      <div class="dialog-actions"><button id="resendEmailBtn" type="button" class="button button-outline" hidden>Resend verification email</button><button id="authSubmit" class="button button-primary" type="submit">Sign in</button><button id="signOutBtn" type="button" class="button button-outline" hidden>Sign out</button></div>
+    </form>
+  </dialog>
+  <script src="auth-config.js"></script>
+  <script type="module" src="auth.js"></script>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
 /**
@@ -128,6 +155,7 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
   }
   function formatDate(value) {
     if (!value) return '—';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(`${value}T12:00:00`))) return '—';
     const [year, month, day] = value.split('-').map(Number);
     return new Intl.DateTimeFormat('en', { month:'short', day:'numeric', year:'numeric' }).format(new Date(year,month-1,day));
   }
@@ -169,15 +197,15 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
     visible.forEach(a => {
       const tr=make('tr');
       const company=make('td');company.append(make('strong',null,a.company),make('small',null,a.role));
-      const country=make('td',null,a.country);
-      const statusCell=make('td');statusCell.append(make('span',`status-pill status-${a.status}`,a.status));
-      const deadline=make('td');deadline.append(make('span',null,formatDate(a.deadline)));
+      const country=make('td',null,a.country);country.dataset.label='Country';
+      const statusCell=make('td');statusCell.dataset.label='Status';statusCell.append(make('span',`status-pill status-${a.status}`,a.status));
+      const deadline=make('td');deadline.dataset.label='Deadline';deadline.append(make('span',null,formatDate(a.deadline)));
       if(a.deadline){const days=daysToDate(a.deadline);if(days!==null && days>=0 && days<=7){deadline.append(make('small',null,days===0?' · Due today':` · ${days}d left`));}}
-      const actions=make('td','actions');
-      if(a.url){const link=make('a','tiny-action','Open ↗');link.href=a.url;link.target='_blank';link.rel='noopener noreferrer';link.setAttribute('aria-label',`Open posting for ${a.company}`);actions.append(link);}
+      const actionCell=make('td','actions');const actions=make('div','row-actions');actionCell.append(actions);
+      if(safeUrl(a.url)){const link=make('a','tiny-action','Open ↗');link.href=safeUrl(a.url);link.target='_blank';link.rel='noopener noreferrer';link.setAttribute('aria-label',`Open posting for ${a.company}`);actions.append(link);}
       const edit=make('button','tiny-action','Edit');edit.type='button';edit.addEventListener('click',()=>openForm(a));actions.append(edit);
       const del=make('button','tiny-action danger','Delete');del.type='button';del.addEventListener('click',()=>deleteApplication(a.id));actions.append(del);
-      tr.append(company,country,statusCell,deadline,actions);body.append(tr);
+      tr.append(company,country,statusCell,deadline,actionCell);body.append(tr);
     });
   }
   function openForm(application) {
@@ -185,9 +213,11 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
     $('#applicationForm').reset();$('#formError').hidden=true;
     $('#formTitle').textContent=application?'Edit opportunity':'Add opportunity';
     $('#submitDialogBtn').textContent=application?'Update opportunity':'Save opportunity';
+    if(application && application.country && !Array.from($('#country').options).some(o=>o.value===application.country)) { $('#country').add(new Option(application.country,application.country)); }
     if(application){['company','role','country','status','deadline','url','notes'].forEach(key => { $(`#${key}`).value=application[key] || ''; }); }
     $('#applicationDialog').showModal();$('#company').focus();
   }
+  $('#applicationDialog').addEventListener('close',()=>{state.editId=null;});
   function closeForm(){ $('#applicationDialog').close();state.editId=null; }
   function handleSubmit(event){
     event.preventDefault();
@@ -303,7 +333,8 @@ body.dark{--navy:#090f20;--ink:#e3eaf7;--sub:#a7b1c4;--border:#2b3853;--surface:
       const active=button.dataset.view===current;button.classList.toggle('active',active);
       if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
     });
-    window.location.hash=current;
+    // Leave Supabase verification errors/tokens intact until the auth SDK reads them.
+    if (!location.hash || ['#applications','#roadmap'].includes(location.hash)) window.location.hash=current;
   }
   function setTheme(dark){document.body.classList.toggle('dark',dark);$('#themeToggle').textContent=dark?'☀':'☾';try{localStorage.setItem(THEME_KEY,dark?'dark':'light');}catch{}}
   $('#addApplicationBtn').addEventListener('click',()=>openForm());

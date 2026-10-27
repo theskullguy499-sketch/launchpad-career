@@ -1,0 +1,11 @@
+{
+  "name": "launchpad-career",
+  "private": true,
+  "scripts": {
+    "build": "esbuild node_modules/@supabase/supabase-js/dist/index.mjs --bundle --format=esm --platform=browser --outfile=vendor/supabase.js --minify",
+    "test": "npm run build && playwright test",
+    "start": "python3 -m http.server 8000 --bind 127.0.0.1"
+  },
+  "dependencies": {"@supabase/supabase-js": "2.118.0"},
+  "devDependencies": {"@playwright/test": "1.64.1", "esbuild": "0.28.2"}
+}
