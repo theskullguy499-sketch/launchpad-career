@@ -105,7 +105,7 @@ function initialize() {
   heroTitle.textContent = "Build a career with direction.";
   hero.querySelector(".ascent-copy>p:not(.hero-kicker)").textContent =
     "A thoughtful plan. The right opportunities. Your next chapter, in motion.";
-  hero.querySelector(".ascent-art").src = "assets/career-studio.svg";
+  hero.querySelector(".ascent-art").src = "assets/career-objects.svg";
   const intro = dashboard.querySelector(".intro-copy");
   intro.textContent =
     "Your personal career studio. Every number and next step starts with your own progress.";
@@ -114,14 +114,14 @@ function initialize() {
     story = form.querySelector(".auth-brand-story");
   const brand = node("div", "auth-brand-signature");
   const mark = node("img");
-  mark.src = "assets/launchpad.svg";
-  mark.alt = "";
-  mark.width = 36;
-  mark.height = 36;
-  brand.append(mark, node("strong", null, "Launchpad"));
+  mark.src = "assets/brand/launchpad-lockup-dark.svg";
+  mark.alt = "Launchpad — Your Career, Higher.";
+  mark.width = 255;
+  mark.height = 72;
+  brand.append(mark);
   story.prepend(brand);
   const art = node("img", "auth-career-art");
-  art.src = "assets/career-studio.svg";
+  art.src = "assets/career-objects.svg";
   art.alt = "";
   art.width = 420;
   art.height = 310;
@@ -130,6 +130,32 @@ function initialize() {
   for (const child of [...form.children])
     if (child !== story) main.append(child);
   form.append(main);
+  // Reference-inspired workbench: compact main column and a truthful personal rail.
+  const workbench = node("div", "studio-workbench");
+  const canvas = node("div", "studio-canvas");
+  const rail = node("div", "studio-rail");
+  rail.setAttribute("aria-label", "Career calendar and progress");
+  rail.setAttribute("role", "region");
+  heading.after(workbench);
+  workbench.append(canvas, rail);
+  canvas.append($("#dashboardMetrics"));
+  const storyGrid = node("div", "studio-story-grid");
+  canvas.append(storyGrid);
+  storyGrid.append(hero, momentum, activity, $("#dashboardCoach"), compass, $("#dashboardFocus"));
+  const calendar = node("section", "panel section-pad career-calendar");
+  calendar.id = "careerCalendar";
+  rail.append(calendar, $("#dashboardJourney"), schedule);
+  canvas.append(strip, onboarding);
+  bento.remove();
+  lead.remove();
+  const jobs = $("#jobsView");
+  const explorer = node("div", "discovery-workbench");
+  const results = node("div", "discovery-canvas");
+  jobs.querySelector(".screen-heading").after(explorer);
+  explorer.append($("#jobSearchForm"), results);
+  results.append($(".job-results-toolbar"), $("#jobResults"), $("#loadMoreJobs"));
+  const sidebarCard = $(".sidebar .goal-card");
+  sidebarCard.append(link("Compare plans", "billing", "sidebar-plan-link"));
   // Helpful zero states preserve the original controls and data model.
   const apply = $("#emptyState");
   const guide = node("div", "empty-steps");
@@ -163,8 +189,94 @@ function initialize() {
     }
   }
 }
+let calendarMonth = null;
+function renderCareerCalendar(data) {
+  const today = new Date();
+  calendarMonth ||= new Date(today.getFullYear(), today.getMonth(), 1);
+  const year = calendarMonth.getFullYear(), month = calendarMonth.getMonth();
+  const monthLabel = calendarMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const root = $("#careerCalendar");
+  root.replaceChildren();
+  const header = node("div", "calendar-heading");
+  const title = node("h2", null, monthLabel);
+  title.id = "calendarMonthLabel";
+  title.setAttribute("aria-live", "polite");
+  const controls = node("div", "calendar-controls");
+  for (const [offset, text, label] of [[-1, "‹", "Previous month"], [1, "›", "Next month"]]) {
+    const button = node("button", "icon-btn", text);
+    button.type = "button";
+    button.setAttribute("aria-label", label);
+    button.addEventListener("click", () => {
+      calendarMonth = new Date(year, month + offset, 1);
+      renderCareerCalendar(data);
+      // Rebuilding the read-only calendar must not strand keyboard focus.
+      root.querySelector(`[aria-label="${label}"]`).focus();
+    });
+    controls.append(button);
+  }
+  header.append(title, controls);
+  const table = node("table", "month-grid");
+  table.setAttribute("aria-labelledby", title.id);
+  const head = node("thead"), headerRow = node("tr");
+  for (const [short, full] of [["M","Monday"],["T","Tuesday"],["W","Wednesday"],["T","Thursday"],["F","Friday"],["S","Saturday"],["S","Sunday"]]) {
+    const th = node("th", null, short);
+    th.scope = "col";
+    th.setAttribute("aria-label", full);
+    headerRow.append(th);
+  }
+  head.append(headerRow);
+  const events = [];
+  const add = (value, text, view) => {
+    if (!value) return;
+    const parsed = new Date(value.length === 10 ? value + "T12:00:00" : value);
+    if (!Number.isFinite(parsed.getTime())) return;
+    events.push({ day: [parsed.getFullYear(), String(parsed.getMonth()+1).padStart(2,"0"), String(parsed.getDate()).padStart(2,"0")].join("-"), text, view });
+  };
+  for (const app of data.applications) {
+    if (["Rejected", "Withdrawn", "Hired"].includes(app.status)) continue;
+    add(app.deadline, `Deadline · ${app.company}`, "applications");
+    add(app.interviewAt, `Interview · ${app.company}`, "applications");
+    add(app.followUp, `Follow-up · ${app.company}`, "applications");
+  }
+  for (const task of data.tasks) if (!task.completed) add(task.dueDate, `Task · ${task.title}`, "dashboard");
+  for (const milestone of data.milestones) if (!milestone.completed) add(milestone.targetDate, `Milestone · ${milestone.title}`, "roadmap");
+  const body = node("tbody");
+  const start = (new Date(year, month, 1).getDay() + 6) % 7;
+  const last = new Date(year, month + 1, 0).getDate();
+  for (let i = 0; i < Math.ceil((start + last)/7)*7; i += 7) {
+    const row = node("tr");
+    for (let j = 0; j < 7; j++) {
+      const day = i + j - start + 1, cell = node("td");
+      if (day > 0 && day <= last) {
+        const date = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+        const matches = events.filter(e => e.day === date);
+        const time = node("time", matches.length ? "has-career-event" : null, day);
+        time.dateTime = date;
+        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) time.setAttribute("aria-current", "date");
+        time.setAttribute("aria-label", `${date}${matches.length ? `, ${matches.length} planned items` : ""}`);
+        cell.append(time);
+      }
+      row.append(cell);
+    }
+    body.append(row);
+  }
+  table.append(head, body);
+  root.append(header, table, node("p", "helper calendar-legend", "Dots mark your dated items. Today is highlighted."));
+  const monthEvents = events.filter(e => e.day.startsWith(`${year}-${String(month+1).padStart(2,"0")}`)).sort((a,b)=>a.day.localeCompare(b.day));
+  if (monthEvents.length) {
+    const list = node("ul", "calendar-events");
+    for (const event of monthEvents.slice(0, 3)) {
+      const item = node("li");
+      item.append(node("time", null, event.day.slice(8)), link(event.text, event.view));
+      list.append(item);
+    }
+    root.append(list);
+    if (monthEvents.length > 3) root.append(node("p", "helper", `${monthEvents.length} planned items this month. Review your tasks and applications for the complete list.`));
+  } else root.append(node("p", "empty-copy", "No dated items this month. Add a deadline, interview or task date to plan ahead."));
+}
 export function renderExperience(data, stats) {
   initialize();
+  renderCareerCalendar(data);
   const compass = $("#careerCompass");
   compass.replaceChildren(node("p", "compass-eyebrow", "YOUR NORTH STAR"));
   const goal = data.goals[0];

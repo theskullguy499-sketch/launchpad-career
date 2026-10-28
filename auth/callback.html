@@ -9,7 +9,7 @@
   <style>body{margin:0;padding:32px;background:#f7f9fc;color:#17243b;font:16px/1.6 system-ui}main{max-width:520px;margin:12vh auto;padding:28px;border:1px solid #e8edf2;border-radius:16px;background:white}a{color:#3168ec}
 body{background:radial-gradient(ellipse at top right,#dce8ff,transparent 65%),#f4f7fc;color:#172747}
 main{border-radius:22px;border-color:#e1e7f0;box-shadow:0 12px 50px #1836650c;border-top:4px solid #285bdb}
-.brand-line{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.5px}.brand-line img{width:32px;height:32px}
+.brand-line{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.5px}.brand-line img{width:218px;height:auto;max-width:100%}.brand-on-dark{display:none}@media(prefers-color-scheme:dark){.brand-on-light{display:none}.brand-on-dark{display:block}}
 h1{font-size:28px;letter-spacing:-1px;line-height:1.2}a{color:#285bdb;text-underline-offset:4px}
 a:focus-visible{outline:3px solid #8bb9ff;outline-offset:4px}
 @media(prefers-color-scheme:dark){body{background:#0d172b;color:#e7edf9}main{background:#17243e;border-color:#34425d;border-top-color:#8eb6ff}a{color:#abcaff}}
@@ -17,7 +17,7 @@ a:focus-visible{outline:3px solid #8bb9ff;outline-offset:4px}
 </style>
 <link rel="icon" href="../assets/launchpad.svg" />
 </head>
-<body><main><div class="brand-line"><img src="../assets/launchpad.svg" alt="" width="32" height="32" /><span>launchpad.</span></div><h1>Launchpad account</h1><p id="callbackStatus" role="status">Verifying your secure link…</p><a href="../">Return to Launchpad</a></main>
+<body><main><div class="brand-line"><img class="brand-on-light" src="../assets/brand/launchpad-lockup-light.svg" width="218" height="62" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="../assets/brand/launchpad-lockup-dark.svg" width="218" height="62" alt="Launchpad — Your Career, Higher." /></div><h1>Launchpad account</h1><p id="callbackStatus" role="status">Verifying your secure link…</p><a href="../">Return to Launchpad</a></main>
 <script src="../auth-config.js"></script>
 <script type="module" src="callback.js"></script>
 </body>

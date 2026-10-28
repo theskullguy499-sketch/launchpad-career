@@ -1,5 +1,12 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "assets/career-objects.svg",
+  "assets/brand/launchpad-lockup-light.svg",
+  "assets/brand/launchpad-lockup-dark.svg",
+  "assets/brand/launchpad-lockup-light.png",
+  "assets/brand/launchpad-lockup-dark.png",
+  "assets/brand/launchpad-icon-180.png",
+  "assets/brand/DEJAVU-LICENSE.txt",
   "evolution.js",
   "billing-view.js",
   "styles/evolution.css",

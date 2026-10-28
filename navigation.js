@@ -71,7 +71,7 @@ document
   .querySelector("#navigationBackdrop")
   .addEventListener("click", () => setOpen(false));
 sidebar.addEventListener("click", (event) => {
-  if (open && event.target.closest(".nav-item, .brand")) setOpen(false, "main");
+  if (open && event.target.closest(".nav-item, a[href^='#']")) setOpen(false, "main");
 });
 window.addEventListener("launchpad:navigate", () => {
   if (open) setOpen(false, "main");

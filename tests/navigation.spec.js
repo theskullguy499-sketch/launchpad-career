@@ -44,7 +44,7 @@ for (const width of [320, 375, 390, 428, 768]) {
     }
     await toggle.click();
     await page.keyboard.press("Shift+Tab");
-    await expect(sidebar.locator('[data-view="billing"]')).toBeFocused();
+    await expect(sidebar.locator(".sidebar-plan-link")).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(page.locator("#closeNavigation")).toBeFocused();
     await page.keyboard.press("Escape");

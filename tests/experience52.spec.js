@@ -150,7 +150,7 @@ for (const theme of ["light", "dark"])
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/#dashboard");
     if (theme === "dark") await page.click("#themeToggle");
-    await expect(page.locator(".dashboard-lead-grid")).toBeVisible();
+    await expect(page.locator(".studio-workbench")).toBeVisible();
     await expect(page.locator("#careerCompass")).toBeVisible();
     for (const view of [
       "dashboard",

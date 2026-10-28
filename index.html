@@ -29,7 +29,7 @@ td.actions{display:table-cell}.row-actions{display:flex;gap:7px;flex-wrap:wrap;j
 .auth-copy{font-size:13px;line-height:1.6;color:var(--sub);overflow-wrap:anywhere}.auth-fields{display:grid;gap:16px}.auth-fields label{display:grid;gap:8px;font-weight:650}.auth-fields input{width:100%;min-width:0;padding:12px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink);font-size:16px}.auth-status{line-height:1.6;overflow-wrap:anywhere}.auth-mode{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.button:disabled{cursor:wait;opacity:.65;transform:none}
 @media(max-width:1050px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-decoration{flex-shrink:0}.offline-pill{display:none}}
 @media(max-width:768px){.form-grid{grid-template-columns:minmax(0,1fr)}.topbar{height:auto;min-height:70px;padding:12px 0;flex-wrap:wrap}.breadcrumb{line-height:1.8}.panel-head{align-items:flex-start}.backup-actions{flex-shrink:1}.dialog-actions{flex-wrap:wrap}.application-dialog{max-height:calc(100dvh - 28px)}.application-dialog form{max-height:calc(100dvh - 29px)}
-.table-wrap{overflow:visible;padding:0 16px 16px}table,tbody,tr,td{display:block;width:100%;min-width:0}thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}tr{border:1px solid var(--border);border-radius:12px;margin-bottom:12px;padding:14px}td{border:0;padding:8px 0}td:first-child{padding-top:0}td strong{font-size:15px;line-height:1.5}td[data-label]::before{content:attr(data-label);display:block;color:var(--sub);font-size:10px;font-weight:750;letter-spacing:.6px;margin-bottom:6px}td.actions{display:block}.row-actions{justify-content:flex-start}td .tiny-action{padding:10px 12px}.resource-panel{padding:20px}.milestone{padding:18px;gap:12px}}
+.table-wrap{overflow:visible;padding:0 16px 16px}.table-wrap table,.table-wrap tbody,.table-wrap tr,.table-wrap td{display:block;width:100%;min-width:0}.table-wrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.table-wrap tr{border:1px solid var(--border);border-radius:12px;margin-bottom:12px;padding:14px}.table-wrap td{border:0;padding:8px 0}.table-wrap td:first-child{padding-top:0}.table-wrap td strong{font-size:15px;line-height:1.5}.table-wrap td[data-label]::before{content:attr(data-label);display:block;color:var(--sub);font-size:10px;font-weight:750;letter-spacing:.6px;margin-bottom:6px}.table-wrap td.actions{display:block}.table-wrap .row-actions{justify-content:flex-start}.table-wrap td .tiny-action{padding:10px 12px}.resource-panel{padding:20px}.milestone{padding:18px;gap:12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 
 
@@ -45,7 +45,8 @@ td{color:var(--ink)}td small,body.dark td small{color:var(--sub)}body.dark .erro
 
 </style>
 
-<link rel="icon" href="assets/launchpad.svg" />
+<link rel="icon" type="image/svg+xml" href="assets/launchpad.svg" />
+<link rel="apple-touch-icon" href="assets/brand/launchpad-icon-180.png" />
 <link rel="stylesheet" href="styles/platform.css" />
 <link rel="stylesheet" href="styles/premium.css" />
 <link rel="stylesheet" href="styles/evolution.css" />
@@ -53,15 +54,14 @@ td{color:var(--ink)}td small,body.dark td small{color:var(--sub)}body.dark .erro
 <body>
   <div class="app-shell">
     <header class="mobile-header" id="mobileHeader">
-      <a class="brand" href="#home" aria-label="Launchpad home"><span class="brand-symbol" aria-hidden="true"><img src="assets/launchpad.svg" width="37" height="37" alt="" /></span><span>launchpad<span class="brand-dot">.</span></span></a>
+      <a class="brand" href="#home" aria-label="Launchpad home"><img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="180" height="51" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="180" height="51" alt="Launchpad — Your Career, Higher." /></a>
       <button type="button" class="button button-outline mobile-menu-toggle" id="menuToggle" aria-controls="mainNavigation" aria-expanded="false" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg> Menu</button>
     </header>
     <div class="navigation-backdrop" id="navigationBackdrop" aria-hidden="true"></div>
     <aside class="sidebar" id="mainNavigation" aria-label="Main navigation">
       <button type="button" class="icon-btn drawer-close" id="closeNavigation" aria-label="Close navigation">×</button>
       <a class="brand" href="#home" id="brandLink" aria-label="Launchpad home">
-        <span class="brand-symbol" aria-hidden="true"><img src="assets/launchpad.svg" width="37" height="37" alt="" /></span>
-        <span>launchpad<span class="brand-dot">.</span><small>YOUR CAREER, HIGHER.</small></span>
+        <img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="208" height="59" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="208" height="59" alt="Launchpad — Your Career, Higher." />
       </a>
       <p class="nav-label">WORKSPACE</p>
       <nav class="nav-list" aria-label="Sections">
