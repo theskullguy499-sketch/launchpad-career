@@ -34,7 +34,13 @@ let state = null,
   catalog = PLANS,
   publicConfig = { enabled: false },
   paddlePromise,
-  checkoutOwner = null;
+  checkoutOwner = null,
+  checkoutScope = null,
+  checkoutTransaction = null,
+  checkoutPlan = null,
+  checkoutPending = false,
+  checkoutWatch = 0,
+  checkoutTimer;
 const navigate = (view) => window.launchpadData.navigate(view);
 function status(message) {
   $("#billingStatus").textContent = message;
@@ -94,6 +100,9 @@ screen.id = "billingView";
 screen.hidden = true;
 screen.setAttribute("aria-label", "Plans and billing");
 screen.innerHTML = `<div class="screen-heading"><div><p class="eyebrow">GROW AT YOUR PACE</p><h1>Your next step.<br><em>Your choice.</em></h1><p class="intro-copy">Start with the local organizer. Paid accounts add protected cloud editing and AI request allowances when the commercial service is activated.</p></div></div><p id="billingMode" class="platform-status" role="note"></p><p id="billingStatus" class="platform-status" role="status" aria-live="polite"></p><div id="pricingCards" class="pricing-grid"></div><p class="helper" id="pricingDisclosure"></p><section class="panel section-pad"><h2>Before choosing a paid plan</h2><label class="check-label"><input type="checkbox" id="billingConsent" /> I am 18 or older and agree to the billing, cancellation and refund terms. I understand recurring billing and any displayed proration.</label><p class="helper">People aged 16–17 may use eligible free services. Paid contracting is restricted to adults; contact the operator about a legally reviewed guardian process before any purchase.</p><a href="legal/billing.html" target="_blank" rel="noopener noreferrer">Billing, cancellation & refund policy draft</a></section><section class="panel section-pad"><h2>Your account & subscription</h2><div id="subscriptionSummary"></div><div id="billingActions" class="button-row"></div><p class="helper">Checkout completion in the browser does not grant access. Only a verified provider event updates server entitlements. Existing records remain available for export after cancellation or expiration. Offline portfolio tools remain available; browser-only views are not a security boundary.</p></section><section class="panel section-pad"><h2>AI usage</h2><p id="creditSummary" class="helper"></p><div id="usageList"></div><p class="helper">Credits count submitted provider attempts, including failed attempts; retries can consume credits. Monthly credits reset at the start of each UTC calendar month. Daily and platform limits also apply. Cost estimates require operator-configured model rates; they are not provider invoices.</p></section><section class="panel section-pad"><h2>Early access & privacy choices</h2><p>Join early access using your verified account email. This is optional and separate from registration or buying a subscription. Withdrawing stops future launch messages; messages are sent only by the operator's configured process.</p><div id="earlyAccessActions" class="button-row"></div><label class="check-label"><input type="checkbox" id="conversionConsent" /> Allow an account-linked daily pricing-view count for simple conversion analysis. No third-party analytics are loaded.</label><p class="helper">Unchecking withdraws consent and deletes your account-linked pricing-view counts.</p></section>`;
+const setupRequired = el("div", null, "helper");
+setupRequired.id = "billingSetupRequired";
+screen.querySelector("#billingMode").after(setupRequired);
 $("#platformScreens").append(screen);
 const business = el("section", null, "view");
 business.id = "businessView";
@@ -177,6 +186,27 @@ function drawPricing() {
   $("#pricingDisclosure").textContent = BILLING_DISCLOSURE;
 }
 function draw() {
+  const setup = $("#billingSetupRequired");
+  if (setup) {
+    setup.replaceChildren();
+    if (publicConfig.setupRequired?.length) {
+      setup.append(
+        el(
+          "p",
+          "The operator still needs to complete these settings. No purchase has been started:",
+        ),
+      );
+      const list = el("ul");
+      for (const label of publicConfig.setupRequired)
+        list.append(el("li", label));
+      setup.append(list);
+    }
+  }
+  const dashboard = $("#dashboardBillingSummary");
+  if (dashboard)
+    dashboard.textContent = state
+      ? `Server-confirmed access: ${state.entitlement.plan}${state.entitlement.legacy ? " (legacy grant, not a paid subscription)" : ""}. ${state.entitlement.environment === "sandbox" ? "Sandbox test account. " : ""}View Plans & Billing.`
+      : "Plan not checked. Open Plans & Billing to verify your account status.";
   $("#billingMode").textContent = publicConfig.enabled
     ? `${!publicConfig.checkoutReady ? "Commercial workspace rules are enabled, but checkout is paused or not configured." : publicConfig.environment === "sandbox" ? "SANDBOX — test purchases only." : "Commercial service enabled; complete the release acceptance checks before inviting customers."}`
     : "Portfolio / setup mode. Commercial checkout is not activated. Prices are proposals; no subscription is being sold here.";
@@ -312,6 +342,8 @@ async function refresh() {
       checkoutReady: r.checkoutReady,
       enabled: r.entitlement.enabled,
       environment: r.entitlement.environment,
+      termsVersion: r.termsVersion ?? publicConfig.termsVersion,
+      setupRequired: r.setupRequired || [],
     };
     drawPricing();
     draw();
@@ -320,6 +352,7 @@ async function refresh() {
         ? "Server status loaded. Payment changes may still be awaiting a verified webhook."
         : "Paddle is not configured. No purchase was started.",
     );
+    return true;
   } catch (e) {
     if (ticket === generation) {
       state = null;
@@ -331,6 +364,113 @@ async function refresh() {
       );
     }
   }
+}
+function stopCheckoutWatch() {
+  checkoutWatch++;
+  clearTimeout(checkoutTimer);
+}
+function handleCheckoutEvent(event) {
+  if (
+    !checkoutOwner ||
+    checkoutOwner !== window.launchpadSession?.id ||
+    checkoutScope !== sessionVersion
+  )
+    return;
+  if (
+    event.data?.transaction_id &&
+    event.data.transaction_id !== checkoutTransaction
+  )
+    return;
+  if (event.name === "checkout.closed" && !checkoutPending) {
+    status(
+      "Checkout closed. No payment success is claimed. Refresh status before retrying.",
+    );
+  }
+  if (["checkout.error", "checkout.payment.failed"].includes(event.name)) {
+    stopCheckoutWatch();
+    checkoutPending = false;
+    status(
+      "Checkout could not finish. Check Plans & Billing or the provider portal before retrying. No payment success is claimed.",
+    );
+  }
+  if (event.name !== "checkout.completed" || checkoutPending) return;
+  checkoutPending = true;
+  status(
+    "Checkout reported completion. Waiting for the verified server webhook; access has not been confirmed.",
+  );
+  const watch = ++checkoutWatch,
+    scope = sessionVersion,
+    owner = checkoutOwner;
+  let attempts = 0;
+  const check = async () => {
+    if (
+      watch !== checkoutWatch ||
+      scope !== sessionVersion ||
+      owner !== window.launchpadSession?.id
+    )
+      return;
+    const loaded = await refresh();
+    if (
+      watch !== checkoutWatch ||
+      scope !== sessionVersion ||
+      owner !== window.launchpadSession?.id
+    )
+      return;
+    if (!loaded) {
+      checkoutPending = false;
+      return;
+    }
+    if (
+      state &&
+      !state.entitlement.legacy &&
+      ["pro", "premium"].includes(state.entitlement.plan) &&
+      (!checkoutPlan || state.entitlement.plan === checkoutPlan)
+    ) {
+      status(
+        "Your plan is confirmed by the server. The verified server webhook controls access.",
+      );
+      checkoutPending = false;
+      return;
+    }
+    if (++attempts >= 6) {
+      status(
+        "Still awaiting the verified server webhook. No new purchase was started. Refresh status later or contact support before retrying.",
+      );
+      checkoutPending = false;
+      return;
+    }
+    status(
+      "Still awaiting the verified server webhook. Checking server status again shortly…",
+    );
+    checkoutTimer = setTimeout(check, 4000);
+  };
+  checkoutTimer = setTimeout(check, 4000);
+}
+async function openCheckout(result, owner, scope, plan) {
+  if (
+    location.hostname === "launchpad-career-staging.pages.dev" &&
+    result.environment !== "sandbox"
+  )
+    throw new Error("Only Sandbox checkout can open on this staging site.");
+  const sdk = await paddle();
+  if (scope !== sessionVersion || owner !== window.launchpadSession?.id)
+    throw new Error("Your account changed before checkout opened.");
+  stopCheckoutWatch();
+  checkoutOwner = owner;
+  checkoutScope = scope;
+  checkoutTransaction = result.transactionId;
+  checkoutPlan = plan || result.plan;
+  checkoutPending = false;
+  if (result.environment === "sandbox") sdk.Environment.set("sandbox");
+  if (!window.launchpadPaddleInitialized) {
+    sdk.Initialize({
+      token: result.clientToken,
+      eventCallback: handleCheckoutEvent,
+    });
+    window.launchpadPaddleInitialized = true;
+  }
+  sdk.Checkout.open({ transactionId: result.transactionId });
+  status(result.notice);
 }
 async function paddle() {
   if (window.Paddle) return window.Paddle;
@@ -381,6 +521,17 @@ async function purchase(plan) {
     throw new Error(
       "Commercial billing is not activated. No payment was started.",
     );
+  if (
+    location.hostname === "launchpad-career-staging.pages.dev" &&
+    publicConfig.environment !== "sandbox"
+  )
+    throw new Error(
+      "This staging site accepts Sandbox purchases only. No payment was started.",
+    );
+  if (!publicConfig.checkoutReady)
+    throw new Error(
+      "Checkout is unavailable until the operator completes the settings listed above. No payment was started.",
+    );
   const active = state.subscriptions?.some((s) =>
     ["active", "trialing", "past_due", "paused"].includes(s.status),
   );
@@ -417,28 +568,7 @@ async function purchase(plan) {
     termsVersion: publicConfig.termsVersion,
     requestId: crypto.randomUUID(),
   });
-  const sdk = await paddle();
-  if (scope !== sessionVersion || purchaseOwner !== window.launchpadSession?.id)
-    throw new Error("Your account changed before checkout opened.");
-  checkoutOwner = purchaseOwner;
-  if (r.environment === "sandbox") sdk.Environment.set("sandbox");
-  if (!window.launchpadPaddleInitialized) {
-    sdk.Initialize({
-      token: r.clientToken,
-      eventCallback: (event) => {
-        if (
-          event.name === "checkout.completed" &&
-          checkoutOwner === window.launchpadSession?.id
-        )
-          status(
-            "Checkout reported completion. Refresh status; access requires the verified server webhook.",
-          );
-      },
-    });
-    window.launchpadPaddleInitialized = true;
-  }
-  sdk.Checkout.open({ transactionId: r.transactionId });
-  status(r.notice);
+  await openCheckout(r, purchaseOwner, scope, plan);
 }
 async function resumeCheckout() {
   const scope = sessionVersion;
@@ -456,26 +586,7 @@ async function resumeCheckout() {
     contractConsent: true,
     termsVersion: publicConfig.termsVersion,
   });
-  const sdk = await paddle();
-  if (scope !== sessionVersion || owner !== window.launchpadSession?.id)
-    throw new Error("Your account changed before checkout opened.");
-  if (r.environment === "sandbox") sdk.Environment.set("sandbox");
-  checkoutOwner = owner;
-  if (!window.launchpadPaddleInitialized) {
-    sdk.Initialize({
-      token: r.clientToken,
-      eventCallback: (event) => {
-        if (
-          event.name === "checkout.completed" &&
-          checkoutOwner === window.launchpadSession?.id
-        )
-          status("Refresh status to check the verified provider webhook.");
-      },
-    });
-    window.launchpadPaddleInitialized = true;
-  }
-  sdk.Checkout.open({ transactionId: r.transactionId });
-  status(r.notice);
+  await openCheckout(r, owner, scope);
 }
 async function cancel(immediate) {
   if (
@@ -560,7 +671,10 @@ $("#conversionConsent").addEventListener("change", async (event) => {
 });
 window.addEventListener("launchpad:auth", () => {
   sessionVersion++;
+  stopCheckoutWatch();
   checkoutOwner = null;
+  checkoutScope = null;
+  checkoutPending = false;
   try {
     window.Paddle?.Checkout?.close();
   } catch {
@@ -584,6 +698,10 @@ window.addEventListener("launchpad:navigate", (event) => {
   }
   if (event.detail === "business") metrics();
 });
+const dashboardSummary = el("a", null, "helper");
+dashboardSummary.id = "dashboardBillingSummary";
+dashboardSummary.href = "#billing";
+$("#dashboardView .screen-heading").after(dashboardSummary);
 const panel = el("section", null, "panel section-pad");
 panel.append(el("h2", "Subscription & AI requests"), el("p", null, "helper"));
 panel.lastChild.id = "commercialSettingsSummary";

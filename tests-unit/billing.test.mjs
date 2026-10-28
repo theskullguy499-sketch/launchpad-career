@@ -541,41 +541,74 @@ test("payment-link resumption requires an owned transaction and reviewed current
 test("signed sandbox simulator events acknowledge receipt without any backend or paid-access side effects", async () => {
   for (const type of ["subscription.activated", "transaction.completed"]) {
     const raw = JSON.stringify({
-      event_id: "ntfsimevt_01jfixture123", event_type: type,
+      event_id: "ntfsimevt_01jfixture123",
+      event_type: type,
       occurred_at: at.toISOString(),
-      data: { id: "sub_owner", subscription_id: "sub_owner", customer_id: "ctm_owner", status: "active" },
+      data: {
+        id: "sub_owner",
+        subscription_id: "sub_owner",
+        customer_id: "ctm_owner",
+        status: "active",
+      },
     });
     const handler = makeBillingHandler("paddle-webhook", {
-      env: k => ({ PADDLE_ENVIRONMENT: "sandbox", PADDLE_WEBHOOK_SECRET: secret })[k],
+      env: (k) =>
+        ({ PADDLE_ENVIRONMENT: "sandbox", PADDLE_WEBHOOK_SECRET: secret })[k],
       now: () => at,
-      createClient: () => assert.fail("Simulations must not access the database or grant entitlements"),
-      fetch: () => assert.fail("Simulations must not request provider data or create payments"),
+      createClient: () =>
+        assert.fail(
+          "Simulations must not access the database or grant entitlements",
+        ),
+      fetch: () =>
+        assert.fail(
+          "Simulations must not request provider data or create payments",
+        ),
     });
     for (let delivery = 0; delivery < 2; delivery++) {
-      const response = await handler(new Request("https://backend.example/webhook", {
-        method: "POST", headers: { "Paddle-Signature": signed(raw) }, body: raw,
-      }));
+      const response = await handler(
+        new Request("https://backend.example/webhook", {
+          method: "POST",
+          headers: { "Paddle-Signature": signed(raw) },
+          body: raw,
+        }),
+      );
       assert.equal(response.status, 200);
-      assert.deepEqual(await response.json(), { received: true, simulated: true, processed: false });
+      assert.deepEqual(await response.json(), {
+        received: true,
+        simulated: true,
+        processed: false,
+      });
     }
   }
 });
 
 test("simulator events still require valid raw-body signatures and fresh timestamps", async () => {
   const f = fixture();
-  const raw = JSON.stringify({ event_id: "ntfsimevt_01jfixture123", event_type: "subscription.activated", occurred_at: at.toISOString(), data: { id: "sub_owner" } });
+  const raw = JSON.stringify({
+    event_id: "ntfsimevt_01jfixture123",
+    event_type: "subscription.activated",
+    occurred_at: at.toISOString(),
+    data: { id: "sub_owner" },
+  });
   const before = JSON.stringify(f.tables);
   for (const [body, signature] of [
-    [raw, ""], [raw, "ts=bad;h1=bad"], [raw + " ", signed(raw)],
+    [raw, ""],
+    [raw, "ts=bad;h1=bad"],
+    [raw + " ", signed(raw)],
     [raw, signed(raw, at.getTime() / 1000 - 301)],
     [raw, signed(raw, at.getTime() / 1000 + 301)],
   ]) {
-    const response = await f.handler("paddle-webhook")(new Request("https://backend.example/webhook", {
-      method: "POST", headers: { "Paddle-Signature": signature }, body,
-    }));
+    const response = await f.handler("paddle-webhook")(
+      new Request("https://backend.example/webhook", {
+        method: "POST",
+        headers: { "Paddle-Signature": signature },
+        body,
+      }),
+    );
     assert.equal(response.status, 401);
   }
-  assert.deepEqual(f.calls, []); assert.deepEqual(f.requests, []);
+  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.requests, []);
   assert.equal(JSON.stringify(f.tables), before);
 });
 
@@ -583,24 +616,149 @@ test("production and unspecified environments reject even correctly signed simul
   for (const environment of ["live", "production", "", undefined]) {
     const f = fixture({ env: { PADDLE_ENVIRONMENT: environment } });
     const before = JSON.stringify(f.tables);
-    const raw = JSON.stringify({ event_id: "ntfsimevt_01jfixture123", event_type: "subscription.activated", occurred_at: at.toISOString(), data: { id: "sub_owner" } });
-    const response = await f.handler("paddle-webhook")(new Request("https://backend.example/webhook", {
-      method: "POST", headers: { "Paddle-Signature": signed(raw) }, body: raw,
-    }));
+    const raw = JSON.stringify({
+      event_id: "ntfsimevt_01jfixture123",
+      event_type: "subscription.activated",
+      occurred_at: at.toISOString(),
+      data: { id: "sub_owner" },
+    });
+    const response = await f.handler("paddle-webhook")(
+      new Request("https://backend.example/webhook", {
+        method: "POST",
+        headers: { "Paddle-Signature": signed(raw) },
+        body: raw,
+      }),
+    );
     assert.equal(response.status, 400);
-    assert.deepEqual(f.calls, []); assert.deepEqual(f.requests, []);
+    assert.deepEqual(f.calls, []);
+    assert.deepEqual(f.requests, []);
     assert.equal(JSON.stringify(f.tables), before);
   }
 });
 
 test("malformed signed webhook envelopes are rejected without ledger or provider access", async () => {
   const f = fixture();
-  for (const body of [null, [], {event_id:"ntfsimevt_",occurred_at:at.toISOString(),event_type:"subscription.activated"}, {event_id:"ntfsimevt_abc",occurred_at:"bad",event_type:"subscription.activated"}, {event_id:"other_abc",occurred_at:at.toISOString(),event_type:"subscription.activated"}]) {
+  for (const body of [
+    null,
+    [],
+    {
+      event_id: "ntfsimevt_",
+      occurred_at: at.toISOString(),
+      event_type: "subscription.activated",
+    },
+    {
+      event_id: "ntfsimevt_abc",
+      occurred_at: "bad",
+      event_type: "subscription.activated",
+    },
+    {
+      event_id: "other_abc",
+      occurred_at: at.toISOString(),
+      event_type: "subscription.activated",
+    },
+  ]) {
     const raw = JSON.stringify(body);
-    const response = await f.handler("paddle-webhook")(new Request("https://backend.example/webhook", {
-      method: "POST", headers: { "Paddle-Signature": signed(raw) }, body: raw,
-    }));
+    const response = await f.handler("paddle-webhook")(
+      new Request("https://backend.example/webhook", {
+        method: "POST",
+        headers: { "Paddle-Signature": signed(raw) },
+        body: raw,
+      }),
+    );
     assert.equal(response.status, 400);
   }
-  assert.deepEqual(f.calls, []); assert.deepEqual(f.requests, []);
+  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.requests, []);
+});
+
+test("checkout readiness fails closed on incomplete site, CORS, environment, prices and legal configuration without exposing secrets", async () => {
+  for (const [env, label] of [
+    [{ PADDLE_PRICE_PRO: "" }, "Distinct monthly price IDs"],
+    [{ PADDLE_PRICE_PREMIUM: "pri_pro" }, "Distinct monthly price IDs"],
+    [{ PUBLIC_SITE_URL: "" }, "Configured checkout site"],
+    [{ PUBLIC_SITE_URL: "ftp://localhost/" }, "Configured checkout site"],
+    [
+      { ALLOWED_ORIGINS: "https://commercial.example/path" },
+      "Exact site CORS origin",
+    ],
+    [{ BILLING_CHECKOUT_ENABLED: "false" }, "Checkout operator approval"],
+    [{ BILLING_LEGAL_APPROVED: "false" }, "Legal operator approval"],
+    [{ BILLING_TERMS_VERSION: "" }, "Reviewed billing terms version"],
+    [
+      { PADDLE_CLIENT_TOKEN: "live_wrongenvironment" },
+      "Environment-matched Paddle client token",
+    ],
+    [{ PADDLE_ENVIRONMENT: "live" }, "Matching Paddle environment"],
+  ]) {
+    const f = fixture({ env });
+    const response = await f.handler("billing")(
+      f.req({ action: "catalog" }, { Origin: "" }),
+    );
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(data.checkoutReady, false);
+    assert.ok(data.setupRequired.includes(label));
+    assert.ok(!JSON.stringify(data).includes(secret));
+    assert.ok(!JSON.stringify(data).includes("server-paddle-fixture"));
+    assert.equal(f.requests.length, 0);
+    assert.equal(f.tables.billing_subscriptions.length, 0);
+  }
+  const f = fixture({ env: { BILLING_LEGAL_APPROVED: "false" } });
+  const response = await f.handler("billing")(
+    f.req({
+      action: "checkout",
+      plan: "pro",
+      contractConsent: true,
+      requestId: crypto.randomUUID(),
+    }),
+  );
+  assert.equal(response.status, 503);
+  assert.equal(f.requests.length, 0);
+  assert.equal(f.tables.billing_operations.length, 0);
+});
+
+test("authenticated billing status includes the authoritative terms version and readiness for slow catalog responses", async () => {
+  const f = fixture();
+  const response = await f.handler("billing")(f.req({ action: "status" }));
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.termsVersion, "test-reviewed-v1");
+  assert.equal(data.checkoutReady, true);
+  assert.deepEqual(data.setupRequired, []);
+});
+
+test("the known staging host cannot advertise live checkout even with matching live settings and an enabled live flag", async () => {
+  const f = fixture({
+    env: {
+      PADDLE_ENVIRONMENT: "live",
+      ALLOW_LIVE_BILLING: "true",
+      PADDLE_CLIENT_TOKEN: "live_fixture",
+      PUBLIC_SITE_URL: "https://launchpad-career-staging.pages.dev/",
+      ALLOWED_ORIGINS: "https://launchpad-career-staging.pages.dev",
+    },
+    tables: {
+      commercial_settings: [
+        { id: true, enabled: true, environment: "live", plans: PLANS },
+      ],
+    },
+  });
+  const catalog = await (
+    await f.handler("billing")(f.req({ action: "catalog" }, { Origin: "" }))
+  ).json();
+  assert.equal(catalog.checkoutReady, false);
+  assert.ok(catalog.setupRequired.includes("Staging is Sandbox-only"));
+  const response = await f.handler("billing")(
+    f.req(
+      {
+        action: "checkout",
+        plan: "pro",
+        contractConsent: true,
+        requestId: crypto.randomUUID(),
+      },
+      { Origin: "https://launchpad-career-staging.pages.dev" },
+    ),
+  );
+  assert.equal(response.status, 503);
+  assert.equal(f.requests.length, 0);
+  assert.equal(f.tables.billing_operations.length, 0);
 });

@@ -61,6 +61,7 @@ exports.configureCommercial = async function (page, plans) {
         return r.fulfill({
           json: {
             checkoutReady: true,
+            termsVersion: "mock-v1",
             ageBand,
             entitlement: {
               enabled: true,
