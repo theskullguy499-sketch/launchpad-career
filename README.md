@@ -1,4 +1,4 @@
-# Launchpad 5.1 — Integrated Staging Release Candidate
+# Launchpad 5.2 — Commercial Experience Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -7,7 +7,16 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
 
-## Unified staging handoff
+## Current 5.2 handoff
+
+Branch: **`feat/launchpad-5-2-commercial-experience`**, based on the integrated 5.1 release.
+Start with [Windows CMD and existing Cloudflare Direct Upload instructions](docs/releases/5.2-STAGING.md),
+[release evidence and blockers](docs/releases/5.2-RELEASE.md), and the [real screenshot gallery](docs/screenshots/5.2/README.md).
+No deployment, merge, real payment, live email verification or new official-logo replacement is claimed.
+The supplied-reference/new-logo files were not attached; current branding is preserved pending review.
+Older component guides below remain historical; use the 5.2 guide for this branch.
+
+## Previous unified staging handoff
 
 Use **`integration/launchpad-5-1-staging`** for the combined design and Auth/billing
 release. Start with [simple Windows CMD and existing Cloudflare Direct Upload steps](docs/INTEGRATED_STAGING.md).
