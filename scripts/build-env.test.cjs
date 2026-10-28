@@ -6,6 +6,7 @@ const { createHash } = require("node:crypto");
 test("Cloudflare public build config is validated, hashed and never changes committed credentials", () => {
   const original = fs.readFileSync("auth-config.js", "utf8");
   const env = { ...process.env };
+  delete env.REQUIRE_PUBLIC_AUTH_CONFIG;
   delete env.PUBLIC_SUPABASE_URL;
   delete env.PUBLIC_PUBLISHABLE_KEY;
   const run = (extra) =>
@@ -14,7 +15,11 @@ test("Cloudflare public build config is validated, hashed and never changes comm
       encoding: "utf8",
     });
   try {
+    let missing = run({ REQUIRE_PUBLIC_AUTH_CONFIG: "true" });
+    assert.notEqual(missing.status, 0);
+    assert.match(missing.stderr, /Staging Auth is required/);
     let r = run({
+      REQUIRE_PUBLIC_AUTH_CONFIG: "true",
       PUBLIC_SUPABASE_URL: "https://build-fixture.supabase.co",
       PUBLIC_PUBLISHABLE_KEY: "sb_publishable_build_fixture",
     });
@@ -23,6 +28,13 @@ test("Cloudflare public build config is validated, hashed and never changes comm
     assert.match(built.toString(), /build-fixture/);
     assert.equal(fs.readFileSync("auth-config.js", "utf8"), original);
     const manifest = JSON.parse(fs.readFileSync("_site/build-manifest.json"));
+    assert.equal(manifest.publicAuthConfigured, true);
+    assert.ok(
+      Object.keys(manifest.files).every(
+        (file) => !/\.sql$|^supabase\/|^docs\/|^node_modules\//.test(file),
+      ),
+      "Public artifact must not include backend SQL, docs or dependencies",
+    );
     assert.equal(
       manifest.files["auth-config.js"],
       createHash("sha256").update(built).digest("hex"),
