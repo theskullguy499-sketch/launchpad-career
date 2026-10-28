@@ -762,3 +762,128 @@ test("the known staging host cannot advertise live checkout even with matching l
   assert.equal(f.requests.length, 0);
   assert.equal(f.tables.billing_operations.length, 0);
 });
+
+test("billing activity is owner-filtered and never exposes raw checkout results or claims requests are receipts", async () => {
+  const f = fixture({
+    tables: {
+      billing_operations: [
+        {
+          id: "own",
+          user_id: owner.id,
+          action: "checkout",
+          plan: "pro",
+          state: "complete",
+          created_at: at.toISOString(),
+          result: {
+            confirmedByEvent: "evt_verified_fixture",
+            clientToken: "must-not-be-returned",
+            url: "https://private.example/portal",
+          },
+        },
+        {
+          id: "foreign",
+          user_id: "another-user",
+          action: "checkout",
+          state: "complete",
+          result: { clientToken: "foreign-token" },
+        },
+      ],
+    },
+  });
+  const response = await f.handler("billing")(f.req({ action: "status" }));
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.activity.length, 1);
+  assert.equal(data.activity[0].id, "own");
+  assert.equal(data.activity[0].providerConfirmed, true);
+  assert.ok(!JSON.stringify(data.activity).includes("must-not-be-returned"));
+  assert.ok(!JSON.stringify(data.activity).includes("private.example"));
+  assert.ok(!JSON.stringify(data.activity).includes("foreign"));
+});
+
+test("Sandbox provider history uses only the owned customer and returns no card, checkout or foreign data", async () => {
+  const f = fixture({
+    fetch: (url, init) => {
+      const parsed = new URL(url);
+      assert.equal(init.method, "GET");
+      assert.equal(parsed.pathname, "/transactions");
+      assert.equal(parsed.searchParams.get("customer_id"), "ctm_owner");
+      assert.equal(parsed.searchParams.get("per_page"), "10");
+      return Response.json({
+        data: [
+          {
+            id: "txn_owned",
+            customer_id: "ctm_owner",
+            status: "completed",
+            currency_code: "USD",
+            created_at: at.toISOString(),
+            details: { totals: { grand_total: "900" } },
+            payments: [{ card: { last4: "DO-NOT-RETURN" } }],
+            checkout: { url: "https://sensitive.example/" },
+          },
+        ],
+      });
+    },
+  });
+  const response = await f.handler("billing")(
+    f.req({ action: "transactions", customer_id: "ctm_victim" }),
+  );
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.transactions[0].total, "900");
+  assert.equal(data.transactions[0].status, "completed");
+  assert.equal(data.environment, "sandbox");
+  assert.ok(!JSON.stringify(data).includes("DO-NOT-RETURN"));
+  assert.ok(!JSON.stringify(data).includes("sensitive.example"));
+  assert.equal(
+    f.calls.filter(([name]) => name === "apply_paddle_snapshot").length,
+    0,
+  );
+});
+test("provider history rejects foreign records and never calls live payment APIs on the new Sandbox endpoint", async () => {
+  let f = fixture({
+    fetch: () =>
+      Response.json({
+        data: [
+          {
+            id: "txn_victim",
+            customer_id: "ctm_victim",
+            status: "completed",
+            currency_code: "USD",
+          },
+        ],
+      }),
+  });
+  assert.equal(
+    (await f.handler("billing")(f.req({ action: "transactions" }))).status,
+    503,
+  );
+  f = fixture({
+    env: { PADDLE_ENVIRONMENT: "live" },
+    tables: {
+      commercial_settings: [
+        { id: true, enabled: true, environment: "live", plans: PLANS },
+      ],
+      billing_customers: [
+        { user_id: owner.id, customer_id: "ctm_owner", environment: "live" },
+      ],
+    },
+  });
+  assert.equal(
+    (await f.handler("billing")(f.req({ action: "transactions" }))).status,
+    503,
+  );
+  assert.equal(f.requests.length, 0);
+});
+
+test("an account without a billing customer gets a truthful no-request state instead of a fabricated provider result", async () => {
+  const f = fixture({ tables: { billing_customers: [] } });
+  const response = await f.handler("billing")(
+    f.req({ action: "transactions" }),
+  );
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.notRequested, true);
+  assert.match(data.notice, /has not been contacted/);
+  assert.equal(f.requests.length, 0);
+});

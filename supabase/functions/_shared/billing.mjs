@@ -463,7 +463,24 @@ export function makeBillingHandler(
         const deletion = await checked(
           admin.rpc("billing_deletion_status", { owner_id: user.id }),
         );
+        const operations = await checked(
+          admin
+            .from("billing_operations")
+            .select("id,action,plan,state,created_at,result")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(20),
+        );
+        const activity = operations.map((item) => ({
+          id: item.id,
+          action: item.action,
+          plan: item.plan,
+          state: item.state,
+          createdAt: item.created_at,
+          providerConfirmed: typeof item.result?.confirmedByEvent === "string",
+        }));
         return respond({
+          activity,
           deletion,
           checkoutReady,
           setupRequired: readiness.missing,
@@ -567,12 +584,15 @@ export function makeBillingHandler(
           "change_plan",
           "preview_plan",
           "resume_checkout",
+          "transactions",
         ].includes(body.action)
       )
         return respond({ error: "Unknown billing action." }, 400);
       if (
         (!settings.enabled &&
-          !["portal", "cancel", "cancel_now"].includes(body.action)) ||
+          !["portal", "cancel", "cancel_now", "transactions"].includes(
+            body.action,
+          )) ||
         settings.environment !== environment
       )
         return respond(
@@ -649,6 +669,73 @@ export function makeBillingHandler(
         .sort((a, b) =>
           b.provider_updated_at.localeCompare(a.provider_updated_at),
         )[0];
+      if (body.action === "transactions") {
+        if (environment !== "sandbox")
+          return respond(
+            {
+              error:
+                "Provider transaction history is Sandbox-only in this release candidate.",
+            },
+            503,
+          );
+        if (!customer)
+          return respond({
+            transactions: [],
+            environment,
+            source: "Launchpad",
+            notRequested: true,
+            notice:
+              "No billing customer exists for this account. Paddle has not been contacted.",
+          });
+        const query = new URLSearchParams({
+          customer_id: customer.customer_id,
+          per_page: "10",
+          order_by: "created_at[DESC]",
+        });
+        const rows = await provider(`/transactions?${query}`);
+        if (!Array.isArray(rows) || rows.length > 10)
+          throw new Error("Invalid provider transaction history.");
+        const transactions = rows.map((row) => {
+          if (
+            row.customer_id !== customer.customer_id ||
+            !/^txn_[a-z0-9]+$/i.test(row.id) ||
+            ![
+              "draft",
+              "ready",
+              "billed",
+              "paid",
+              "completed",
+              "canceled",
+              "past_due",
+            ].includes(row.status) ||
+            !/^[A-Z]{3}$/.test(row.currency_code)
+          )
+            throw new Error(
+              "Provider transaction ownership or format is invalid.",
+            );
+          const amount = row.details?.totals?.grand_total;
+          return {
+            id: row.id,
+            status: row.status,
+            currency: row.currency_code,
+            total:
+              typeof amount === "string" && /^\d{1,12}$/.test(amount)
+                ? amount
+                : null,
+            createdAt:
+              typeof row.created_at === "string" &&
+              Number.isFinite(Date.parse(row.created_at))
+                ? row.created_at
+                : null,
+          };
+        });
+        return respond({
+          transactions,
+          environment,
+          source: "Paddle",
+          fetchedAt: now().toISOString(),
+        });
+      }
       if (body.action === "portal") {
         if (!customer)
           return respond({ error: "No billing customer exists yet." }, 404);

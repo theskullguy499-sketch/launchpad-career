@@ -6,7 +6,12 @@ const clean = (value, max = 200) =>
 const url = (value) => {
   try {
     const result = new URL(value);
-    return result.protocol === "https:" ? result.href : "";
+    return result.protocol === "https:" &&
+      !result.username &&
+      !result.password &&
+      result.href.length <= 2048
+      ? result.href
+      : "";
   } catch {
     return "";
   }
@@ -22,6 +27,10 @@ export function normalizeJobs(payload) {
       company: clean(j.company_name, 120),
       location: clean(j.candidate_required_location || "Not supplied", 200),
       salary: clean(j.salary, 200),
+      category: clean(j.category, 100),
+      employmentType: clean(j.job_type, 60),
+      // The Remotive remote-jobs endpoint is explicitly remote-only.
+      arrangement: "Remote",
       tags: Array.isArray(j.tags)
         ? j.tags.slice(0, 20).map((v) => clean(v, 60))
         : [],

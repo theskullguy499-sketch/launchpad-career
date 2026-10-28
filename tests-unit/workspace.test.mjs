@@ -153,3 +153,42 @@ test("account switches discard queued and in-flight writes before they can targe
   assert.equal(store.snapshot.tasks.length, 0);
   assert.equal(store.snapshot.goals.length, 0);
 });
+
+test("late workspace save failures reject the caller without overwriting the next workspace status", async () => {
+  globalThis.localStorage = { getItem: () => null };
+  const statuses = [],
+    changes = [];
+  let complete, started;
+  const began = new Promise((resolve) => (started = resolve));
+  const client = {
+    auth: { getUser: async () => ({ data: { user: { id: "alice" } } }) },
+    rpc: async (name) => {
+      if (name === "load_workspace") return { data: blankWorkspace() };
+      started();
+      return new Promise((resolve) => (complete = resolve));
+    },
+  };
+  const store = createWorkspace({
+    getClient: async () => client,
+    readGuest: () => ({ applications: [], completed: [] }),
+    persistGuest: () => true,
+    onStatus: (value) => statuses.push(value),
+    onChange: (value) => changes.push(value),
+  });
+  await store.enter({ id: "alice" });
+  const failed = store
+    .update((next) =>
+      next.tasks.push({ id: "private-task", title: "Private draft" }),
+    )
+    .catch((error) => error);
+  await began;
+  await store.enter(null);
+  const statusCount = statuses.length;
+  complete({ error: { message: "Old account save failed" } });
+  const error = await failed;
+  assert.equal(error.message, "Old account save failed");
+  assert.equal(statuses.length, statusCount);
+  assert.equal(changes.at(-1).mode, "guest");
+  assert.match(changes.at(-1).status, /Guest data/);
+  assert.equal(store.snapshot.tasks.length, 0);
+});
