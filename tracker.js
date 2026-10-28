@@ -757,6 +757,7 @@
       "settings",
       "billing",
       "business",
+      "resume",
     ];
     const route = view.split("?")[0];
     const current = routes.includes(route) ? route : "applications";

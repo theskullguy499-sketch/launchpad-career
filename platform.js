@@ -1,3 +1,4 @@
+import {renderCareer55,clearCareer55} from "./career55.js";
 import {
   renderWorkspace54,
   clearWorkspace54,
@@ -314,6 +315,7 @@ function editor(title, fields, value, save) {
 }
 let activeScope = null;
 function clearPrivateView() {
+  clearCareer55();
   clearWorkspace54();
   clearJobExperience();
   coachRequest++;
@@ -697,6 +699,7 @@ function renderAll() {
   renderExperience(snapshot, stats);
   decorateApplicationRows();
   renderJobs();
+  renderCareer55({data:snapshot, scope:store.mode+":"+(store.owner?.id||"guest"), mode:store.mode, busy:store.busy, update:change=>store.update(change), navigate, addGoal:()=>goalEditor(), openForm:()=>window.launchpadData.openForm(), guestPreferences:()=>store.guestSnapshot().preferences});
   renderWorkspace54({
     data: snapshot,
     stats,
