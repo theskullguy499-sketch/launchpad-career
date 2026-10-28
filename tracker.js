@@ -270,6 +270,12 @@
         link.setAttribute("aria-label", `Open posting for ${a.company}`);
         actions.append(link);
       }
+      const history = make("button", "tiny-action", "History");
+      history.type = "button";
+      history.addEventListener("click", () =>
+        window.launchpadWorkspace54?.history(a),
+      );
+      actions.append(history);
       const edit = make("button", "tiny-action", "Edit");
       edit.type = "button";
       edit.addEventListener("click", () => openForm(a));
@@ -348,8 +354,15 @@
       new FormData(event.currentTarget).entries(),
     );
     if (!state.editId) {
-      try { window.launchpadCommercial?.checkNewApplication(state.applications.length); }
-      catch (error) { $('#formError').textContent=error.message;$('#formError').hidden=false;return; }
+      try {
+        window.launchpadCommercial?.checkNewApplication(
+          state.applications.length,
+        );
+      } catch (error) {
+        $("#formError").textContent = error.message;
+        $("#formError").hidden = false;
+        return;
+      }
     }
     [
       "company",
@@ -395,7 +408,7 @@
       return;
     }
     if (!$("#applicationForm").reportValidity()) return;
-    const updated = {
+    let updated = {
       ...existing,
       ...fields,
       id:
@@ -404,6 +417,7 @@
         `${Date.now()}-${Math.random()}`,
       createdAt: existing?.createdAt || new Date().toISOString(),
     };
+    updated = window.launchpadHistory?.record(existing, updated) || updated;
     const applications = existing
       ? state.applications.map((a) => (a.id === existing.id ? updated : a))
       : [...state.applications, updated];
@@ -584,6 +598,28 @@
     ])
       if (typeof a[key] === "string" || typeof a[key] === "number")
         extra[key] = String(a[key]).slice(0, 200);
+    if (Array.isArray(a.updates))
+      extra.updates = a.updates
+        .filter(
+          (x) =>
+            x &&
+            typeof x.at === "string" &&
+            Number.isFinite(Date.parse(x.at)) &&
+            typeof x.summary === "string",
+        )
+        .slice(-20)
+        .map((x) => ({
+          at: x.at,
+          summary: x.summary.slice(0, 240),
+          type: ["created", "status", "edited"].includes(x.type)
+            ? x.type
+            : "edited",
+        }));
+    if (
+      typeof a.updatedAt === "string" &&
+      Number.isFinite(Date.parse(a.updatedAt))
+    )
+      extra.updatedAt = a.updatedAt;
     return {
       ...extra,
       company,
@@ -608,8 +644,8 @@
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    if (file.size > 2_000_000) {
-      toast("Backup is too large (2 MB maximum).");
+    if (file.size > 8_000_000) {
+      toast("Backup is too large (8 MB maximum).");
       return;
     }
     try {
@@ -809,16 +845,29 @@
     savedTheme = localStorage.getItem(THEME_KEY) || "light";
   } catch {}
   setTheme(savedTheme === "dark");
-  let persisting=false;
+  let persisting = false;
   async function persistEntries(entries) {
-    if(persisting){toast('Please wait for the current save to finish.');return false;}
-    persisting=true;$('#submitDialogBtn').disabled=true;
-    try{
-      if(window.launchpadWorkspace?.isAccount()){
-        try{await window.launchpadWorkspace.saveTracker(entries);return true;}catch(error){toast(error.message);return false;}
+    if (persisting) {
+      toast("Please wait for the current save to finish.");
+      return false;
+    }
+    persisting = true;
+    $("#submitDialogBtn").disabled = true;
+    try {
+      if (window.launchpadWorkspace?.isAccount()) {
+        try {
+          await window.launchpadWorkspace.saveTracker(entries);
+          return true;
+        } catch (error) {
+          toast(error.message);
+          return false;
+        }
       }
       return saveJsonEntries(entries);
-    }finally{persisting=false;$('#submitDialogBtn').disabled=false;}
+    } finally {
+      persisting = false;
+      $("#submitDialogBtn").disabled = false;
+    }
   }
   function notifyChanged() {
     window.dispatchEvent(

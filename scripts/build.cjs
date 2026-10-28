@@ -6,6 +6,11 @@ const esbuild = require("esbuild");
 const root = path.resolve(__dirname, "..");
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 async function main() {
+  const validateSyntax = require("./browser-syntax.cjs");
+  for (const file of require("./public-files.cjs")) {
+    if (/\.m?js$/.test(file) && !file.startsWith("vendor/"))
+      validateSyntax(await fs.readFile(path.join(root, file), "utf8"), file);
+  }
   require("node:child_process").execFileSync(
     process.execPath,
     [path.join(root, "scripts/generate-plans.mjs"), "--check"],
