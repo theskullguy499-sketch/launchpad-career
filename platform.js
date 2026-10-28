@@ -1,4 +1,17 @@
 import {
+  renderWorkspace54,
+  clearWorkspace54,
+  viewApplicationHistory,
+} from "./workspace54.js";
+import {
+  recordApplicationUpdate,
+  nextApplicationAction,
+  datedMonths,
+  periodApplications,
+  safeCompanyLink,
+} from "./lib/workspace-insights.mjs";
+window.launchpadHistory = Object.freeze({ record: recordApplicationUpdate });
+import {
   renderJobExperience,
   clearJobExperience,
   openJobDetails,
@@ -99,7 +112,7 @@ if (Intl.supportedValuesOf) {
   $("#currency").value = "USD";
 }
 const screens = {
-  home: `<div class="landing-hero"><div class="landing-brand"><img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /></div><span class="release-badge">LAUNCHPAD 5.3 · JOBS & ACCOUNT RC</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, research employers and build a learning plan you can actually follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>A roadmap with momentum.</h2><p>Set your objective, make weekly milestones and see progress from your own activity.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. No invented vacancies, success claims or subscription charges.</p><div id="landingLinks" class="button-row"></div></div>`,
+  home: `<div class="landing-hero"><div class="landing-brand"><img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /></div><span class="release-badge">LAUNCHPAD 5.4 · PREMIUM WORKSPACE RC</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, research employers and build a learning plan you can actually follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>A roadmap with momentum.</h2><p>Set your objective, make weekly milestones and see progress from your own activity.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. No invented vacancies, success claims or subscription charges.</p><div id="landingLinks" class="button-row"></div></div>`,
   dashboard: `<div class="screen-heading"><div><p class="eyebrow">YOUR NEXT CHAPTER</p><h1>Small steps.<br><em>Higher ambitions.</em></h1><p class="intro-copy">A clear view of what matters next, based on your own activity.</p></div><div id="dashboardActions" class="button-row"></div></div><div id="onboardingCard" class="panel section-pad"></div><div id="dashboardMetrics" class="metrics-grid"></div><div class="split-grid"><section class="panel section-pad"><div class="section-head"><h2>Upcoming & overdue</h2><button id="refreshReminders" class="button button-outline" type="button">Refresh</button></div><p class="helper">In-app reminders update while Launchpad is open. Background/email delivery requires a configured scheduler.</p><div id="reminderList"></div></section><section class="panel section-pad"><div class="section-head"><h2>Your tasks</h2><button id="addTaskBtn" class="button button-primary" type="button">Add task</button></div><div id="taskList"></div></section></div><section class="panel section-pad"><h2>Favorite employers</h2><div id="dashboardCompanies" class="directory-grid"></div></section>`,
   companies: `<div class="screen-heading"><div><p class="eyebrow">RESEARCH WITH INTENT</p><h1>Find your<br><em>next employer.</em></h1><p class="intro-copy">A curated directory, not a worldwide catalog or a claim that these companies are hiring. Website links are curated; availability has not been live-verified. Headquarters and career-page links are omitted until verified.</p></div><button id="addCompanyBtn" class="button button-primary" type="button">Add a company</button></div><div class="panel section-pad"><div class="explorer-filters"><label>Search companies<input id="companySearch" type="search" placeholder="Company or industry" /></label><label>Industry<select id="companyIndustry"><option value="all">All industries</option></select></label><label>Country (verified or user supplied)<input id="companyCountry" type="search" placeholder="Country, if known" /></label><label class="check-label"><input type="checkbox" id="favoritesOnly" /> Favorites only</label></div><p id="companyCount" class="helper" role="status"></p><div id="companyList" class="directory-grid"></div></div>`,
   jobs: `<div class="screen-heading"><div><p class="eyebrow">SOURCED OPPORTUNITIES</p><h1>A real opening.<br><em>A considered move.</em></h1><p class="intro-copy">Search retrieved vacancies from Remotive through the configured backend. This source covers remote roles, is delayed by 24 hours, and is not a complete jobs database. Listings remain accessible to guests; no signup is required to view them.</p></div></div><form id="jobSearchForm" class="panel section-pad"><div class="explorer-filters"><label>Job title<input id="jobTitle" type="search" maxlength="100" placeholder="e.g. Frontend developer" /></label><label>Country or region<input id="jobCountry" maxlength="100" placeholder="e.g. Brazil or Worldwide" /></label><label>Company<input id="jobCompany" maxlength="100" /></label><label>Technology keyword<input id="jobStack" maxlength="100" placeholder="e.g. JavaScript" /></label><label>Experience (title text match)<select id="jobExperience"><option value="">All levels</option><option>Junior</option><option>Senior</option><option>Lead</option><option>Intern</option></select></label><label>Arrangement<select id="jobRemote"><option>Remote</option></select></label><label class="check-label"><input type="checkbox" id="jobSalary" /> Salary provided</label></div><button class="button button-primary" type="submit">Find opportunities</button><p id="jobStatus" class="helper" role="status">No job source has been contacted. Search to check the configured service. No sample vacancies are shown.</p><a href="https://remotive.com/" target="_blank" rel="noopener noreferrer">Job data source: Remotive</a></form><div id="jobResults" class="directory-grid"></div>`,
@@ -301,6 +314,7 @@ function editor(title, fields, value, save) {
 }
 let activeScope = null;
 function clearPrivateView() {
+  clearWorkspace54();
   clearJobExperience();
   coachRequest++;
   jobRequestVersion++;
@@ -639,6 +653,14 @@ function milestoneEditor(value = {}) {
 function renderAll() {
   if (!snapshot) return;
   const stats = analytics(snapshot);
+  const periodData = {
+    ...snapshot,
+    applications: periodApplications(
+      snapshot.applications,
+      document.querySelector("#analyticsPeriod")?.value || "all",
+    ),
+  };
+  const periodStats = analytics(periodData);
   $(".goal-card strong").textContent =
     snapshot.goals[0]?.targetRole || "Your next chapter starts here.";
   $("#demoDataNotice").hidden = !snapshot.applications.some(
@@ -651,19 +673,22 @@ function renderAll() {
     ["Offers & hires", stats.offers],
   ]);
   metricCards($("#analyticsMetrics"), [
-    ["Tracked", stats.total],
-    ["Submitted", stats.submitted],
-    ["Interviews scheduled", stats.interviews],
-    ["Offers & hires", stats.offers],
-    ["Response rate", stats.responseRate + "%"],
-    ["Deadlines in 14 days", stats.deadlines],
-    ["Personal roadmap", stats.roadmap + "%"],
+    ["Tracked", periodStats.total],
+    ["Submitted", periodStats.submitted],
+    ["Interviews scheduled", periodStats.interviews],
+    ["Offers & hires", periodStats.offers],
+    ["Response rate", periodStats.responseRate + "%"],
+    ["Deadlines in 14 days", periodStats.deadlines],
+    ["Personal roadmap", periodStats.roadmap + "%"],
   ]);
   renderTasks();
   renderReminders();
   renderCompanies();
   renderRoadmap();
-  renderAnalytics(stats);
+  renderAnalytics({
+    ...periodStats,
+    monthly: datedMonths(periodData.applications),
+  });
   renderProfile();
   renderHistory();
   renderBoard(window.launchpadData.visible());
@@ -672,6 +697,15 @@ function renderAll() {
   renderExperience(snapshot, stats);
   decorateApplicationRows();
   renderJobs();
+  renderWorkspace54({
+    data: snapshot,
+    stats,
+    periodData,
+    periodStats,
+    scope: store.mode + ":" + (store.owner?.id || "guest"),
+    rerender: renderAll,
+    editMilestone: milestoneEditor,
+  });
 }
 function renderOnboarding() {
   const c = $("#onboardingCard");
@@ -845,7 +879,12 @@ function companyCard(c) {
   );
   row.append(star);
   for (const [label, value] of [
-    ["Official website", c.website],
+    [
+      c.source === "User supplied"
+        ? "Website (user supplied)"
+        : "Official website",
+      c.website,
+    ],
     [
       c.source === "User supplied"
         ? "Careers link (user supplied)"
@@ -853,9 +892,9 @@ function companyCard(c) {
       c.careersUrl,
     ],
   ])
-    if (safeUrl(value)) {
+    if (safeCompanyLink(value)) {
       const link = node("a", "text-link", label);
-      link.href = safeUrl(value);
+      link.href = safeCompanyLink(value);
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       row.append(link);
@@ -869,6 +908,9 @@ function companyCard(c) {
       $("#searchInput").value = c.name;
       $("#searchInput").dispatchEvent(new Event("input"));
     }),
+  );
+  row.append(
+    action("Company details", () => window.launchpadWorkspace54?.company(c)),
   );
   card.append(row);
   return card;
@@ -903,8 +945,12 @@ function addCompany() {
         throw new Error(
           "This company is already in the directory. Search for it and choose Favorite.",
         );
-      if (fields.website && !safeUrl(fields.website))
-        throw new Error("Use an https:// or http:// website URL.");
+      if (fields.website && !safeCompanyLink(fields.website))
+        throw new Error(
+          "Use an https:// or http:// website URL without embedded credentials.",
+        );
+      if (fields.careersUrl && !safeCompanyLink(fields.careersUrl))
+        throw new Error("Use a safe careers URL without embedded credentials.");
       return store.update((next) =>
         next.companies.push({
           ...fields,
@@ -1026,7 +1072,11 @@ function renderBoard(apps) {
       store
         .update((next) => {
           const app = next.applications.find((a) => a.id === id);
-          if (app) app.status = status;
+          if (app)
+            Object.assign(
+              app,
+              recordApplicationUpdate(app, { ...app, status }),
+            );
         })
         .catch(report);
     });
@@ -1057,8 +1107,11 @@ function renderBoard(apps) {
       select.addEventListener("change", () =>
         store
           .update((next) => {
-            next.applications.find((a) => a.id === app.id).status =
-              select.value;
+            const item = next.applications.find((a) => a.id === app.id);
+            Object.assign(
+              item,
+              recordApplicationUpdate(item, { ...item, status: select.value }),
+            );
           })
           .catch((error) => {
             select.value = status;
@@ -1067,7 +1120,16 @@ function renderBoard(apps) {
       );
       label.append(select);
       card.append(
+        node("p", "kanban-next-action", nextApplicationAction(app)),
+        node(
+          "time",
+          "helper",
+          app.applicationDate
+            ? `Applied: ${app.applicationDate}`
+            : "Application date not set",
+        ),
         label,
+        action("History", () => viewApplicationHistory(app)),
         action("Edit", () => window.launchpadData.openForm(app)),
         action("Delete", () =>
           removeItem("applications", app.id, "this application"),
@@ -1339,25 +1401,28 @@ function saveJobToTracker(job) {
       throw new Error("This job is already in your tracker.");
     window.launchpadCommercial?.checkNewApplication(next.applications.length);
     next.applications.push(
-      validateApplication({
-        id,
-        sourceId: id,
-        company: job.company.slice(0, 80),
-        role: job.title.slice(0, 100),
-        country: "Other",
-        location: job.location || "",
-        arrangement: ["Remote", "Hybrid", "On-site"].includes(
-          reportedArrangement(job),
-        )
-          ? reportedArrangement(job)
-          : "Unspecified",
-        status: "Saved",
-        priority: "Medium",
-        deadline: "",
-        url: safeUrl(job.url),
-        notes: `Source: ${job.source || "Remotive"}. Location and salary are provider text; review country before applying. Salary: ${job.salary || "not supplied"}.`,
-        createdAt: new Date().toISOString(),
-      }),
+      recordApplicationUpdate(
+        null,
+        validateApplication({
+          id,
+          sourceId: id,
+          company: job.company.slice(0, 80),
+          role: job.title.slice(0, 100),
+          country: "Other",
+          location: job.location || "",
+          arrangement: ["Remote", "Hybrid", "On-site"].includes(
+            reportedArrangement(job),
+          )
+            ? reportedArrangement(job)
+            : "Unspecified",
+          status: "Saved",
+          priority: "Medium",
+          deadline: "",
+          url: safeUrl(job.url),
+          notes: `Source: ${job.source || "Remotive"}. Location and salary are provider text; review country before applying. Salary: ${job.salary || "not supplied"}.`,
+          createdAt: new Date().toISOString(),
+        }),
+      ),
     );
   });
 }
@@ -1379,6 +1444,8 @@ $("#coachForm").addEventListener("submit", async (event) => {
   submit.disabled = true;
   submit.textContent = "Thinking…";
   $("#coachForm").setAttribute("aria-busy", "true");
+  document.querySelector("#coachView").dataset.coachState = "loading";
+  $("#coachQuestionPreview").textContent = $("#coachPrompt").value;
   $("#coachResponse").textContent = "";
   $("#coachStatus").textContent = "Waiting for the configured AI provider…";
   currentPlan = null;
@@ -1406,6 +1473,7 @@ $("#coachForm").addEventListener("submit", async (event) => {
       typeof result.response === "string"
         ? result.response
         : JSON.stringify(result.response, null, 2);
+    document.querySelector("#coachView").dataset.coachState = "received";
     $("#coachStatus").textContent =
       `Response received from ${result.provider || "the configured AI provider"}. ${result.remaining ?? "Limited"} requests remaining today. ${result.warning || ""}`;
     if (result.plan) {
@@ -1445,8 +1513,10 @@ $("#coachForm").addEventListener("submit", async (event) => {
     }
     if ($("#saveExchange").checked) await store.refresh();
   } catch (error) {
-    if (requestTicket === coachRequest)
+    if (requestTicket === coachRequest) {
+      document.querySelector("#coachView").dataset.coachState = "error";
       $("#coachStatus").textContent = "AI Coach unavailable: " + error.message;
+    }
   } finally {
     if (requestTicket === coachRequest) {
       submit.disabled = false;

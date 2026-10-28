@@ -1,0 +1,1316 @@
+/* 5.4 workspace: intentional hierarchy and real data, preserving the approved brand. */
+#applicationsView .page-intro {
+  min-height: 0;
+  margin-bottom: 27px;
+}
+#applicationsView h1 {
+  font-size: clamp(29px, 3vw, 43px);
+}
+#applicationsView .hero-decoration {
+  height: 125px;
+  width: 125px;
+}
+#applicationsView .intro-copy {
+  font-size: 13px;
+  max-width: 620px;
+}
+#applicationsView .stat-card {
+  border: 0;
+  box-shadow: none;
+  background: #edf2ff;
+}
+#applicationsView .stat-card:nth-child(2) {
+  background: #f0eaff;
+}
+#applicationsView .stat-card:nth-child(3) {
+  background: #e0f6ed;
+}
+#applicationsView .stat-card:nth-child(4) {
+  background: #fff0d9;
+}
+#applicationsView .stat-label {
+  color: #4c5f80;
+  font-size: 11px;
+  letter-spacing: 0.2px;
+}
+#applicationsView .local-data-notice {
+  font-size: 11px;
+  line-height: 1.8;
+  padding: 13px 16px;
+}
+#applicationsView .panel-head {
+  padding: 24px;
+}
+.tracker-view-actions {
+  border-block: 1px solid var(--border);
+  background: var(--canvas);
+  gap: 9px;
+  padding: 17px 23px;
+}
+.tracker-view-actions > .button {
+  min-height: 41px;
+  font-size: 12px;
+}
+.tracker-view-actions .button[aria-pressed="true"] {
+  background: #255de0;
+  color: #fff;
+  border-color: #255de0;
+}
+.tracker-view-actions label {
+  font-size: 11px;
+}
+#applicationsView .filters {
+  padding-top: 20px;
+}
+.application-next-line {
+  color: var(--primary);
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 7px;
+}
+#applicationsBody .row-actions {
+  justify-content: flex-start;
+}
+#applicationsBody .tiny-action {
+  min-height: 33px;
+}
+#kanbanBoard {
+  display: grid;
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(250px, 1fr);
+  max-width: 100%;
+  overflow-x: auto;
+  gap: 17px;
+  padding: 9px 22px 24px;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity;
+}
+.kanban-scroll-hint {
+  padding: 0 23px;
+  font-size: 11px;
+}
+#kanbanBoard .kanban-column {
+  min-width: 0;
+  min-height: 270px;
+  background: #f0f3fa;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  padding: 14px;
+  scroll-snap-align: start;
+}
+#kanbanBoard .kanban-column > h3 {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 0 20px;
+}
+#kanbanBoard .kanban-column > h3:before {
+  content: "";
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #72809c;
+}
+#kanbanBoard [data-stage="Applied"] {
+  background: #eaf0ff;
+}
+#kanbanBoard [data-stage="Applied"] > h3:before {
+  background: #397bff;
+}
+#kanbanBoard [data-stage="Interview"] {
+  background: #f1eafd;
+}
+#kanbanBoard [data-stage="Interview"] > h3:before {
+  background: #8057e7;
+}
+#kanbanBoard [data-stage="Offer"],
+#kanbanBoard [data-stage="Hired"] {
+  background: #e4f5ec;
+}
+#kanbanBoard [data-stage="Offer"] > h3:before,
+#kanbanBoard [data-stage="Hired"] > h3:before {
+  background: #198463;
+}
+#kanbanBoard [data-stage="Rejected"] {
+  background: #ffefec;
+}
+#kanbanBoard [data-stage="Rejected"] > h3:before {
+  background: #d7685e;
+}
+#kanbanBoard .kanban-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 13px;
+  padding: 17px;
+  box-shadow: 0 4px 14px #22345605;
+  margin-bottom: 14px;
+}
+.kanban-card > strong {
+  display: block;
+  font-size: 14px;
+  margin: 12px 0 6px;
+}
+.kanban-card > p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.kanban-card .employer-mark {
+  width: 36px;
+  height: 36px;
+}
+.kanban-card .kanban-next-action {
+  padding: 10px 11px;
+  border-radius: 8px;
+  color: #385382;
+  background: #edf3ff;
+  font-size: 11px;
+}
+.kanban-card label {
+  font-size: 11px;
+  margin: 13px 0;
+}
+.kanban-card .button {
+  min-height: 35px;
+  font-size: 11px;
+  padding: 7px 10px;
+  margin-right: 4px;
+}
+#applicationDialog {
+  width: min(820px, calc(100vw - 30px));
+}
+.application-form-sections {
+  display: grid;
+  gap: 22px;
+}
+.application-form-sections fieldset {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  min-width: 0;
+}
+.application-form-sections legend {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 8px;
+}
+.workspace-detail-dialog {
+  padding: 27px;
+  width: min(720px, calc(100vw - 28px));
+}
+.workspace-detail-dialog > .dialog-head {
+  margin-bottom: 22px;
+}
+.workspace-detail-dialog > .employer-mark {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 15px;
+}
+.workspace-detail-dialog > .text-link {
+  display: inline-block;
+  margin: 10px 17px 17px 0;
+}
+.workspace-detail-dialog h3 {
+  margin-top: 25px;
+}
+.application-update-list {
+  padding-left: 22px;
+}
+.application-update-list li {
+  padding: 13px 0 13px 6px;
+  font-size: 13px;
+}
+.application-update-list time {
+  display: block;
+  color: var(--sub);
+  font-size: 11px;
+  margin-top: 7px;
+}
+.applications-agenda {
+  margin: 0 22px 22px;
+  background: var(--surface);
+  padding: 23px;
+}
+.agenda-controls {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 20px 0;
+}
+.agenda-controls label {
+  font-size: 12px;
+  min-width: 170px;
+}
+.agenda-controls input {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.application-month-content {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.8fr) minmax(0, 1.2fr);
+  gap: 27px;
+  align-items: start;
+}
+.workspace-month-grid {
+  min-width: 0;
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 3px;
+  border-collapse: separate;
+}
+.workspace-month-grid caption {
+  font-size: 17px;
+  text-align: left;
+  font-weight: 700;
+  margin-bottom: 17px;
+}
+.workspace-month-grid th {
+  width: calc(100% / 7);
+  text-align: center;
+  padding: 5px 0;
+  font-size: 10px;
+  background: none;
+}
+.workspace-month-grid td {
+  border: 0;
+  text-align: center;
+  padding: 4px 0;
+}
+.workspace-month-grid time {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  width: 34px;
+  border-radius: 50%;
+  background: var(--canvas);
+  margin: auto;
+  font-size: 11px;
+  color: var(--ink);
+}
+.workspace-month-grid time.has-event {
+  background: #e9e1fb;
+  color: #57358c;
+  font-weight: 750;
+  box-shadow: inset 0 -3px #8057e7;
+}
+.agenda-event {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 7px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 11px;
+  background: var(--canvas);
+}
+.agenda-event time {
+  font-size: 11px;
+  color: var(--sub);
+}
+.agenda-event-kind {
+  font-size: 10px;
+  color: #604697;
+  background: #eee7ff;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.agenda-event strong {
+  grid-column: 1 / -1;
+  font-size: 14px;
+}
+.agenda-event p {
+  margin: 0;
+  font-size: 11px;
+}
+.agenda-event .button {
+  font-size: 11px;
+  min-height: 35px;
+  padding: 6px 10px;
+}
+/* A real, editable career journey. No fabricated skill mastery percentages. */
+#roadmapView > h1 {
+  font-size: clamp(31px, 3.3vw, 47px);
+}
+#roadmapView > .intro-copy {
+  max-width: 720px;
+}
+.roadmap-studio-hero {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1.2fr) minmax(180px, 0.8fr);
+  gap: 25px;
+  align-items: center;
+  margin: 30px 0 24px;
+  padding: 29px;
+  background: linear-gradient(125deg, #edf6ff, #f0edff);
+}
+.roadmap-studio-hero h2 {
+  font-size: 24px;
+  line-height: 1.3;
+}
+.roadmap-studio-hero .eyebrow {
+  font-size: 9px;
+  margin-bottom: 13px;
+}
+.workspace-progress-ring {
+  position: relative;
+  height: 116px;
+  width: 116px;
+  border-radius: 50%;
+  background: conic-gradient(#20ad87 var(--completion), #dce5ef 0);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.workspace-progress-ring:before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+.workspace-progress-ring strong,
+.workspace-progress-ring span {
+  position: relative;
+  z-index: 1;
+}
+.workspace-progress-ring strong {
+  font-size: 30px;
+}
+.workspace-progress-ring span {
+  font-size: 9px;
+  color: var(--sub);
+}
+.roadmap-focus-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 17px;
+}
+.roadmap-focus-skills span {
+  padding: 4px 9px;
+  border: 1px solid #c9d9ef;
+  border-radius: 7px;
+  color: #3d5682;
+  background: #ffffff9c;
+  font-size: 11px;
+}
+.roadmap-next-step {
+  border-left: 1px solid #d7d7ee;
+  padding-left: 25px;
+}
+.roadmap-next-step h3 {
+  font-size: 17px;
+  line-height: 1.5;
+}
+.roadmap-next-step .button {
+  white-space: normal;
+  font-size: 11px;
+}
+.milestone-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 18px;
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 22px 0;
+}
+.milestone-tools label {
+  flex: 1;
+  min-width: 160px;
+  font-size: 12px;
+}
+.milestone-tools input,
+.milestone-tools select {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+}
+#careerGoals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+#careerGoals .list-item {
+  min-width: 0;
+  padding: 23px;
+  border: 1px solid #e2d8f4;
+  border-radius: 16px;
+  background: #f4efff;
+}
+#careerGoals .list-item:nth-child(2n) {
+  background: #eaf8f2;
+  border-color: #cce8db;
+}
+#careerGoals h3 {
+  font-size: 19px;
+  line-height: 1.4;
+}
+#careerGoals p {
+  font-size: 12px;
+  line-height: 1.8;
+}
+#careerGoals .button {
+  font-size: 11px;
+  margin: 8px 6px 0 0;
+}
+#personalProgress {
+  font-size: 13px;
+  padding: 18px 0 5px;
+  color: var(--sub);
+}
+#personalMilestones .journey-milestone {
+  border: 1px solid var(--border);
+  border-left: 3px solid #a8b5de;
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 23px;
+  margin-bottom: 18px;
+}
+#personalMilestones .journey-milestone.is-complete {
+  background: #edf9f2;
+  border-left-color: #25976c;
+}
+.journey-milestone .check-label input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: #198463;
+}
+.journey-milestone .check-label strong {
+  font-size: 16px;
+  line-height: 1.5;
+}
+/* A conversation surface and opt-in history, never canned AI replies. */
+#coachView .screen-heading h1,
+#analyticsView .screen-heading h1,
+#companiesView .screen-heading h1,
+#settingsView .screen-heading h1 {
+  font-size: clamp(30px, 3.2vw, 45px);
+}
+.coach-workspace {
+  display: grid;
+  grid-template-columns: 255px minmax(0, 1fr);
+  gap: 23px;
+  align-items: start;
+}
+.coach-sidebar {
+  background: #f3f0fc;
+  padding: 22px;
+}
+.coach-sidebar h2 {
+  font-size: 17px;
+}
+.coach-sidebar > .button {
+  width: 100%;
+  margin: 14px 0;
+  font-size: 12px;
+  background: #255de0;
+  color: #fff;
+}
+.coach-sidebar .helper {
+  font-size: 11px;
+}
+.coach-sidebar .history-item {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 12px;
+  margin-top: 13px;
+  padding: 14px;
+}
+.coach-sidebar summary {
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.coach-sidebar .history-item .coach-copy {
+  font-size: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.coach-sidebar .history-item .button {
+  font-size: 11px;
+  min-height: 37px;
+  padding: 7px 10px;
+}
+.coach-main {
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+.coach-conversation {
+  padding: 26px;
+  background: var(--surface);
+}
+.coach-conversation > h2 {
+  font-size: 17px;
+  padding-bottom: 19px;
+  border-bottom: 1px solid var(--border);
+}
+.coach-welcome {
+  text-align: center;
+  padding: 17px 20px 28px;
+}
+.coach-welcome img {
+  max-width: 100%;
+  width: 250px;
+  height: auto;
+}
+.coach-welcome h3 {
+  font-size: 22px;
+  max-width: 400px;
+  margin: 0 auto 17px;
+}
+.coach-welcome .helper {
+  max-width: 470px;
+  margin: auto;
+}
+.coach-user-message:not(:empty) {
+  background: #255de0;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.8;
+  padding: 18px 21px;
+  border-radius: 17px 17px 4px 17px;
+  max-width: 85%;
+  margin: 25px 0 22px auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#coachResponse:not(:empty) {
+  background: #f1edfb;
+  border: 1px solid #e0d8f0;
+  border-radius: 17px 17px 17px 4px;
+  padding: 23px;
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--ink);
+}
+.coach-loading {
+  display: none;
+  font-size: 13px;
+  padding: 16px;
+  background: var(--canvas);
+  border-radius: 12px;
+  color: var(--sub);
+}
+#coachView[data-coach-state="loading"] .coach-loading {
+  display: block;
+}
+#coachView[data-coach-state="loading"] .coach-loading:before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #c7b7e8;
+  border-top-color: #7051ac;
+  border-radius: 50%;
+  margin-right: 10px;
+  animation: studio-spin 0.8s linear infinite;
+}
+#coachForm {
+  padding: 25px;
+  border-top: 2px solid #9577cf;
+}
+#coachForm > label {
+  font-size: 13px;
+}
+#coachForm .coach-suggestions {
+  margin: 0 0 20px;
+}
+#coachForm textarea {
+  min-height: 115px;
+}
+#coachForm > .button-primary {
+  min-width: 150px;
+  background: #6041aa;
+}
+.coach-context-settings {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 19px 0;
+  padding: 15px;
+  background: var(--canvas);
+}
+.coach-context-settings summary {
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 30px;
+}
+.coach-context-settings fieldset {
+  border: 0;
+  margin: 15px 0 0;
+  padding: 0;
+}
+.coach-context-settings legend {
+  font-size: 11px;
+  color: var(--sub);
+  margin-bottom: 13px;
+}
+.coach-context-settings .check-label {
+  font-size: 12px;
+  margin-bottom: 11px;
+}
+/* Dated analytics with accessible source tables. */
+.analytics-period-label {
+  font-size: 12px;
+  min-width: 190px;
+}
+.analytics-period-label select {
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 100%;
+  color: var(--ink);
+  background: var(--surface);
+}
+#analyticsMetrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+}
+#analyticsMetrics .metric-card {
+  background: #eaf1ff;
+  border-color: #dce6f7;
+}
+#analyticsMetrics .metric-card:nth-child(2n) {
+  background: #e8f8ef;
+  border-color: #d2eade;
+}
+#analyticsMetrics .metric-card:nth-child(3n) {
+  background: #f1eafb;
+  border-color: #e2d8f2;
+}
+#analyticsMetrics .metric-card:nth-child(4n) {
+  background: #fff0da;
+  border-color: #efdcc2;
+}
+#analyticsMetrics .metric-card strong {
+  font-size: 30px;
+}
+.analytics-trend-panel {
+  margin: 23px 0;
+  padding: 28px;
+  background: linear-gradient(145deg, var(--surface), #f4f7ff);
+}
+.analytics-trend-panel > .eyebrow {
+  font-size: 9px;
+}
+.analytics-trend-panel h2 {
+  font-size: 23px;
+}
+.analytics-trend-panel > .helper {
+  max-width: 850px;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.monthly-application-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 26px 12px;
+  max-width: 100%;
+  min-height: 210px;
+}
+.monthly-application-column {
+  min-width: 61px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  gap: 10px;
+}
+.monthly-application-column strong {
+  font-size: 12px;
+}
+.monthly-application-column > span:last-child {
+  font-size: 10px;
+  color: var(--sub);
+  white-space: nowrap;
+}
+.monthly-application-bar {
+  width: 36px;
+  max-width: 100%;
+  background: linear-gradient(#8baaff, #397bff);
+  border-radius: 7px 7px 2px 2px;
+}
+.monthly-application-column:nth-child(2n) .monthly-application-bar {
+  background: linear-gradient(#b7a2e6, #8057e7);
+}
+.analytics-empty-plot {
+  min-height: 170px;
+  margin: 20px 0;
+  border: 1px dashed var(--border);
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  padding: 25px;
+  text-align: center;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 39px,
+    var(--border) 40px,
+    transparent 41px
+  );
+  color: var(--sub);
+  font-size: 13px;
+}
+.analytics-trend-panel details {
+  margin-top: 17px;
+}
+.analytics-trend-panel summary {
+  cursor: pointer;
+  font-size: 12px;
+  min-height: 35px;
+  color: var(--primary);
+}
+.insights-data-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+.insights-data-table th {
+  width: 50%;
+  padding: 12px;
+}
+.insights-data-table td {
+  padding: 12px;
+}
+.insights-data-table caption {
+  font-size: 12px;
+  padding: 12px;
+  text-align: left;
+}
+#analyticsCharts .panel {
+  box-shadow: none;
+  border-radius: 20px;
+}
+/* Employer directory: sourced identity and real related applications. */
+#companyList {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 19px;
+}
+#companyList .directory-card {
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 5px 19px #20334f04;
+}
+#companyList .directory-card[data-favorite="true"] {
+  background: #f1edfc;
+  border-color: #d8caee;
+}
+#companyList .directory-card .employer-mark {
+  width: 49px;
+  height: 49px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  margin-bottom: 17px;
+}
+#companyList .directory-card h3 {
+  font-size: 20px;
+}
+#companyList .button-row {
+  gap: 8px;
+}
+#companyList .button {
+  font-size: 11px;
+  min-height: 39px;
+  padding: 8px 12px;
+  white-space: normal;
+}
+#companyList .button:last-child {
+  background: #edf3ff;
+  border-color: #d8e3f8;
+  color: #294c90;
+}
+#companyList .text-link {
+  font-size: 12px;
+  padding: 5px 0;
+  width: 100%;
+}
+.company-related-application {
+  padding: 18px;
+  margin: 14px 0;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--canvas);
+}
+.company-related-application .status-pill {
+  margin-left: 12px;
+}
+.company-related-application > strong {
+  font-size: 14px;
+}
+/* Settings: stable anchor categories, no hidden or duplicated original controls. */
+.settings-workbench {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.settings-category-nav {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+}
+.settings-category-nav a {
+  display: block;
+  min-height: 43px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  font-size: 12px;
+  text-decoration: none;
+  color: var(--sub);
+}
+.settings-category-nav a:hover,
+.settings-category-nav a[aria-current="location"] {
+  background: #eef1ff;
+  color: #2d50a6;
+}
+.settings-category-content {
+  min-width: 0;
+  display: grid;
+  gap: 21px;
+}
+.settings-category {
+  padding: 26px;
+  scroll-margin-top: 95px;
+  min-width: 0;
+}
+.settings-category h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+.settings-category label {
+  font-size: 12px;
+}
+.settings-category .button {
+  font-size: 12px;
+  white-space: normal;
+  margin: 5px 6px 5px 0;
+}
+.settings-category .helper {
+  font-size: 12px;
+}
+.settings-category [role="status"] {
+  line-height: 1.8;
+  font-size: 12px;
+}
+.settings-category .danger-button {
+  border: 1px solid #e6b2b1;
+  color: #ad3b3a;
+  background: #fff1ee;
+}
+#settings-privacy {
+  background: linear-gradient(140deg, var(--surface), #f5f0ff);
+}
+#settings-data {
+  background: linear-gradient(140deg, var(--surface), #effaf4);
+}
+/* Dark surfaces retain their purpose and contrast. */
+body.dark #applicationsView .stat-card {
+  background: #213453;
+}
+body.dark #applicationsView .stat-card:nth-child(2) {
+  background: #302847;
+}
+body.dark #applicationsView .stat-card:nth-child(3) {
+  background: #203e34;
+}
+body.dark #applicationsView .stat-card:nth-child(4) {
+  background: #443527;
+}
+body.dark #applicationsView .stat-label {
+  color: #c7d3e8;
+}
+body.dark #kanbanBoard .kanban-column {
+  background: #1d2940;
+  border-color: var(--border);
+}
+body.dark #kanbanBoard [data-stage="Interview"] {
+  background: #2c2540;
+}
+body.dark #kanbanBoard [data-stage="Offer"],
+body.dark #kanbanBoard [data-stage="Hired"] {
+  background: #1c342c;
+}
+body.dark #kanbanBoard [data-stage="Rejected"] {
+  background: #39272b;
+}
+body.dark .kanban-card .kanban-next-action {
+  background: #263b58;
+  color: #d3e4ff;
+}
+body.dark .workspace-month-grid time.has-event,
+body.dark .agenda-event-kind {
+  background: #3d2e5c;
+  color: #e4d1ff;
+}
+body.dark .roadmap-studio-hero {
+  background: linear-gradient(125deg, #21304c, #2e2948);
+}
+body.dark .roadmap-focus-skills span {
+  color: #d3e3ff;
+  background: #273a55;
+  border-color: #425b7b;
+}
+body.dark .roadmap-next-step {
+  border-color: #4d4965;
+}
+body.dark #careerGoals .list-item {
+  background: #2d2745;
+  border-color: #514367;
+}
+body.dark #careerGoals .list-item:nth-child(2n),
+body.dark #personalMilestones .journey-milestone.is-complete {
+  background: #203c31;
+  border-color: #3f6653;
+}
+body.dark .coach-sidebar {
+  background: #27233b;
+}
+body.dark #coachResponse:not(:empty) {
+  background: #2c2740;
+  border-color: #52476b;
+}
+body.dark #analyticsMetrics .metric-card {
+  background: #243552;
+  border-color: #425576;
+}
+body.dark #analyticsMetrics .metric-card:nth-child(2n) {
+  background: #233d32;
+  border-color: #436652;
+}
+body.dark #analyticsMetrics .metric-card:nth-child(3n) {
+  background: #322a48;
+  border-color: #57476e;
+}
+body.dark #analyticsMetrics .metric-card:nth-child(4n) {
+  background: #443629;
+  border-color: #6d583b;
+}
+body.dark .analytics-trend-panel {
+  background: var(--surface);
+}
+body.dark #companyList .directory-card[data-favorite="true"] {
+  background: #302841;
+  border-color: #5e4a7e;
+}
+body.dark #companyList .button:last-child {
+  background: #273c5d;
+  border-color: #425c7f;
+  color: #d7e5ff;
+}
+body.dark .settings-category-nav a:hover,
+body.dark .settings-category-nav a[aria-current="location"] {
+  background: #2b3655;
+  color: #d5e5ff;
+}
+body.dark .settings-category .danger-button {
+  background: #472a2f;
+  color: #ffd0c5;
+  border-color: #8f5159;
+}
+body.dark #settings-privacy,
+body.dark #settings-data {
+  background: var(--surface);
+}
+@media (max-width: 1200px) {
+  #companyList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .coach-workspace {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .roadmap-studio-hero {
+    grid-template-columns: 116px minmax(0, 1fr);
+  }
+  .roadmap-next-step {
+    grid-column: 1 / -1;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding: 20px 0 0;
+  }
+}
+@media (max-width: 1050px) {
+  .coach-workspace {
+    grid-template-columns: 1fr;
+  }
+  .coach-main {
+    order: 0;
+  }
+  .coach-sidebar {
+    order: 1;
+  }
+  .settings-workbench {
+    grid-template-columns: 1fr;
+  }
+  .settings-category-nav {
+    display: flex;
+    flex-wrap: wrap;
+    position: static;
+  }
+  .settings-category-nav a {
+    flex: 1 0 120px;
+  }
+  #analyticsMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .application-month-content {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+  #applicationsView .panel-head {
+    padding: 20px 17px;
+  }
+  .tracker-view-actions {
+    padding: 15px;
+    flex-wrap: wrap;
+  }
+  .tracker-view-actions label {
+    flex: 1 1 130px;
+  }
+  #kanbanBoard {
+    grid-auto-columns: minmax(245px, 82vw);
+    padding: 9px 16px 20px;
+    gap: 14px;
+  }
+  #kanbanBoard .kanban-card {
+    padding: 17px;
+  }
+  .kanban-card .button {
+    min-height: 44px;
+  }
+  .application-form-sections fieldset {
+    padding: 16px;
+  }
+  .application-form-sections .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .workspace-detail-dialog {
+    padding: 21px;
+  }
+  .workspace-detail-dialog .button {
+    min-height: 44px;
+  }
+  .applications-agenda {
+    margin: 0 14px 17px;
+    padding: 18px;
+  }
+  .agenda-controls {
+    display: block;
+  }
+  .workspace-month-grid time {
+    width: 30px;
+    height: 33px;
+  }
+  .agenda-event .button {
+    min-height: 44px;
+  }
+  .roadmap-studio-hero {
+    padding: 24px;
+    gap: 22px;
+  }
+  .roadmap-studio-hero h2 {
+    font-size: 21px;
+  }
+  #careerGoals {
+    grid-template-columns: 1fr;
+  }
+  #careerGoals .button {
+    min-height: 44px;
+  }
+  #personalMilestones .journey-milestone {
+    padding: 20px;
+  }
+  .journey-milestone .check-label {
+    align-items: start;
+  }
+  .journey-milestone .check-label strong {
+    font-size: 15px;
+  }
+  .milestone-tools {
+    display: grid;
+  }
+  .coach-conversation,
+  #coachForm {
+    padding: 21px;
+  }
+  .coach-welcome {
+    padding: 15px 5px;
+  }
+  .coach-welcome h3 {
+    font-size: 20px;
+  }
+  .coach-user-message:not(:empty) {
+    max-width: 94%;
+    font-size: 14px;
+  }
+  #coachForm .coach-suggestions .button {
+    min-height: 44px;
+  }
+  #coachForm .check-label {
+    min-height: 35px;
+  }
+  .analytics-trend-panel {
+    padding: 23px;
+  }
+  .monthly-application-bars {
+    gap: 12px;
+    padding-inline: 0;
+  }
+  #analyticsMetrics .metric-card {
+    padding: 18px;
+  }
+  #analyticsMetrics .metric-card strong {
+    font-size: 28px;
+  }
+  .settings-category-nav {
+    padding: 9px;
+    gap: 5px;
+  }
+  .settings-category-nav a {
+    flex-basis: 110px;
+    min-height: 44px;
+  }
+  .settings-category {
+    padding: 23px;
+  }
+  .settings-category .button {
+    min-height: 44px;
+  }
+}
+@media (max-width: 560px) {
+  #companyList {
+    grid-template-columns: 1fr;
+  }
+  .roadmap-studio-hero {
+    grid-template-columns: 1fr;
+  }
+  .workspace-progress-ring {
+    height: 100px;
+    width: 100px;
+  }
+  .roadmap-next-step {
+    grid-column: 1;
+  }
+  #roadmapActions .button {
+    white-space: normal;
+  }
+  .settings-category-nav a {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #coachView .coach-loading:before {
+    animation: none;
+  }
+}
+
+/* Work tools lead the page; introductory copy should not push controls away. */
+#applicationsView .page-intro {
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 16px;
+}
+#applicationsView .page-intro > div {
+  min-width: 0;
+}
+#applicationsView h1 {
+  font-size: clamp(28px, 2.8vw, 38px);
+  margin: 8px 0;
+}
+#applicationsView .page-intro .intro-copy {
+  margin: 0;
+}
+#applicationsView .local-data-notice {
+  margin: 12px 0 18px;
+  padding: 7px 12px;
+}
+#applicationsView .stats-grid {
+  margin-bottom: 20px;
+}
+#applicationsView .stat-card {
+  min-height: 86px;
+  padding: 15px 18px;
+}
+#applicationsView .stat-bottom {
+  margin-top: 10px;
+}
+#applicationsView .panel-head {
+  padding: 17px 22px;
+}
+#applicationsView .panel-head p {
+  margin: 5px 0 0;
+}
+#applicationsView .tracker-view-actions {
+  padding-block: 12px;
+}
+#applicationsView .filters {
+  padding-block: 14px;
+}
+#roadmapView > h1,
+#companiesView h1,
+#coachView h1,
+#analyticsView h1,
+#settingsView h1 {
+  font-size: clamp(28px, 2.7vw, 38px);
+}
+#analyticsMetrics .metric-card {
+  padding: 16px 20px;
+}
+#analyticsMetrics .metric-card strong {
+  margin-top: 12px;
+}
+.settings-category > .panel {
+  padding: 12px 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.coach-welcome {
+  padding-block: 10px 18px;
+}
+.coach-welcome img {
+  width: 180px;
+}
+@media (max-width: 768px) {
+  #applicationsView .page-intro {
+    flex-wrap: wrap;
+  }
+  #applicationsView .page-intro .eyebrow {
+    font-size: 9px;
+  }
+  #applicationsView .page-intro .button {
+    padding: 10px 14px;
+    min-height: 44px;
+  }
+  #applicationsView .stat-card {
+    padding: 14px;
+    min-height: 84px;
+  }
+  #applicationsView .local-data-notice {
+    line-height: 1.6;
+  }
+}

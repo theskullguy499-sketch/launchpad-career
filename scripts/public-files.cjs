@@ -1,5 +1,9 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "workspace54.js",
+  "lib/workspace-insights.mjs",
+  "styles/workspace54.css",
+  "assets/workspace-path.svg",
   "jobs-experience.js",
   "lib/auth-presentation.mjs",
   "styles/opportunities.css",
