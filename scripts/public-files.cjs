@@ -1,5 +1,11 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "evolution.js",
+  "billing-view.js",
+  "styles/evolution.css",
+  "assets/career-studio.svg",
+  "lib/auth-controls.mjs",
+  "lib/job-discovery.mjs",
   "premium.js",
   "styles/premium.css",
   "assets/career-ascent.svg",

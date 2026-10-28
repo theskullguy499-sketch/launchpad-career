@@ -1,3 +1,4 @@
+import { mountAuthControls } from "./lib/auth-controls.mjs";
 import {
   getAuthClient,
   callbackUrl,
@@ -7,6 +8,7 @@ import {
 } from "./auth-client.js";
 import { createCloudData } from "./cloud-data.js";
 const $ = (selector) => document.querySelector(selector);
+const passwordControls = mountAuthControls();
 let client, cloud;
 let mode = "signin";
 let user = null;
@@ -85,14 +87,18 @@ function render() {
         }[mode];
   $("#signInMode").setAttribute("aria-pressed", String(mode === "signin"));
   $("#signUpMode").setAttribute("aria-pressed", String(mode === "signup"));
+  passwordControls.refresh(mode, busy);
 }
 function clearPasswords() {
   $("#authPassword").value = "";
   $("#authConfirmPassword").value = "";
+  passwordControls.reset();
 }
 async function action(operation) {
   if (busy) return;
   busy = true;
+  $("#authForm").setAttribute("aria-busy", "true");
+  $("#authSubmit").textContent = "Please wait…";
   $("#authForm")
     .querySelectorAll("button:not(#closeAuthBtn)")
     .forEach((b) => (b.disabled = true));
@@ -105,6 +111,7 @@ async function action(operation) {
   } finally {
     clearPasswords();
     busy = false;
+    $("#authForm").removeAttribute("aria-busy");
     $("#authForm")
       .querySelectorAll("button")
       .forEach((b) => (b.disabled = false));

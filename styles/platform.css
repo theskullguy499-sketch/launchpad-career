@@ -212,7 +212,7 @@
 .section-pad textarea {
   resize: vertical;
 }
-.check-label {
+.check-label:not([hidden]) {
   display: flex !important;
   align-items: flex-start;
   gap: 10px !important;

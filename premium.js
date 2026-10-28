@@ -16,7 +16,7 @@ const icons = {
   spark: "m12 3 3 6 6 3-6 3-3 6-3-6-6-3 6-3z",
   building: "M5 21V3h14v18M2 21h20M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-5h4v5",
 };
-function icon(name) {
+export function icon(name) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
   svg.setAttribute("aria-hidden", "true");

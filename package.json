@@ -23,5 +23,5 @@
     "axe-core": "4.10.3",
     "esbuild": "0.28.2"
   },
-  "version": "5.1.0-rc.1"
+  "version": "5.2.0-rc.1"
 }

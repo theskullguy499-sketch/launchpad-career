@@ -1,3 +1,8 @@
+import {
+  mountBillingExperience,
+  renderBillingExperience,
+  renderProviderTransactions,
+} from "./billing-view.js";
 import "./platform.js";
 import { getAuthClient } from "./auth-client.js";
 import { PLANS, BILLING_DISCLOSURE } from "./lib/plans.mjs";
@@ -133,6 +138,17 @@ const setupRequired = el("div", null, "helper");
 setupRequired.id = "billingSetupRequired";
 screen.querySelector("#billingMode").after(setupRequired);
 $("#platformScreens").append(screen);
+mountBillingExperience(screen);
+$("#loadProviderTransactions").append(
+  button("Load provider transactions", async () => {
+    if (!window.launchpadSession) {
+      signup();
+      return;
+    }
+    const result = await api("transactions");
+    renderProviderTransactions(result);
+  }),
+);
 const business = el("section", null, "view");
 business.id = "businessView";
 business.hidden = true;
@@ -216,8 +232,10 @@ function drawPricing() {
     list.append(card);
   }
   $("#pricingDisclosure").textContent = BILLING_DISCLOSURE;
+  renderBillingExperience(catalog, state);
 }
 function draw() {
+  renderBillingExperience(catalog, state);
   const dashboardPlan = $("#dashboardPlanStatus");
   if (dashboardPlan)
     dashboardPlan.textContent = state
