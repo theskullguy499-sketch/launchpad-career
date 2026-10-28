@@ -8,6 +8,25 @@ The 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforc
 
 The [4.1 audit](docs/RELEASE_4_1.md) remains historical background; its accessible mobile drawer is included in this branch.
 
+## Existing staging: Auth and Sandbox integration
+
+This focused branch starts at the 5.0 simulator fix `3e2e993` and intentionally
+keeps the premium 5.1 redesign separate. It adds validated public publishable/anon
+build configuration, query/fragment verification callbacks, truthful checkout
+readiness and bounded server confirmation after checkout. It does not activate
+legal/commercial flags or apply database migrations.
+
+The owner-reported existing staging is https://launchpad-career-staging.pages.dev/;
+project URL is https://oyatshlhqdxosvbelsvp.supabase.co. Direct Upload requires a
+locally configured `_site` build; Pages dashboard variables cannot modify an
+already uploaded static artifact. `npm run build:staging` requires the owner's
+public key and fixes the reviewed project URL. `npm run check:staging` performs
+read-only diagnostics without printing keys or claiming email/payment delivery.
+
+See [beginner Windows CMD and owner acceptance guide (Portuguese)](docs/AUTH_BILLING_STAGING_PT.md)
+and [technical verification report](docs/AUTH_BILLING_INTEGRATION.md). Real project
+email delivery and Paddle Sandbox purchases remain external acceptance gates.
+
 ## Functional scope
 
 - Premium responsive landing/dashboard and consistent navigation across applications, companies, jobs, roadmap, AI coach, analytics and settings; original light/dark themes retained.
