@@ -1,5 +1,8 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "jobs-experience.js",
+  "lib/auth-presentation.mjs",
+  "styles/opportunities.css",
   "assets/career-objects.svg",
   "assets/brand/launchpad-lockup-light.svg",
   "assets/brand/launchpad-lockup-dark.svg",

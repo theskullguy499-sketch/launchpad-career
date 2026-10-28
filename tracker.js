@@ -722,7 +722,8 @@
       "billing",
       "business",
     ];
-    const current = routes.includes(view) ? view : "applications";
+    const route = view.split("?")[0];
+    const current = routes.includes(route) ? route : "applications";
     document
       .querySelectorAll(".view")
       .forEach((section) => (section.hidden = section.id !== current + "View"));

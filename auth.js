@@ -1,3 +1,4 @@
+import { mountAuthPresentation } from "./lib/auth-presentation.mjs";
 import { mountAuthControls } from "./lib/auth-controls.mjs";
 import {
   getAuthClient,
@@ -9,14 +10,21 @@ import {
 import { createCloudData } from "./cloud-data.js";
 const $ = (selector) => document.querySelector(selector);
 const passwordControls = mountAuthControls();
+const presentation = mountAuthPresentation();
 let client, cloud;
 let mode = "signin";
 let user = null;
 let busy = false;
 let generation = 0;
-const message = (text) => {
+const message = (text, tone = "info") => {
   $("#authStatus").textContent = text;
+  $("#authStatus").dataset.tone = tone;
 };
+function invalid(text, field) {
+  message(text, "error");
+  $(field).setAttribute("aria-invalid", "true");
+  $(field).focus();
+}
 function recoveryPending() {
   try {
     return sessionStorage.getItem(recoveryKey) === "pending";
@@ -52,7 +60,7 @@ function render() {
   $("#signOutBtn").hidden = !user;
   $("#cloudActions").hidden = !signedIn;
   $("#resendEmailBtn").hidden =
-    !connected || Boolean(user) || mode === "forgot";
+    !connected || Boolean(user) || ["forgot", "signup"].includes(mode);
   $("#forgotPasswordBtn").hidden =
     !connected || Boolean(user) || ["forgot", "verify"].includes(mode);
   $("#passwordHint").hidden = !["signup", "reset"].includes(mode);
@@ -88,6 +96,7 @@ function render() {
   $("#signInMode").setAttribute("aria-pressed", String(mode === "signin"));
   $("#signUpMode").setAttribute("aria-pressed", String(mode === "signup"));
   passwordControls.refresh(mode, busy);
+  presentation.render({ mode, connected, signedIn, userId: user?.id });
 }
 function clearPasswords() {
   $("#authPassword").value = "";
@@ -120,6 +129,9 @@ async function action(operation) {
 }
 function setMode(next) {
   mode = next;
+  document
+    .querySelectorAll("#authFields [aria-invalid]")
+    .forEach((field) => field.removeAttribute("aria-invalid"));
   clearPasswords();
   message("");
   render();
@@ -145,25 +157,37 @@ $("#authForm").addEventListener("submit", (event) => {
   const email = $("#authEmail").value.trim();
   const password = $("#authPassword").value;
   if (mode !== "reset" && (!email || !$("#authEmail").validity.valid)) {
-    message("Please enter a valid email address.");
-    $("#authEmail").focus();
+    invalid("Please enter a valid email address.", "#authEmail");
     return;
   }
   if (mode !== "forgot" && password.length < (mode === "signin" ? 1 : 12)) {
-    message(
+    invalid(
       mode === "signin"
         ? "Please enter your password."
         : "Please use a password with at least 12 characters.",
+      "#authPassword",
     );
-    $("#authPassword").focus();
     return;
   }
   if (
     ["signup", "reset"].includes(mode) &&
     password !== $("#authConfirmPassword").value
   ) {
-    message("Your passwords do not match. Please check both fields.");
-    $("#authConfirmPassword").focus();
+    invalid(
+      "Your passwords do not match. Please check both fields.",
+      "#authConfirmPassword",
+    );
+    return;
+  }
+  if (
+    mode === "signup" &&
+    (!["16-17", "18+"].includes($("#signupAge").value) ||
+      !$("#signupTerms").checked)
+  ) {
+    invalid(
+      "You must be at least 16 and accept the Terms and Privacy Policy to create an account.",
+      !$("#signupAge").value ? "#signupAge" : "#signupTerms",
+    );
     return;
   }
   action(async () => {
@@ -214,15 +238,6 @@ $("#authForm").addEventListener("submit", (event) => {
       return;
     }
     const operation = mode;
-    if (
-      operation === "signup" &&
-      (!$("#signupAge").value || !$("#signupTerms").checked)
-    ) {
-      message(
-        "You must be at least 16 and accept the Terms and Privacy Policy to create an account.",
-      );
-      return;
-    }
     message(operation === "signup" ? "Creating account…" : "Signing in…");
     const { data, error } =
       operation === "signup"
@@ -246,6 +261,7 @@ $("#authForm").addEventListener("submit", (event) => {
             ? "Unable to create an account. Check the password policy or try again later."
             : "Sign-in failed. Check your email and password, and make sure your email is verified.",
         ),
+        "error",
       );
       return;
     }
@@ -266,7 +282,10 @@ $("#authForm").addEventListener("submit", (event) => {
     } else {
       try {
         user = await confirmedUser(client);
-        message(`Signed in as ${user.email}. Your local data is unchanged.`);
+        message(
+          `Signed in as ${user.email}. Your local data is unchanged.`,
+          "success",
+        );
       } catch {
         await client.auth.signOut({ scope: "local" });
         user = null;
