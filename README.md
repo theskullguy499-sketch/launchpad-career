@@ -1,4 +1,4 @@
-# Launchpad 5.3 — Jobs & Auth Polish Release Candidate
+# Launchpad 5.4 — Premium Workspace Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -7,7 +7,14 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
 
-## Current 5.3 handoff
+## Current 5.4 handoff
+
+Branch: **`feat/launchpad-5-4-premium-workspace`**, based on 5.3 commit `b161d85`.
+Premium Applications/calendar/history, Roadmap, Coach, Analytics, Companies and categorized Settings preserve existing data, account isolation, Auth and billing safeguards.
+Start with [release evidence and limits](docs/releases/5.4-RELEASE.md), [real before/after screenshots](docs/screenshots/5.4/README.md), [visual review](docs/releases/5.4-VISUAL.md) and [Windows/Cloudflare instructions](docs/releases/5.4-STAGING.md).
+No merge, deployment, secret change, new migration or payment activation is included. External email/Supabase/Paddle/AI/jobs validation remains required; local fixtures are not proof of live integrations.
+
+## Previous 5.3 handoff
 
 Branch: **`feat/launchpad-5-3-jobs-auth-polish`**, based on 5.2 commit `8985e39`.
 The release adds premium job search/details, owned bookmarks and truthful email-confirmation/profile onboarding while preserving existing data, RLS, Auth and billing safeguards.
@@ -20,7 +27,7 @@ Branch: **`feat/launchpad-5-2-commercial-experience`**, based on the integrated 
 Start with [Windows CMD and existing Cloudflare Direct Upload instructions](docs/releases/5.2-STAGING.md),
 [release evidence and blockers](docs/releases/5.2-RELEASE.md), and the [real screenshot gallery](docs/screenshots/5.2/README.md).
 The supplied blue/green identity and visual references are now applied: see [brand/refinement report](docs/releases/5.2-BRAND-REFINEMENT.md) and [updated captures](docs/screenshots/5.2-brand/README.md). The raster logo was reconstructed as outlined SVG; exact typography needs human approval. No deployment, merge, real payment or live email verification is claimed.
-Older component guides below remain historical; use the 5.2 guide for this branch.
+Older component guides below remain historical; use the 5.4 guide for this branch.
 
 ## Previous unified staging handoff
 

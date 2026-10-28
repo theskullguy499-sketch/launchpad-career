@@ -1,0 +1,346 @@
+{
+  "baseline": "b161d85",
+  "implementationCommit": "e69a49853dbab44b5a34978c1a9e6a799eca7c80",
+  "artifactVersion": "5.4.0-rc.1",
+  "capturedAt": "2026-10-28T23:10:37.250Z",
+  "fixture": true,
+  "liveIntegrations": false,
+  "captures": [
+    {
+      "file": "before-applications-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-roadmap-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-coach-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-analytics-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-companies-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-settings-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-applications-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-roadmap-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-coach-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-analytics-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-companies-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "before-settings-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "before",
+      "errors": []
+    },
+    {
+      "file": "after-applications-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-roadmap-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-coach-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-analytics-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-companies-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-settings-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-kanban-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-calendar-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-application-form-light-desktop.jpg",
+      "width": 1440,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-applications-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-roadmap-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-coach-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-analytics-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-companies-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-settings-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-kanban-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-calendar-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-application-form-dark-desktop.jpg",
+      "width": 1440,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-applications-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-roadmap-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-coach-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-analytics-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-companies-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-settings-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-kanban-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-calendar-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-application-form-light-mobile.jpg",
+      "width": 390,
+      "theme": "light",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-applications-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-roadmap-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-coach-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-analytics-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-companies-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-settings-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-kanban-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-calendar-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    },
+    {
+      "file": "after-application-form-dark-mobile.jpg",
+      "width": 390,
+      "theme": "dark",
+      "stage": "after",
+      "errors": []
+    }
+  ]
+}
