@@ -1,4 +1,4 @@
-# Launchpad 5.2 — Commercial Experience Release Candidate
+# Launchpad 5.3 — Jobs & Auth Polish Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -7,7 +7,14 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
 
-## Current 5.2 handoff
+## Current 5.3 handoff
+
+Branch: **`feat/launchpad-5-3-jobs-auth-polish`**, based on 5.2 commit `8985e39`.
+The release adds premium job search/details, owned bookmarks and truthful email-confirmation/profile onboarding while preserving existing data, RLS, Auth and billing safeguards.
+Start with [release evidence and limits](docs/releases/5.3-RELEASE.md), [33 actual before/after captures](docs/screenshots/5.3/README.md) and [simple Windows/Cloudflare instructions](docs/releases/5.3-STAGING.md).
+No merge, deployment, live email/provider validation or payment activation is claimed. The public build requires owner-supplied public Supabase configuration; the job-description backend update needs owner review.
+
+## Previous 5.2 handoff
 
 Branch: **`feat/launchpad-5-2-commercial-experience`**, based on the integrated 5.1 release.
 Start with [Windows CMD and existing Cloudflare Direct Upload instructions](docs/releases/5.2-STAGING.md),
