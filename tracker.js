@@ -758,6 +758,7 @@
       "billing",
       "business",
       "resume",
+      "interview",
     ];
     const route = view.split("?")[0];
     const current = routes.includes(route) ? route : "applications";
