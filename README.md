@@ -1,10 +1,33 @@
-# Launchpad 5.0 — Commercial Release Candidate
+# Launchpad 5.1 — Premium Staging Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
 Production address remains https://theskullguy499-sketch.github.io/launchpad-career/ . The product landing screen is `#home`; the root retains the existing application-tracker route for returning users.
 
-The 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
+The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
+
+
+## 5.1: a clearer next chapter
+
+An original career-ascent visual system adds a navy sidebar, responsive bento
+personal dashboard, local employer marks with documented neutral fallbacks,
+roadmap timeline, consent-preserving coach prompts and refined billing/auth UI.
+No framework migration, guest-key rewrite, database reset or entitlement bypass
+is included. All customer-facing copy is English.
+
+The owner reports staging at https://launchpad-career-staging.pages.dev/ . This
+environment could not independently access it (HTTP 403). The owner will configure
+public Supabase values directly in Cloudflare. An Auth-required staging build now
+fails safely when they are missing; the committed config remains blank.
+
+- [Exact Cloudflare/Supabase/Paddle steps and Windows CMD commands](docs/releases/5.1-STAGING.md)
+- [5.1 release evidence and remaining gates](docs/releases/5.1-RELEASE.md)
+- [Real before/after screenshots](docs/screenshots/5.1/README.md)
+- [60–90 second demonstration guide](docs/releases/5.1-DEMO.md)
+- [Illustration/brand asset provenance and trademark limitations](docs/releases/5.1-ASSETS.md)
+
+The 15 November 2026 milestone is an acceptance target, not permission to enable
+real charges or skip testing. No production deployment or merge is performed.
 
 The [4.1 audit](docs/RELEASE_4_1.md) remains historical background; its accessible mobile drawer is included in this branch.
 
