@@ -1,5 +1,7 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "job-fit55.js",
+  "lib/job-fit.mjs",
   "interview55.js",
   "lib/interview-practice.mjs",
   "career55.js",

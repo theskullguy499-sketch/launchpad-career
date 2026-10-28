@@ -1,3 +1,4 @@
+import {jobFitPanel} from "./job-fit55.js";
 // Jobs presentation uses only the current workspace and retrieved source records.
 import { companyIdentity, icon } from "./premium.js";
 import { jobKey, reportedArrangement } from "./lib/job-discovery.mjs";
@@ -494,7 +495,7 @@ function renderDetails() {
     rail.append(company);
   }
   layout.append(main, rail);
-  root.append(layout);
+  root.append(layout, jobFitPanel(job,context.data));
   if (changed) root.focus({ preventScroll: true });
 }
 export function renderJobExperience(next) {
