@@ -12,8 +12,7 @@ The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, ser
 Branch: **`feat/launchpad-5-2-commercial-experience`**, based on the integrated 5.1 release.
 Start with [Windows CMD and existing Cloudflare Direct Upload instructions](docs/releases/5.2-STAGING.md),
 [release evidence and blockers](docs/releases/5.2-RELEASE.md), and the [real screenshot gallery](docs/screenshots/5.2/README.md).
-No deployment, merge, real payment, live email verification or new official-logo replacement is claimed.
-The supplied-reference/new-logo files were not attached; current branding is preserved pending review.
+The supplied blue/green identity and visual references are now applied: see [brand/refinement report](docs/releases/5.2-BRAND-REFINEMENT.md) and [updated captures](docs/screenshots/5.2-brand/README.md). The raster logo was reconstructed as outlined SVG; exact typography needs human approval. No deployment, merge, real payment or live email verification is claimed.
 Older component guides below remain historical; use the 5.2 guide for this branch.
 
 ## Previous unified staging handoff
