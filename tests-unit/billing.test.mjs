@@ -537,3 +537,70 @@ test("payment-link resumption requires an owned transaction and reviewed current
   assert.equal(result.status, 200);
   assert.equal((await result.json()).transactionId, "txn_owned");
 });
+
+test("signed sandbox simulator events acknowledge receipt without any backend or paid-access side effects", async () => {
+  for (const type of ["subscription.activated", "transaction.completed"]) {
+    const raw = JSON.stringify({
+      event_id: "ntfsimevt_01jfixture123", event_type: type,
+      occurred_at: at.toISOString(),
+      data: { id: "sub_owner", subscription_id: "sub_owner", customer_id: "ctm_owner", status: "active" },
+    });
+    const handler = makeBillingHandler("paddle-webhook", {
+      env: k => ({ PADDLE_ENVIRONMENT: "sandbox", PADDLE_WEBHOOK_SECRET: secret })[k],
+      now: () => at,
+      createClient: () => assert.fail("Simulations must not access the database or grant entitlements"),
+      fetch: () => assert.fail("Simulations must not request provider data or create payments"),
+    });
+    for (let delivery = 0; delivery < 2; delivery++) {
+      const response = await handler(new Request("https://backend.example/webhook", {
+        method: "POST", headers: { "Paddle-Signature": signed(raw) }, body: raw,
+      }));
+      assert.equal(response.status, 200);
+      assert.deepEqual(await response.json(), { received: true, simulated: true, processed: false });
+    }
+  }
+});
+
+test("simulator events still require valid raw-body signatures and fresh timestamps", async () => {
+  const f = fixture();
+  const raw = JSON.stringify({ event_id: "ntfsimevt_01jfixture123", event_type: "subscription.activated", occurred_at: at.toISOString(), data: { id: "sub_owner" } });
+  const before = JSON.stringify(f.tables);
+  for (const [body, signature] of [
+    [raw, ""], [raw, "ts=bad;h1=bad"], [raw + " ", signed(raw)],
+    [raw, signed(raw, at.getTime() / 1000 - 301)],
+    [raw, signed(raw, at.getTime() / 1000 + 301)],
+  ]) {
+    const response = await f.handler("paddle-webhook")(new Request("https://backend.example/webhook", {
+      method: "POST", headers: { "Paddle-Signature": signature }, body,
+    }));
+    assert.equal(response.status, 401);
+  }
+  assert.deepEqual(f.calls, []); assert.deepEqual(f.requests, []);
+  assert.equal(JSON.stringify(f.tables), before);
+});
+
+test("production and unspecified environments reject even correctly signed simulator events", async () => {
+  for (const environment of ["live", "production", "", undefined]) {
+    const f = fixture({ env: { PADDLE_ENVIRONMENT: environment } });
+    const before = JSON.stringify(f.tables);
+    const raw = JSON.stringify({ event_id: "ntfsimevt_01jfixture123", event_type: "subscription.activated", occurred_at: at.toISOString(), data: { id: "sub_owner" } });
+    const response = await f.handler("paddle-webhook")(new Request("https://backend.example/webhook", {
+      method: "POST", headers: { "Paddle-Signature": signed(raw) }, body: raw,
+    }));
+    assert.equal(response.status, 400);
+    assert.deepEqual(f.calls, []); assert.deepEqual(f.requests, []);
+    assert.equal(JSON.stringify(f.tables), before);
+  }
+});
+
+test("malformed signed webhook envelopes are rejected without ledger or provider access", async () => {
+  const f = fixture();
+  for (const body of [null, [], {event_id:"ntfsimevt_",occurred_at:at.toISOString(),event_type:"subscription.activated"}, {event_id:"ntfsimevt_abc",occurred_at:"bad",event_type:"subscription.activated"}, {event_id:"other_abc",occurred_at:at.toISOString(),event_type:"subscription.activated"}]) {
+    const raw = JSON.stringify(body);
+    const response = await f.handler("paddle-webhook")(new Request("https://backend.example/webhook", {
+      method: "POST", headers: { "Paddle-Signature": signed(raw) }, body: raw,
+    }));
+    assert.equal(response.status, 400);
+  }
+  assert.deepEqual(f.calls, []); assert.deepEqual(f.requests, []);
+});

@@ -288,6 +288,23 @@ export function makeBillingHandler(
       } catch {
         return respond({ error: "Invalid JSON." }, 400);
       }
+      if (kind === "paddle-webhook") {
+        if (
+          body === null || typeof body !== "object" || Array.isArray(body) ||
+          typeof body.event_id !== "string" ||
+          !/^(evt_|ntfsimevt_)[a-z0-9]+$/i.test(body.event_id) ||
+          !Number.isFinite(Date.parse(body.occurred_at)) ||
+          typeof body.event_type !== "string"
+        )
+          return respond({ error: "Invalid event." }, 400);
+        if (/^ntfsimevt_/i.test(body.event_id)) {
+          // Signature verification above is mandatory. Simulations never reach
+          // provider requests, the payment ledger or entitlement mutation RPCs.
+          if (env("PADDLE_ENVIRONMENT") !== "sandbox")
+            return respond({ error: "Simulated events are only allowed in sandbox." }, 400);
+          return respond({ received: true, simulated: true, processed: false });
+        }
+      }
       const url = env("SUPABASE_URL"),
         key = env("SUPABASE_PUBLISHABLE_KEY") || env("SUPABASE_ANON_KEY"),
         secret = env("SUPABASE_SERVICE_ROLE_KEY");
@@ -300,12 +317,6 @@ export function makeBillingHandler(
         admin.from("commercial_settings").select("*").eq("id", true).single(),
       );
       if (kind === "paddle-webhook") {
-        if (
-          !/^evt_[a-z0-9]+$/i.test(body.event_id) ||
-          !Number.isFinite(Date.parse(body.occurred_at)) ||
-          typeof body.event_type !== "string"
-        )
-          return respond({ error: "Invalid event." }, 400);
         const event = {
           id: body.event_id,
           type: body.event_type,
