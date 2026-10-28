@@ -1,4 +1,4 @@
-# Launchpad 5.1 — Premium Staging Release Candidate
+# Launchpad 5.1 — Integrated Staging Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -6,6 +6,14 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
+
+## Unified staging handoff
+
+Use **`integration/launchpad-5-1-staging`** for the combined design and Auth/billing
+release. Start with [simple Windows CMD and existing Cloudflare Direct Upload steps](docs/INTEGRATED_STAGING.md).
+Component reports below describe their original branches; the unified guide is
+the current deployment and validation reference. No main merge, deployment,
+credential change or approval/real-charge flag activation is included.
 
 ## 5.1: a clearer next chapter
 
@@ -16,9 +24,10 @@ No framework migration, guest-key rewrite, database reset or entitlement bypass
 is included. All customer-facing copy is English.
 
 The owner reports staging at https://launchpad-career-staging.pages.dev/ . This
-environment could not independently access it (HTTP 403). The owner will configure
-public Supabase values directly in Cloudflare. An Auth-required staging build now
-fails safely when they are missing; the committed config remains blank.
+environment could not independently access it (HTTP 403). For the existing Direct Upload workflow, public Supabase values must be supplied
+locally before generating `_site`; dashboard variables do not modify uploaded
+static files. Auth-required builds fail safely when values are missing; the
+committed config remains blank.
 
 - [Exact Cloudflare/Supabase/Paddle steps and Windows CMD commands](docs/releases/5.1-STAGING.md)
 - [5.1 release evidence and remaining gates](docs/releases/5.1-RELEASE.md)
@@ -30,6 +39,25 @@ The 15 November 2026 milestone is an acceptance target, not permission to enable
 real charges or skip testing. No production deployment or merge is performed.
 
 The [4.1 audit](docs/RELEASE_4_1.md) remains historical background; its accessible mobile drawer is included in this branch.
+
+## Existing staging: Auth and Sandbox integration
+
+This integration joins premium branch `437bfcd` and Auth/billing branch `bdbe0cf`,
+preserving their shared simulator fix `3e2e993`. It includes validated public publishable/anon
+build configuration, query/fragment verification callbacks, truthful checkout
+readiness and bounded server confirmation after checkout. It does not activate
+legal/commercial flags or apply database migrations.
+
+The owner-reported existing staging is https://launchpad-career-staging.pages.dev/;
+project URL is https://oyatshlhqdxosvbelsvp.supabase.co. Direct Upload requires a
+locally configured `_site` build; Pages dashboard variables cannot modify an
+already uploaded static artifact. `npm run build:staging` requires the owner's
+public key and fixes the reviewed project URL. `npm run check:staging` performs
+read-only diagnostics without printing keys or claiming email/payment delivery.
+
+See [beginner Windows CMD and owner acceptance guide (Portuguese)](docs/AUTH_BILLING_STAGING_PT.md)
+and [technical verification report](docs/AUTH_BILLING_INTEGRATION.md). Real project
+email delivery and Paddle Sandbox purchases remain external acceptance gates.
 
 ## Functional scope
 

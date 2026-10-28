@@ -34,7 +34,13 @@ let state = null,
   catalog = PLANS,
   publicConfig = { enabled: false },
   paddlePromise,
-  checkoutOwner = null;
+  checkoutOwner = null,
+  checkoutScope = null,
+  checkoutTransaction = null,
+  checkoutPlan = null,
+  checkoutPending = false,
+  checkoutWatch = 0,
+  checkoutTimer;
 const navigate = (view) => window.launchpadData.navigate(view);
 function status(message) {
   $("#billingStatus").textContent = message;
@@ -123,6 +129,9 @@ for (const [question, answer] of [
   billingFaq.append(detail);
 }
 screen.append(billingFaq);
+const setupRequired = el("div", null, "helper");
+setupRequired.id = "billingSetupRequired";
+screen.querySelector("#billingMode").after(setupRequired);
 $("#platformScreens").append(screen);
 const business = el("section", null, "view");
 business.id = "businessView";
@@ -212,10 +221,26 @@ function draw() {
   const dashboardPlan = $("#dashboardPlanStatus");
   if (dashboardPlan)
     dashboardPlan.textContent = state
-      ? `${state.entitlement.environment === "sandbox" ? "Sandbox · " : ""}Access: ${state.entitlement.plan}${state.entitlement.legacy ? " (legacy grant)" : ""} · ${state.entitlement.aiRemaining} AI requests left · View billing`
+      ? `${state.entitlement.environment === "sandbox" ? "Sandbox · " : ""}Server-confirmed access: ${state.entitlement.plan}${state.entitlement.legacy ? " (legacy grant)" : ""} · ${state.entitlement.aiRemaining} AI requests left · View billing`
       : window.launchpadSession
         ? "Plan not yet verified · Check Plans & Billing"
         : "Guest workspace · Explore account plans";
+  const setup = $("#billingSetupRequired");
+  if (setup) {
+    setup.replaceChildren();
+    if (publicConfig.setupRequired?.length) {
+      setup.append(
+        el(
+          "p",
+          "The operator still needs to complete these settings. No purchase has been started:",
+        ),
+      );
+      const list = el("ul");
+      for (const label of publicConfig.setupRequired)
+        list.append(el("li", label));
+      setup.append(list);
+    }
+  }
   $("#billingMode").textContent = publicConfig.enabled
     ? `${!publicConfig.checkoutReady ? "Commercial workspace rules are enabled, but checkout is paused or not configured." : publicConfig.environment === "sandbox" ? "SANDBOX — test purchases only." : "Commercial service enabled; complete the release acceptance checks before inviting customers."}`
     : "Portfolio / setup mode. Commercial checkout is not activated. Prices are proposals; no subscription is being sold here.";
@@ -351,6 +376,8 @@ async function refresh() {
       checkoutReady: r.checkoutReady,
       enabled: r.entitlement.enabled,
       environment: r.entitlement.environment,
+      termsVersion: r.termsVersion ?? publicConfig.termsVersion,
+      setupRequired: r.setupRequired || [],
     };
     drawPricing();
     draw();
@@ -359,6 +386,7 @@ async function refresh() {
         ? "Server status loaded. Payment changes may still be awaiting a verified webhook."
         : "Paddle is not configured. No purchase was started.",
     );
+    return true;
   } catch (e) {
     if (ticket === generation) {
       state = null;
@@ -370,6 +398,113 @@ async function refresh() {
       );
     }
   }
+}
+function stopCheckoutWatch() {
+  checkoutWatch++;
+  clearTimeout(checkoutTimer);
+}
+function handleCheckoutEvent(event) {
+  if (
+    !checkoutOwner ||
+    checkoutOwner !== window.launchpadSession?.id ||
+    checkoutScope !== sessionVersion
+  )
+    return;
+  if (
+    event.data?.transaction_id &&
+    event.data.transaction_id !== checkoutTransaction
+  )
+    return;
+  if (event.name === "checkout.closed" && !checkoutPending) {
+    status(
+      "Checkout closed. No payment success is claimed. Refresh status before retrying.",
+    );
+  }
+  if (["checkout.error", "checkout.payment.failed"].includes(event.name)) {
+    stopCheckoutWatch();
+    checkoutPending = false;
+    status(
+      "Checkout could not finish. Check Plans & Billing or the provider portal before retrying. No payment success is claimed.",
+    );
+  }
+  if (event.name !== "checkout.completed" || checkoutPending) return;
+  checkoutPending = true;
+  status(
+    "Checkout reported completion. Waiting for the verified server webhook; access has not been confirmed.",
+  );
+  const watch = ++checkoutWatch,
+    scope = sessionVersion,
+    owner = checkoutOwner;
+  let attempts = 0;
+  const check = async () => {
+    if (
+      watch !== checkoutWatch ||
+      scope !== sessionVersion ||
+      owner !== window.launchpadSession?.id
+    )
+      return;
+    const loaded = await refresh();
+    if (
+      watch !== checkoutWatch ||
+      scope !== sessionVersion ||
+      owner !== window.launchpadSession?.id
+    )
+      return;
+    if (!loaded) {
+      checkoutPending = false;
+      return;
+    }
+    if (
+      state &&
+      !state.entitlement.legacy &&
+      ["pro", "premium"].includes(state.entitlement.plan) &&
+      (!checkoutPlan || state.entitlement.plan === checkoutPlan)
+    ) {
+      status(
+        "Your plan is confirmed by the server. The verified server webhook controls access.",
+      );
+      checkoutPending = false;
+      return;
+    }
+    if (++attempts >= 6) {
+      status(
+        "Still awaiting the verified server webhook. No new purchase was started. Refresh status later or contact support before retrying.",
+      );
+      checkoutPending = false;
+      return;
+    }
+    status(
+      "Still awaiting the verified server webhook. Checking server status again shortly…",
+    );
+    checkoutTimer = setTimeout(check, 4000);
+  };
+  checkoutTimer = setTimeout(check, 4000);
+}
+async function openCheckout(result, owner, scope, plan) {
+  if (
+    location.hostname === "launchpad-career-staging.pages.dev" &&
+    result.environment !== "sandbox"
+  )
+    throw new Error("Only Sandbox checkout can open on this staging site.");
+  const sdk = await paddle();
+  if (scope !== sessionVersion || owner !== window.launchpadSession?.id)
+    throw new Error("Your account changed before checkout opened.");
+  stopCheckoutWatch();
+  checkoutOwner = owner;
+  checkoutScope = scope;
+  checkoutTransaction = result.transactionId;
+  checkoutPlan = plan || result.plan;
+  checkoutPending = false;
+  if (result.environment === "sandbox") sdk.Environment.set("sandbox");
+  if (!window.launchpadPaddleInitialized) {
+    sdk.Initialize({
+      token: result.clientToken,
+      eventCallback: handleCheckoutEvent,
+    });
+    window.launchpadPaddleInitialized = true;
+  }
+  sdk.Checkout.open({ transactionId: result.transactionId });
+  status(result.notice);
 }
 async function paddle() {
   if (window.Paddle) return window.Paddle;
@@ -420,6 +555,17 @@ async function purchase(plan) {
     throw new Error(
       "Commercial billing is not activated. No payment was started.",
     );
+  if (
+    location.hostname === "launchpad-career-staging.pages.dev" &&
+    publicConfig.environment !== "sandbox"
+  )
+    throw new Error(
+      "This staging site accepts Sandbox purchases only. No payment was started.",
+    );
+  if (!publicConfig.checkoutReady)
+    throw new Error(
+      "Checkout is unavailable until the operator completes the settings listed above. No payment was started.",
+    );
   const active = state.subscriptions?.some((s) =>
     ["active", "trialing", "past_due", "paused"].includes(s.status),
   );
@@ -456,28 +602,7 @@ async function purchase(plan) {
     termsVersion: publicConfig.termsVersion,
     requestId: crypto.randomUUID(),
   });
-  const sdk = await paddle();
-  if (scope !== sessionVersion || purchaseOwner !== window.launchpadSession?.id)
-    throw new Error("Your account changed before checkout opened.");
-  checkoutOwner = purchaseOwner;
-  if (r.environment === "sandbox") sdk.Environment.set("sandbox");
-  if (!window.launchpadPaddleInitialized) {
-    sdk.Initialize({
-      token: r.clientToken,
-      eventCallback: (event) => {
-        if (
-          event.name === "checkout.completed" &&
-          checkoutOwner === window.launchpadSession?.id
-        )
-          status(
-            "Checkout reported completion. Refresh status; access requires the verified server webhook.",
-          );
-      },
-    });
-    window.launchpadPaddleInitialized = true;
-  }
-  sdk.Checkout.open({ transactionId: r.transactionId });
-  status(r.notice);
+  await openCheckout(r, purchaseOwner, scope, plan);
 }
 async function resumeCheckout() {
   const scope = sessionVersion;
@@ -495,26 +620,7 @@ async function resumeCheckout() {
     contractConsent: true,
     termsVersion: publicConfig.termsVersion,
   });
-  const sdk = await paddle();
-  if (scope !== sessionVersion || owner !== window.launchpadSession?.id)
-    throw new Error("Your account changed before checkout opened.");
-  if (r.environment === "sandbox") sdk.Environment.set("sandbox");
-  checkoutOwner = owner;
-  if (!window.launchpadPaddleInitialized) {
-    sdk.Initialize({
-      token: r.clientToken,
-      eventCallback: (event) => {
-        if (
-          event.name === "checkout.completed" &&
-          checkoutOwner === window.launchpadSession?.id
-        )
-          status("Refresh status to check the verified provider webhook.");
-      },
-    });
-    window.launchpadPaddleInitialized = true;
-  }
-  sdk.Checkout.open({ transactionId: r.transactionId });
-  status(r.notice);
+  await openCheckout(r, owner, scope);
 }
 async function cancel(immediate) {
   if (
@@ -599,7 +705,10 @@ $("#conversionConsent").addEventListener("change", async (event) => {
 });
 window.addEventListener("launchpad:auth", () => {
   sessionVersion++;
+  stopCheckoutWatch();
   checkoutOwner = null;
+  checkoutScope = null;
+  checkoutPending = false;
   try {
     window.Paddle?.Checkout?.close();
   } catch {

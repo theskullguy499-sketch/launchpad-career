@@ -1,3 +1,4 @@
+import { billingReadiness } from "./billing-readiness.mjs";
 // Official Paddle Billing REST endpoints; WebCrypto verifies the exact signed bytes.
 const PRODUCTION_DEMO = "https://theskullguy499-sketch.github.io";
 const uuid = (value) =>
@@ -290,7 +291,9 @@ export function makeBillingHandler(
       }
       if (kind === "paddle-webhook") {
         if (
-          body === null || typeof body !== "object" || Array.isArray(body) ||
+          body === null ||
+          typeof body !== "object" ||
+          Array.isArray(body) ||
           typeof body.event_id !== "string" ||
           !/^(evt_|ntfsimevt_)[a-z0-9]+$/i.test(body.event_id) ||
           !Number.isFinite(Date.parse(body.occurred_at)) ||
@@ -301,7 +304,10 @@ export function makeBillingHandler(
           // Signature verification above is mandatory. Simulations never reach
           // provider requests, the payment ledger or entitlement mutation RPCs.
           if (env("PADDLE_ENVIRONMENT") !== "sandbox")
-            return respond({ error: "Simulated events are only allowed in sandbox." }, 400);
+            return respond(
+              { error: "Simulated events are only allowed in sandbox." },
+              400,
+            );
           return respond({ received: true, simulated: true, processed: false });
         }
       }
@@ -368,23 +374,15 @@ export function makeBillingHandler(
         await checked(admin.rpc("apply_paddle_snapshot", { event, snapshot }));
         return respond({ received: true });
       }
-      const checkoutReady =
-        settings.enabled &&
-        env("BILLING_CHECKOUT_ENABLED") === "true" &&
-        env("BILLING_LEGAL_APPROVED") === "true" &&
-        !!env("PADDLE_API_KEY") &&
-        !!env("PADDLE_CLIENT_TOKEN") &&
-        (env("PADDLE_WEBHOOK_SECRET") || "").length >= 32 &&
-        !!env("BUSINESS_NAME") &&
-        !!env("PUBLIC_SUPPORT_EMAIL") &&
-        !!env("BILLING_TERMS_VERSION") &&
-        (environment === "sandbox" || env("ALLOW_LIVE_BILLING") === "true");
+      const readiness = billingReadiness(env, settings, environment, origins);
+      const checkoutReady = readiness.ready;
       if (body === null || typeof body !== "object" || Array.isArray(body))
         return respond({ error: "Invalid request object." }, 400);
       if (body.action === "catalog")
         return respond({
           enabled: settings.enabled,
           checkoutReady,
+          setupRequired: readiness.missing,
           environment: settings.environment,
           catalog: settings.plans,
           supportEmail: env("PUBLIC_SUPPORT_EMAIL") || "",
@@ -468,6 +466,8 @@ export function makeBillingHandler(
         return respond({
           deletion,
           checkoutReady,
+          setupRequired: readiness.missing,
+          termsVersion: env("BILLING_TERMS_VERSION") || "",
           ageBand: profile.age_band,
           entitlement,
           subscriptions: subs,
@@ -599,7 +599,8 @@ export function makeBillingHandler(
         website.password ||
         website.search ||
         website.hash ||
-        (website.protocol !== "https:" && !local) ||
+        (website.protocol !== "https:" &&
+          !(local && website.protocol === "http:")) ||
         website.hostname.endsWith("github.io") ||
         origin !== website.origin
       )
@@ -739,6 +740,7 @@ export function makeBillingHandler(
         );
         return respond({
           transactionId: body.transactionId,
+          plan: owned.plan,
           environment,
           clientToken: env("PADDLE_CLIENT_TOKEN"),
           notice: "Only a verified provider event activates access.",
@@ -1013,6 +1015,7 @@ export function makeBillingHandler(
             throw new Error("Paddle public client token is not configured");
           result = {
             transactionId: transaction.id,
+            plan,
             clientToken,
             environment,
             notice:

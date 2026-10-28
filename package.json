@@ -10,7 +10,9 @@
     "test:production": "playwright test --config playwright.production.config.js",
     "test:build": "node --test scripts/*test.cjs",
     "test:backend": "node scripts/check-functions.cjs && node --test tests-unit/*.test.mjs",
-    "test:live": "node scripts/live-smoke.mjs"
+    "test:live": "node scripts/live-smoke.mjs",
+    "build:staging": "node scripts/build-staging.cjs",
+    "check:staging": "node scripts/check-staging.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0"

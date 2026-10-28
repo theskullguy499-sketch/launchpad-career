@@ -121,3 +121,34 @@ test('commercial RC routes and assets load under the Pages prefix without activa
  for(const file of ['commerce.js','lib/plans.mjs','legal/billing.html','assets/dashboard-preview.jpg','_headers'])expect((await request.get(base+file)).status(),file).toBe(200);
  await page.evaluate(()=>window.launchpadData.navigate('business'));await expect(page.locator('#businessMetrics .metric-card')).toHaveCount(0);expect(checks.failures).toEqual([]);
 });
+
+test('integrated Pages build keeps premium navigation and pricing while authenticated checkout stays server-authorized',async({page})=>{
+ const {configureCommercial}=require('./helpers/commercial-fixture.cjs');
+ const {PLANS}=await import('../lib/plans.mjs');
+ const server=await configureCommercial(page,PLANS), checks=audit(page);
+ await page.goto(base+'#dashboard');
+ await expect(page.locator('#dashboardView .ascent-hero')).toBeVisible();
+ await expect(page.locator('#dashboardPlanStatus')).toHaveCount(1);
+ await expect(page.locator('#dashboardBillingSummary')).toHaveCount(0);
+ await page.click('#accountBtn');
+ await expect(page.locator('#authDialog .auth-brand-story')).toBeVisible();
+ await page.fill('#authEmail','buyer@example.com');await page.fill('#authPassword','test-password');await page.click('#authSubmit');
+ await expect(page.locator('#authStatus')).toContainText('Signed in as');await page.click('#closeAuthBtn');
+ await page.click('#dashboardPlanStatus');
+ await expect(page.locator('#subscriptionSummary')).toContainText('Current access: free');
+ await expect(page.locator('.pricing-card[data-plan="pro"] .plan-highlight')).toBeVisible();
+ await expect(page.locator('.billing-faq')).toBeVisible();
+ await expect(page.locator('#billingSetupRequired')).toHaveCount(1);
+ await page.check('#billingConsent');await page.getByRole('button',{name:'Upgrade to Pro',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>window.mockCheckout?.transactionId)).toBe('txn_mocked');
+ await page.evaluate(()=>window.mockPaddleEvent({name:'checkout.completed'}));
+ await expect(page.locator('#subscriptionSummary')).toContainText('Current access: free');
+ server.setPlan('pro');await page.getByRole('button',{name:'Refresh status',exact:true}).click();
+ await expect(page.locator('#subscriptionSummary')).toContainText('Current access: pro');
+ await page.evaluate(()=>window.launchpadData.navigate('dashboard'));
+ await expect(page.locator('#dashboardView .ascent-hero')).toBeVisible();
+ await expect(page.locator('#dashboardPlanStatus')).toContainText('Sandbox · Server-confirmed access: pro');
+ await page.click('#accountBtn');await page.click('#signOutBtn');await page.click('#closeAuthBtn');
+ await expect(page.locator('#dashboardPlanStatus')).toContainText('Guest workspace');
+ expect(checks.failures).toEqual([]);
+});

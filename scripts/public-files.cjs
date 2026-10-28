@@ -22,7 +22,8 @@ module.exports = [
   "assets/companies/cloudflare.svg",
   "assets/companies/gitlab.svg",
   "assets/companies/canonical.svg",
-
+  "lib/public-auth.mjs",
+  "lib/auth-callback.mjs",
   "_headers",
   "commerce.js",
   "lib/plans.mjs",

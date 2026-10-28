@@ -33,7 +33,7 @@ async function main() {
     authMode !== "configured"
   )
     throw new Error(
-      "Staging Auth is required: set PUBLIC_SUPABASE_URL and PUBLIC_PUBLISHABLE_KEY in Cloudflare build variables. No private credentials belong here.",
+      "Staging Auth is required: set PUBLIC_SUPABASE_URL and PUBLIC_PUBLISHABLE_KEY using only public values.",
     );
   const pkg = JSON.parse(
     await fs.readFile(path.join(root, "package.json"), "utf8"),

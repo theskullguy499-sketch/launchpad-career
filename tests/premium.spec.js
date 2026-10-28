@@ -266,7 +266,7 @@ test("dashboard access summary uses server-confirmed entitlement and clears it o
     localStorage.setItem("launchpad-plan", "premium");
   });
   await expect(page.locator("#dashboardPlanStatus")).not.toContainText(
-    "Access: premium",
+    "Server-confirmed access: premium",
   );
   await page.click("#accountBtn");
   await page.fill("#authEmail", "buyer@example.com");
@@ -281,7 +281,7 @@ test("dashboard access summary uses server-confirmed entitlement and clears it o
   );
   await page.evaluate(() => window.launchpadData.navigate("dashboard"));
   await expect(page.locator("#dashboardPlanStatus")).toContainText(
-    "Sandbox · Access: premium",
+    "Sandbox · Server-confirmed access: premium",
   );
   await page.click("#accountBtn");
   await page.click("#signOutBtn");
