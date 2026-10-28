@@ -24,6 +24,8 @@ test('production artifact has every browser asset, correct MIME types and matchi
   const response=await request.get(base+file);expect(response.status(),file).toBe(200);
   expect(createHash('sha256').update(await response.body()).digest('hex'),file).toBe(hash);
   if(file.endsWith('.js'))expect(response.headers()['content-type']).toContain('text/javascript');
+  if(file.endsWith('.svg'))expect(response.headers()['content-type']).toContain('image/svg+xml');
+  if(file.endsWith('.jpg'))expect(response.headers()['content-type']).toContain('image/jpeg');
  }
  // A broken absolute-root import must fail in this server, as on project Pages.
  expect((await request.get('/vendor/supabase.js')).status()).toBe(404);

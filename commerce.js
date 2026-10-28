@@ -94,6 +94,35 @@ screen.id = "billingView";
 screen.hidden = true;
 screen.setAttribute("aria-label", "Plans and billing");
 screen.innerHTML = `<div class="screen-heading"><div><p class="eyebrow">GROW AT YOUR PACE</p><h1>Your next step.<br><em>Your choice.</em></h1><p class="intro-copy">Start with the local organizer. Paid accounts add protected cloud editing and AI request allowances when the commercial service is activated.</p></div></div><p id="billingMode" class="platform-status" role="note"></p><p id="billingStatus" class="platform-status" role="status" aria-live="polite"></p><div id="pricingCards" class="pricing-grid"></div><p class="helper" id="pricingDisclosure"></p><section class="panel section-pad"><h2>Before choosing a paid plan</h2><label class="check-label"><input type="checkbox" id="billingConsent" /> I am 18 or older and agree to the billing, cancellation and refund terms. I understand recurring billing and any displayed proration.</label><p class="helper">People aged 16–17 may use eligible free services. Paid contracting is restricted to adults; contact the operator about a legally reviewed guardian process before any purchase.</p><a href="legal/billing.html" target="_blank" rel="noopener noreferrer">Billing, cancellation & refund policy draft</a></section><section class="panel section-pad"><h2>Your account & subscription</h2><div id="subscriptionSummary"></div><div id="billingActions" class="button-row"></div><p class="helper">Checkout completion in the browser does not grant access. Only a verified provider event updates server entitlements. Existing records remain available for export after cancellation or expiration. Offline portfolio tools remain available; browser-only views are not a security boundary.</p></section><section class="panel section-pad"><h2>AI usage</h2><p id="creditSummary" class="helper"></p><div id="usageList"></div><p class="helper">Credits count submitted provider attempts, including failed attempts; retries can consume credits. Monthly credits reset at the start of each UTC calendar month. Daily and platform limits also apply. Cost estimates require operator-configured model rates; they are not provider invoices.</p></section><section class="panel section-pad"><h2>Early access & privacy choices</h2><p>Join early access using your verified account email. This is optional and separate from registration or buying a subscription. Withdrawing stops future launch messages; messages are sent only by the operator's configured process.</p><div id="earlyAccessActions" class="button-row"></div><label class="check-label"><input type="checkbox" id="conversionConsent" /> Allow an account-linked daily pricing-view count for simple conversion analysis. No third-party analytics are loaded.</label><p class="helper">Unchecking withdraws consent and deletes your account-linked pricing-view counts.</p></section>`;
+const billingFaq = el("section", null, "panel section-pad billing-faq");
+billingFaq.append(el("h2", "Billing, without surprises"));
+for (const [question, answer] of [
+  [
+    "Is checkout available now?",
+    "Only when the server confirms Sandbox is configured and enabled by the operator. Proposed prices alone do not activate checkout or access.",
+  ],
+  [
+    "How do renewal and cancellation work?",
+    "Plans are monthly recurring subscriptions. Use your billing portal or account cancellation controls. A scheduled cancellation keeps access until the confirmed period ends; an immediate cancellation ends it immediately.",
+  ],
+  [
+    "What happens when I change plans?",
+    "The backend requests a provider price preview. Review any displayed proration before confirming. A browser checkout message never grants access; a verified provider event must update the account.",
+  ],
+  [
+    "Will I lose my records if I stop subscribing?",
+    "Existing records remain available for export. Paid cloud edits can stop when access expires. Local guest data and JSON backups remain yours; existing records are not truncated to a new-entry limit.",
+  ],
+  [
+    "Are these real charges?",
+    "This release candidate is for controlled Sandbox acceptance. Real charges must remain disabled until merchant, legal and owner approvals and real integration checks are complete.",
+  ],
+]) {
+  const detail = el("details");
+  detail.append(el("summary", question), el("p", answer, "helper"));
+  billingFaq.append(detail);
+}
+screen.append(billingFaq);
 $("#platformScreens").append(screen);
 const business = el("section", null, "view");
 business.id = "businessView";
@@ -131,6 +160,9 @@ function drawPricing() {
     )
       continue;
     const card = el("article", null, "panel section-pad pricing-card");
+    card.dataset.plan = id;
+    if (id === "pro")
+      card.append(el("span", "A focused next step", "plan-highlight"));
     card.append(
       el("h2", plan.name),
       el("p", money(plan.monthlyCents) + "/month", "price"),
@@ -177,6 +209,13 @@ function drawPricing() {
   $("#pricingDisclosure").textContent = BILLING_DISCLOSURE;
 }
 function draw() {
+  const dashboardPlan = $("#dashboardPlanStatus");
+  if (dashboardPlan)
+    dashboardPlan.textContent = state
+      ? `${state.entitlement.environment === "sandbox" ? "Sandbox · " : ""}Access: ${state.entitlement.plan}${state.entitlement.legacy ? " (legacy grant)" : ""} · ${state.entitlement.aiRemaining} AI requests left · View billing`
+      : window.launchpadSession
+        ? "Plan not yet verified · Check Plans & Billing"
+        : "Guest workspace · Explore account plans";
   $("#billingMode").textContent = publicConfig.enabled
     ? `${!publicConfig.checkoutReady ? "Commercial workspace rules are enabled, but checkout is paused or not configured." : publicConfig.environment === "sandbox" ? "SANDBOX — test purchases only." : "Commercial service enabled; complete the release acceptance checks before inviting customers."}`
     : "Portfolio / setup mode. Commercial checkout is not activated. Prices are proposals; no subscription is being sold here.";
@@ -584,6 +623,10 @@ window.addEventListener("launchpad:navigate", (event) => {
   }
   if (event.detail === "business") metrics();
 });
+const dashboardPlan = el("a", null, "dashboard-plan-status");
+dashboardPlan.id = "dashboardPlanStatus";
+dashboardPlan.href = "#billing";
+$("#dashboardView .screen-heading").after(dashboardPlan);
 const panel = el("section", null, "panel section-pad");
 panel.append(el("h2", "Subscription & AI requests"), el("p", null, "helper"));
 panel.lastChild.id = "commercialSettingsSummary";

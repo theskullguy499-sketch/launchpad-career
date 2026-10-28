@@ -8,6 +8,8 @@ const publicFiles = new Set([
 ]);
 const mime = {
   ".svg": "image/svg+xml",
+  ".jpg": "image/jpeg",
+  ".png": "image/png",
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".mjs": "text/javascript; charset=utf-8",
