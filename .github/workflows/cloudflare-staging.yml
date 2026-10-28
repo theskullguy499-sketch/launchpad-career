@@ -37,6 +37,7 @@ jobs:
       - name: Build with staging public configuration
         run: npm run build
         env:
+          REQUIRE_PUBLIC_AUTH_CONFIG: "true"
           PUBLIC_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
           PUBLIC_PUBLISHABLE_KEY: ${{ vars.STAGING_PUBLISHABLE_KEY }}
       - name: Publish reviewed staging artifact

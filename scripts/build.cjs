@@ -27,6 +27,14 @@ async function main() {
       ";\n";
     validatePublic(browserConfig);
   }
+  const authMode = validatePublic(browserConfig);
+  if (
+    process.env.REQUIRE_PUBLIC_AUTH_CONFIG === "true" &&
+    authMode !== "configured"
+  )
+    throw new Error(
+      "Staging Auth is required: set PUBLIC_SUPABASE_URL and PUBLIC_PUBLISHABLE_KEY using only public values.",
+    );
   const pkg = JSON.parse(
     await fs.readFile(path.join(root, "package.json"), "utf8"),
   );
@@ -135,7 +143,15 @@ async function main() {
   }
   await fs.writeFile(
     path.join(output, "build-manifest.json"),
-    JSON.stringify({ supabase: sdk.version, files: hashes }, null, 2) + "\n",
+    JSON.stringify(
+      {
+        supabase: sdk.version,
+        publicAuthConfigured: authMode === "configured",
+        files: hashes,
+      },
+      null,
+      2,
+    ) + "\n",
   );
   console.log(
     `Built pinned Supabase ${sdk.version}; staged ${publicFiles.length} public files in _site/.`,

@@ -1,5 +1,7 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "lib/public-auth.mjs",
+  "lib/auth-callback.mjs",
   "_headers",
   "commerce.js",
   "lib/plans.mjs",
