@@ -1,3 +1,4 @@
+import { providerDescription } from "./job-text.mjs";
 const production = "https://theskullguy499-sketch.github.io";
 const clean = (value, max = 200) =>
   String(value ?? "")
@@ -22,6 +23,7 @@ export function normalizeJobs(payload) {
     .slice(0, 100)
     .filter((j) => j.id && j.title && j.company_name && url(j.url))
     .map((j) => ({
+      ...providerDescription(j.description),
       id: String(j.id),
       title: clean(j.title, 200),
       company: clean(j.company_name, 120),
