@@ -1,0 +1,264 @@
+{
+  "baseline": "c5dd8bd",
+  "implementationCommit": "ddb1b4c2bdae98b1ea39b05d7e72b76db0c1245c",
+  "mockedAuthConfiguration": true,
+  "version": "5.5.0-rc.1",
+  "capturedAt": "2026-10-29T01:26:29.301Z",
+  "fixture": true,
+  "mockedJobProvider": true,
+  "liveIntegrations": false,
+  "captures": [
+    {
+      "file": "before-dashboard-light-desktop.jpg",
+      "stage": "before",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "before-job-details-light-desktop.jpg",
+      "stage": "before",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "before-dashboard-dark-desktop.jpg",
+      "stage": "before",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "before-job-details-dark-desktop.jpg",
+      "stage": "before",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "before-dashboard-light-mobile.jpg",
+      "stage": "before",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "before-job-details-light-mobile.jpg",
+      "stage": "before",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "before-dashboard-dark-mobile.jpg",
+      "stage": "before",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "before-job-details-dark-mobile.jpg",
+      "stage": "before",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-dashboard-light-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-resume-light-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-resume-modern-light-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-interview-light-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-search-light-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-job-details-light-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-job-fit-light-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-dashboard-dark-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-resume-dark-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-resume-modern-dark-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-interview-dark-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-search-dark-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-job-details-dark-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-job-fit-dark-desktop.jpg",
+      "stage": "after",
+      "size": "desktop",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-dashboard-light-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-resume-light-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-resume-modern-light-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-interview-light-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-search-light-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-job-details-light-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-job-fit-light-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "after-dashboard-dark-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-resume-dark-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-resume-modern-dark-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-interview-dark-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-search-dark-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-job-details-dark-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "after-job-fit-dark-mobile.jpg",
+      "stage": "after",
+      "size": "mobile",
+      "theme": "dark",
+      "errors": []
+    }
+  ]
+}

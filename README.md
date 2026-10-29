@@ -1,4 +1,4 @@
-# Launchpad 5.4 — Premium Workspace Release Candidate
+# Launchpad 5.5 — Career Intelligence Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -7,7 +7,14 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
 
-## Current 5.4 handoff
+## Current 5.5 handoff
+
+Branch: **`feat/launchpad-5-5-career-intelligence`**, based on 5.4 commit `c5dd8bd`.
+Resume Studio, Interview Lab, transparent Job Fit, owner-scoped global search and record-based Dashboard next steps extend the existing career workspace. New personal material uses bounded workspace preferences and explicit account-storage consent; no new database migration or provider is required for local tools.
+Start with [release evidence and limitations](docs/releases/5.5-RELEASE.md), [real browser screenshots](docs/screenshots/5.5/README.md), [visual comparison](docs/releases/5.5-VISUAL.md) and [Windows CMD/Staging instructions](docs/releases/5.5-STAGING.md).
+No merge, deployment, private credential change, legal approval or real-charge activation is included. Live email, published RLS/sync, jobs, AI and Paddle still require external validation. Local fixtures are labeled and do not prove live integrations.
+
+## Previous 5.4 handoff
 
 Branch: **`feat/launchpad-5-4-premium-workspace`**, based on 5.3 commit `b161d85`.
 Premium Applications/calendar/history, Roadmap, Coach, Analytics, Companies and categorized Settings preserve existing data, account isolation, Auth and billing safeguards.
@@ -27,7 +34,7 @@ Branch: **`feat/launchpad-5-2-commercial-experience`**, based on the integrated 
 Start with [Windows CMD and existing Cloudflare Direct Upload instructions](docs/releases/5.2-STAGING.md),
 [release evidence and blockers](docs/releases/5.2-RELEASE.md), and the [real screenshot gallery](docs/screenshots/5.2/README.md).
 The supplied blue/green identity and visual references are now applied: see [brand/refinement report](docs/releases/5.2-BRAND-REFINEMENT.md) and [updated captures](docs/screenshots/5.2-brand/README.md). The raster logo was reconstructed as outlined SVG; exact typography needs human approval. No deployment, merge, real payment or live email verification is claimed.
-Older component guides below remain historical; use the 5.4 guide for this branch.
+Older component guides below remain historical; use the 5.5 guide for this branch.
 
 ## Previous unified staging handoff
 
