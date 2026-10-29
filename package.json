@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.cjs",
-    "test": "npm run build && npm run test:build && npm run test:db && npm run test:backend && playwright test && npm run test:production",
+    "test": "npm run build && npm run test:build && npm run audit:public && npm run test:db && npm run test:backend && playwright test && npm run test:production",
     "start": "node scripts/serve-production.cjs --source",
     "test:db": "node --test supabase/tests/*.test.cjs",
     "build:check": "node scripts/build.cjs --check",
@@ -12,7 +12,8 @@
     "test:backend": "node scripts/check-functions.cjs && node --test tests-unit/*.test.mjs",
     "test:live": "node scripts/live-smoke.mjs",
     "build:staging": "node scripts/build-staging.cjs",
-    "check:staging": "node scripts/check-staging.mjs"
+    "check:staging": "node scripts/check-staging.mjs",
+    "audit:public": "node scripts/audit-public.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0"
@@ -23,5 +24,5 @@
     "axe-core": "4.10.3",
     "esbuild": "0.28.2"
   },
-  "version": "5.5.0-rc.1"
+  "version": "5.6.0-rc.1"
 }
