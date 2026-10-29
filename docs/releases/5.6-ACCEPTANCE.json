@@ -1,0 +1,40 @@
+{
+  "base": "4e02d5551444a73b6eb5ca1fe55d97b15e4bb01c",
+  "testedCodeCommit": "834b8e89abbcff2b1ead7d6c47c529707b91549d",
+  "local": {
+    "build": "PASS",
+    "buildCheck": "PASS",
+    "publicArtifacts": "PASS",
+    "test": {
+      "status": "PASS",
+      "total": 248,
+      "build": 8,
+      "database": 3,
+      "backend": 72,
+      "browserSource": 152,
+      "browserArtifact": 13,
+      "failures": 0,
+      "skipped": 0
+    },
+    "dependencyAudit": {
+      "status": "PASS",
+      "reportedVulnerabilities": 0
+    },
+    "edgeFunctionBundleCount": 6
+  },
+  "remote": {
+    "staging": "NOT VERIFIED",
+    "supabaseAuthAndMailbox": "NOT VERIFIED",
+    "publishedRLSAndSync": "NOT VERIFIED",
+    "remotive": "NOT VERIFIED",
+    "openAI": "NOT VERIFIED",
+    "paddleSandboxPurchase": "NOT VERIFIED"
+  },
+  "release": {
+    "payingCustomers": "BLOCKED",
+    "recommendation": "NO-GO",
+    "reason": "Real integration acceptance and owner legal/commercial approvals outstanding"
+  },
+  "deploymentPerformed": false,
+  "secretsChanged": false
+}

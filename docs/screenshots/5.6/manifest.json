@@ -1,0 +1,248 @@
+{
+  "capturedAt": "2026-10-29T19:59:56.997Z",
+  "baseline": "4e02d55",
+  "buildManifestSha256": "7d63a0416d61c76a338d1700431a7bb66bd34593ea2419e6c7ca0a2654324d74",
+  "mode": "Local unconfigured guest; no provider mocks, no live accounts or integrations",
+  "captures": [
+    {
+      "file": "before-home-light-1440.jpg",
+      "stage": "before",
+      "view": "home",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "before-home-dark-1440.jpg",
+      "stage": "before",
+      "view": "home",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "before-home-light-390.jpg",
+      "stage": "before",
+      "view": "home",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "before-home-dark-390.jpg",
+      "stage": "before",
+      "view": "home",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-home-light-1440.jpg",
+      "stage": "after",
+      "view": "home",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-login-light-1440.jpg",
+      "stage": "after",
+      "view": "login",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-jobs-light-1440.jpg",
+      "stage": "after",
+      "view": "jobs",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-coach-light-1440.jpg",
+      "stage": "after",
+      "view": "coach",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-billing-light-1440.jpg",
+      "stage": "after",
+      "view": "billing",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-home-dark-1440.jpg",
+      "stage": "after",
+      "view": "home",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-login-dark-1440.jpg",
+      "stage": "after",
+      "view": "login",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-jobs-dark-1440.jpg",
+      "stage": "after",
+      "view": "jobs",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-coach-dark-1440.jpg",
+      "stage": "after",
+      "view": "coach",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-billing-dark-1440.jpg",
+      "stage": "after",
+      "view": "billing",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-home-light-390.jpg",
+      "stage": "after",
+      "view": "home",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-login-light-390.jpg",
+      "stage": "after",
+      "view": "login",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-jobs-light-390.jpg",
+      "stage": "after",
+      "view": "jobs",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-coach-light-390.jpg",
+      "stage": "after",
+      "view": "coach",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-billing-light-390.jpg",
+      "stage": "after",
+      "view": "billing",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-home-dark-390.jpg",
+      "stage": "after",
+      "view": "home",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-login-dark-390.jpg",
+      "stage": "after",
+      "view": "login",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-jobs-dark-390.jpg",
+      "stage": "after",
+      "view": "jobs",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-coach-dark-390.jpg",
+      "stage": "after",
+      "view": "coach",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    },
+    {
+      "file": "after-billing-dark-390.jpg",
+      "stage": "after",
+      "view": "billing",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "errors": [],
+      "assetFailures": []
+    }
+  ]
+}
