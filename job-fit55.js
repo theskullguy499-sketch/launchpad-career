@@ -1,9 +1,111 @@
-import {explainJobFit} from './lib/job-fit.mjs';
-const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
-export function jobFitPanel(job,data){
- const fit=explainJobFit(job,data),root=el('section','panel section-pad job-fit-panel');root.id='jobFitPanel';root.append(el('p','eyebrow','TRANSPARENT CAREER INTELLIGENCE'),el('h2',null,'Understand your fit'),el('p','helper','A local text comparison, not an AI evaluation, hiring prediction or eligibility decision. No score is assigned. Technologies mentioned in a listing are not necessarily mandatory requirements.'));
- const grid=el('div','job-fit-grid');
- for(const [title,values,empty,cls] of [['Matching declared skills',fit.matched,'No matching technology terms identified.','fit-matched'],['Not identified in your saved skills',fit.missing,'No additional recognized technology terms found.','fit-missing']]){const group=el('div',cls);group.append(el('h3',null,title));if(!values.length)group.append(el('p','helper',empty));for(const value of values)group.append(el('span','fit-skill',value));grid.append(group);}root.append(grid);
- const details=el('dl','fit-evidence');for(const [name,value] of [['Declared skills source',fit.declared.length?'Skills from your saved resume versions and career goals. Listing a skill is your declaration, not verified competence.':'No recognized skills saved in resume versions or goals yet.'],['Language wording in source',fit.languageMentions.length?fit.languageMentions.join(', ')+'. A mention alone does not prove a mandatory language or proficiency requirement.':'Not supplied or not recognized in the source text.'],['Your declared languages',fit.declaredLanguages||'Not supplied in your saved resumes.'],['Source location',fit.location||'Not supplied.'],['Your profile country',fit.declaredLocation||'Not supplied.'],['Geographic eligibility','Compare the exact source restrictions yourself. Country or remote status does not establish work authorization, visa eligibility or employer acceptance.'],['Experience wording in source',fit.experience.length?fit.experience.map(x=>'“'+x+'”').join(' · '):'No explicit seniority or years-of-experience wording recognized.'],['Information limits',`${fit.source} · ${fit.hasDescription?'Source description available.':'No description supplied; comparison uses title and tags only.'} Keywords may miss equivalent skills, negations or context. No years of experience are inferred from your resume.`]]){details.append(el('dt',null,name),el('dd',null,value));}root.append(details);
- const next=el('div','fit-next-actions');next.append(el('h3',null,'Prepare your next step'),el('p','helper',fit.missing.length?'Review the source requirements. Add only skills you genuinely have, and plan learning for gaps that matter to this role.':'Review the original listing and prepare concrete evidence of your own work. Missing information is not evidence of eligibility.'));for(const [label,view] of [['Review my resume skills','resume'],['Plan my preparation','roadmap'],['Practice in Interview Lab','interview']]){const a=el('a','button button-outline',label);a.href='#'+view;next.append(a);}root.append(next);return root;
+import { explainJobFit } from "./lib/job-fit.mjs";
+const el = (tag, cls, text) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+};
+export function jobFitPanel(job, data) {
+  const fit = explainJobFit(job, data),
+    root = el("section", "panel section-pad job-fit-panel");
+  root.id = "jobFitPanel";
+  root.append(
+    el("p", "eyebrow", "TRANSPARENT CAREER INTELLIGENCE"),
+    el("h2", null, "Understand your fit"),
+    el(
+      "p",
+      "helper",
+      "A local text comparison, not an AI evaluation, hiring prediction or eligibility decision. No score is assigned. Technologies mentioned in a listing are not necessarily mandatory requirements.",
+    ),
+  );
+  const grid = el("div", "job-fit-grid");
+  for (const [title, values, empty, cls] of [
+    [
+      "Matching declared skills",
+      fit.matched,
+      "No matching technology terms identified.",
+      "fit-matched",
+    ],
+    [
+      "Not identified in your saved skills",
+      fit.missing,
+      "No additional recognized technology terms found.",
+      "fit-missing",
+    ],
+  ]) {
+    const group = el("div", cls);
+    group.append(el("h3", null, title));
+    if (!values.length) group.append(el("p", "helper", empty));
+    for (const value of values) group.append(el("span", "fit-skill", value));
+    grid.append(group);
+  }
+  root.append(grid);
+  const details = el("dl", "fit-evidence");
+  for (const [name, value] of [
+    [
+      "Declared skills source",
+      fit.declared.length
+        ? "Skills from your saved resume versions and career goals. Listing a skill is your declaration, not verified competence."
+        : "No recognized skills saved in resume versions or goals yet.",
+    ],
+    [
+      "Language wording in source",
+      fit.languageMentions.length
+        ? fit.languageMentions.join(", ") +
+          ". A mention alone does not prove a mandatory language or proficiency requirement."
+        : "Not supplied or not recognized in the source text.",
+    ],
+    [
+      "Your declared languages",
+      fit.declaredLanguages || "Not supplied in your saved resumes.",
+    ],
+    ["Source location", fit.location || "Not supplied."],
+    ["Your profile country", fit.declaredLocation || "Not supplied."],
+    [
+      "Geographic eligibility",
+      "Compare the exact source restrictions yourself. Country or remote status does not establish work authorization, visa eligibility or employer acceptance.",
+    ],
+    [
+      "Experience wording in source",
+      fit.experience.length
+        ? fit.experience.map((x) => "“" + x + "”").join(" · ")
+        : "No explicit seniority or years-of-experience wording recognized.",
+    ],
+    [
+      "Your declared experience",
+      fit.declaredExperience.length
+        ? fit.declaredExperience.join("; ") +
+          ". Self-declared entries from saved resume versions, not verified experience or calculated seniority."
+        : "No work experience supplied in your saved resumes. Personal projects are not counted as employment.",
+    ],
+    [
+      "Information limits",
+      `${fit.source} · ${fit.hasDescription ? "Source description available." : "No description supplied; comparison uses title and tags only."} Keywords may miss equivalent skills, negations or context. No years of experience are inferred from your resume.`,
+    ],
+  ]) {
+    details.append(el("dt", null, name), el("dd", null, value));
+  }
+  root.append(details);
+  const next = el("div", "fit-next-actions");
+  next.append(
+    el("h3", null, "Prepare your next step"),
+    el(
+      "p",
+      "helper",
+      fit.missing.length
+        ? "Review the source requirements. Add only skills you genuinely have, and plan learning for gaps that matter to this role."
+        : "Review the original listing and prepare concrete evidence of your own work. Missing information is not evidence of eligibility.",
+    ),
+  );
+  for (const [label, view] of [
+    ["Review my resume skills", "resume"],
+    ["Plan my preparation", "roadmap"],
+    ["Practice in Interview Lab", "interview"],
+  ]) {
+    const a = el("a", "button button-outline", label);
+    a.href = "#" + view;
+    next.append(a);
+  }
+  root.append(next);
+  return root;
 }

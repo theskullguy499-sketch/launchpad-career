@@ -909,6 +909,7 @@ function decorateHistory() {
   }
 }
 function renderApplicationView() {
+  const visibleApplications = window.launchpadData.visible();
   $("#calendarViewBtn").setAttribute("aria-pressed", String(calendarMode));
   $("#applicationsAgenda").hidden = !calendarMode;
   $("#kanbanScrollHint").hidden = $("#kanbanBoard").hidden || calendarMode;
@@ -916,7 +917,7 @@ function renderApplicationView() {
     !calendarMode &&
     $("#tableViewBtn").getAttribute("aria-pressed") === "true"
   ) {
-    const visible = window.launchpadData.visible();
+    const visible = visibleApplications;
     $("#tableWrap").hidden = visible.length === 0;
     $("#kanbanBoard").hidden = true;
     $("#emptyState").hidden = context.data.applications.length !== 0;
@@ -935,7 +936,7 @@ function renderApplicationView() {
   for (const [index, row] of [
     ...document.querySelectorAll("#applicationsBody tr"),
   ].entries()) {
-    const app = window.launchpadData.visible()[index];
+    const app = visibleApplications[index];
     if (app && !row.dataset.enriched) {
       const cell = row.firstElementChild;
       cell.append(

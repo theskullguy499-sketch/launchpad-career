@@ -1,5 +1,7 @@
-import {renderInterview55,clearInterview55} from "./interview55.js";
-import {renderCareer55,clearCareer55} from "./career55.js";
+import { readStudio } from "./lib/career-studio.mjs";
+import { renderIntelligence55, clearIntelligence55 } from "./intelligence55.js";
+import { renderInterview55, clearInterview55 } from "./interview55.js";
+import { renderCareer55, clearCareer55 } from "./career55.js";
 import {
   renderWorkspace54,
   clearWorkspace54,
@@ -114,7 +116,7 @@ if (Intl.supportedValuesOf) {
   $("#currency").value = "USD";
 }
 const screens = {
-  home: `<div class="landing-hero"><div class="landing-brand"><img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /></div><span class="release-badge">LAUNCHPAD 5.4 · PREMIUM WORKSPACE RC</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, research employers and build a learning plan you can actually follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>A roadmap with momentum.</h2><p>Set your objective, make weekly milestones and see progress from your own activity.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. No invented vacancies, success claims or subscription charges.</p><div id="landingLinks" class="button-row"></div></div>`,
+  home: `<div class="landing-hero"><div class="landing-brand"><img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /></div><span class="release-badge">LAUNCHPAD 5.5 · CAREER INTELLIGENCE RC</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, research employers and build a learning plan you can actually follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>A roadmap with momentum.</h2><p>Set your objective, make weekly milestones and see progress from your own activity.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. No invented vacancies, success claims or subscription charges.</p><div id="landingLinks" class="button-row"></div></div>`,
   dashboard: `<div class="screen-heading"><div><p class="eyebrow">YOUR NEXT CHAPTER</p><h1>Small steps.<br><em>Higher ambitions.</em></h1><p class="intro-copy">A clear view of what matters next, based on your own activity.</p></div><div id="dashboardActions" class="button-row"></div></div><div id="onboardingCard" class="panel section-pad"></div><div id="dashboardMetrics" class="metrics-grid"></div><div class="split-grid"><section class="panel section-pad"><div class="section-head"><h2>Upcoming & overdue</h2><button id="refreshReminders" class="button button-outline" type="button">Refresh</button></div><p class="helper">In-app reminders update while Launchpad is open. Background/email delivery requires a configured scheduler.</p><div id="reminderList"></div></section><section class="panel section-pad"><div class="section-head"><h2>Your tasks</h2><button id="addTaskBtn" class="button button-primary" type="button">Add task</button></div><div id="taskList"></div></section></div><section class="panel section-pad"><h2>Favorite employers</h2><div id="dashboardCompanies" class="directory-grid"></div></section>`,
   companies: `<div class="screen-heading"><div><p class="eyebrow">RESEARCH WITH INTENT</p><h1>Find your<br><em>next employer.</em></h1><p class="intro-copy">A curated directory, not a worldwide catalog or a claim that these companies are hiring. Website links are curated; availability has not been live-verified. Headquarters and career-page links are omitted until verified.</p></div><button id="addCompanyBtn" class="button button-primary" type="button">Add a company</button></div><div class="panel section-pad"><div class="explorer-filters"><label>Search companies<input id="companySearch" type="search" placeholder="Company or industry" /></label><label>Industry<select id="companyIndustry"><option value="all">All industries</option></select></label><label>Country (verified or user supplied)<input id="companyCountry" type="search" placeholder="Country, if known" /></label><label class="check-label"><input type="checkbox" id="favoritesOnly" /> Favorites only</label></div><p id="companyCount" class="helper" role="status"></p><div id="companyList" class="directory-grid"></div></div>`,
   jobs: `<div class="screen-heading"><div><p class="eyebrow">SOURCED OPPORTUNITIES</p><h1>A real opening.<br><em>A considered move.</em></h1><p class="intro-copy">Search retrieved vacancies from Remotive through the configured backend. This source covers remote roles, is delayed by 24 hours, and is not a complete jobs database. Listings remain accessible to guests; no signup is required to view them.</p></div></div><form id="jobSearchForm" class="panel section-pad"><div class="explorer-filters"><label>Job title<input id="jobTitle" type="search" maxlength="100" placeholder="e.g. Frontend developer" /></label><label>Country or region<input id="jobCountry" maxlength="100" placeholder="e.g. Brazil or Worldwide" /></label><label>Company<input id="jobCompany" maxlength="100" /></label><label>Technology keyword<input id="jobStack" maxlength="100" placeholder="e.g. JavaScript" /></label><label>Experience (title text match)<select id="jobExperience"><option value="">All levels</option><option>Junior</option><option>Senior</option><option>Lead</option><option>Intern</option></select></label><label>Arrangement<select id="jobRemote"><option>Remote</option></select></label><label class="check-label"><input type="checkbox" id="jobSalary" /> Salary provided</label></div><button class="button button-primary" type="submit">Find opportunities</button><p id="jobStatus" class="helper" role="status">No job source has been contacted. Search to check the configured service. No sample vacancies are shown.</p><a href="https://remotive.com/" target="_blank" rel="noopener noreferrer">Job data source: Remotive</a></form><div id="jobResults" class="directory-grid"></div>`,
@@ -129,6 +131,8 @@ const iconPaths = {
   roadmap: "M5 20V5h14M5 15h8V9h6M16 6l3 3-3 3",
   companies: "M5 21V3h14v18M3 21h18M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-5h4v5",
   jobs: "M16 16l5 5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0",
+  resume: "M5 3h10l4 4v14H5zM14 3v5h5M8 12h8M8 16h6",
+  interview: "M4 4h16v12H9l-5 4zM8 8h8M8 12h5",
   coach: "M4 4h16v12H9l-5 4zM12 6l1 3 3 1-3 1-1 3-1-3-3-1 3-1z",
   analytics: "M4 20V11h4v9M10 20V5h4v15M16 20V8h4v12M2 21h20",
   settings: "M3 6h18M3 12h18M3 18h18M8 3v6M16 9v6M10 15v6",
@@ -316,6 +320,7 @@ function editor(title, fields, value, save) {
 }
 let activeScope = null;
 function clearPrivateView() {
+  clearIntelligence55();
   clearCareer55();
   clearInterview55();
   clearWorkspace54();
@@ -476,6 +481,7 @@ window.launchpadWorkspace = {
           Array.isArray(extras[key]))
       )
         throw new Error("Invalid backup settings.");
+    if (extras.preferences) readStudio(extras.preferences);
     await store.update((next) => {
       next.applications = applications;
       next.completed = completed;
@@ -701,8 +707,40 @@ function renderAll() {
   renderExperience(snapshot, stats);
   decorateApplicationRows();
   renderJobs();
-  renderCareer55({data:snapshot, scope:store.mode+":"+(store.owner?.id||"guest"), mode:store.mode, busy:store.busy, update:change=>store.update(change), navigate, addGoal:()=>goalEditor(), openForm:()=>window.launchpadData.openForm(), guestPreferences:()=>store.guestSnapshot().preferences});
-  renderInterview55({data:snapshot, scope:store.mode+":"+(store.owner?.id||"guest"), mode:store.mode, busy:store.busy, update:change=>store.update(change), navigate, addGoal:()=>goalEditor(), openForm:()=>window.launchpadData.openForm(), guestPreferences:()=>store.guestSnapshot().preferences});
+  renderCareer55({
+    data: snapshot,
+    scope: store.mode + ":" + (store.owner?.id || "guest"),
+    mode: store.mode,
+    busy: store.busy,
+    update: (change) => store.update(change),
+    navigate,
+    addGoal: () => goalEditor(),
+    openForm: () => window.launchpadData.openForm(),
+    guestPreferences: () => store.guestSnapshot().preferences,
+  });
+  renderInterview55({
+    data: snapshot,
+    scope: store.mode + ":" + (store.owner?.id || "guest"),
+    mode: store.mode,
+    busy: store.busy,
+    update: (change) => store.update(change),
+    navigate,
+    addGoal: () => goalEditor(),
+    openForm: () => window.launchpadData.openForm(),
+    guestPreferences: () => store.guestSnapshot().preferences,
+  });
+  renderIntelligence55({
+    data: snapshot,
+    scope: store.mode + ":" + (store.owner?.id || "guest"),
+    mode: store.mode,
+    busy: store.busy,
+    update: (change) => store.update(change),
+    navigate,
+    addGoal: () => goalEditor(),
+    openForm: () => window.launchpadData.openForm(),
+    openApplication: (a) => window.launchpadData.openForm(a),
+    guestPreferences: () => store.guestSnapshot().preferences,
+  });
   renderWorkspace54({
     data: snapshot,
     stats,

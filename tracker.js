@@ -766,7 +766,13 @@
       .querySelectorAll(".view")
       .forEach((section) => (section.hidden = section.id !== current + "View"));
     $("#breadcrumbPage").textContent =
-      current === "roadmap" ? "CAREER ROADMAP" : current.toUpperCase();
+      current === "roadmap"
+        ? "CAREER ROADMAP"
+        : current === "resume"
+          ? "RESUME STUDIO"
+          : current === "interview"
+            ? "INTERVIEW LAB"
+            : current.toUpperCase();
     document.querySelectorAll(".nav-item").forEach((button) => {
       const active = button.dataset.view === current;
       button.classList.toggle("active", active);

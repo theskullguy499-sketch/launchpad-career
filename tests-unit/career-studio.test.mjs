@@ -1,8 +1,91 @@
-import test from 'node:test';import assert from 'node:assert/strict';
-import {emptyResume,validateResume,readStudio,writeStudio,mergeStudio,safeCareerUrl,STUDIO_KEY} from '../lib/career-studio.mjs';
-test('resume versions contain only user facts, bound entries and reject unsafe links',()=>{const r=emptyResume('a');assert.equal(r.experience.length,0);assert.equal(r.projects.length,0);r.name='Student';r.projects=[{heading:'Launchpad',description:'My own project',url:'https://example.com'}];assert.equal(validateResume(r).projects[0].heading,'Launchpad');assert.equal(safeCareerUrl('https://user:secret@example.com'),'');assert.throws(()=>validateResume({...r,github:'javascript:alert(1)'}),/http/);assert.throws(()=>validateResume({...r,email:'bad'}),/email/);});
-test('career material preserves unrelated preferences and fails atomically at the shared budget',()=>{const p={saveCoachHistory:true,savedJobs:[{id:'existing'}]};const s=readStudio(p);s.resumes.push(emptyResume('r'));const next=writeStudio(p,s);assert.deepEqual(next.savedJobs,p.savedJobs);assert.equal(p[STUDIO_KEY],undefined);assert.throws(()=>writeStudio({...p,other:'x'.repeat(45000)},s),/Nothing was saved/);assert.equal(p[STUDIO_KEY],undefined);});
-test('explicit guest merge deduplicates IDs with account priority and refuses over-limit imports',()=>{const a=readStudio({}),b=readStudio({});a.resumes=[{...emptyResume('same'),name:'Account'}];b.resumes=[{...emptyResume('same'),name:'Guest'},emptyResume('new')];const merged=mergeStudio(a,b);assert.equal(merged.resumes.length,2);assert.equal(merged.resumes.find(x=>x.id==='same').name,'Account');b.resumes=Array.from({length:5},(_,i)=>emptyResume('g'+i));assert.throws(()=>mergeStudio(a,b),/exceed/);});
-test('unsupported imported career versions and duplicate resume IDs never silently replace data',()=>{assert.throws(()=>readStudio({[STUDIO_KEY]:{version:9}}),/Unsupported/);const s=readStudio({});s.resumes=[emptyResume('a'),emptyResume('a')];assert.throws(()=>readStudio({[STUDIO_KEY]:s}),/Duplicate/);});
-import {PRACTICE_QUESTIONS,validatePractice} from '../lib/interview-practice.mjs';
-test('interview material is static and saved exercises require bounded answers and real timing metadata',()=>{assert.ok(new Set(PRACTICE_QUESTIONS.map(x=>x.topic)).size===5);const p={id:'p',questionId:'js-closure',answer:'My answer',seconds:42,updatedAt:new Date().toISOString()};assert.equal(validatePractice(p).source,'static-practice');assert.throws(()=>validatePractice({...p,answer:''}),/Write an answer/);assert.throws(()=>validatePractice({...p,seconds:-1}),/duration/);assert.throws(()=>validatePractice({...p,questionId:'fake-ai'}),/Invalid practice/);const studio=readStudio({});studio.practices=[p];assert.equal(readStudio(writeStudio({},studio)).practices[0].seconds,42);});
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  emptyResume,
+  validateResume,
+  readStudio,
+  writeStudio,
+  mergeStudio,
+  safeCareerUrl,
+  STUDIO_KEY,
+} from "../lib/career-studio.mjs";
+test("resume versions contain only user facts, bound entries and reject unsafe links", () => {
+  const r = emptyResume("a");
+  assert.equal(r.experience.length, 0);
+  assert.equal(r.projects.length, 0);
+  r.name = "Student";
+  r.projects = [
+    {
+      heading: "Launchpad",
+      description: "My own project",
+      url: "https://example.com",
+    },
+  ];
+  assert.equal(validateResume(r).projects[0].heading, "Launchpad");
+  assert.equal(safeCareerUrl("https://user:secret@example.com"), "");
+  assert.throws(
+    () => validateResume({ ...r, github: "javascript:alert(1)" }),
+    /http/,
+  );
+  assert.throws(() => validateResume({ ...r, email: "bad" }), /email/);
+});
+test("career material preserves unrelated preferences and fails atomically at the shared budget", () => {
+  const p = { saveCoachHistory: true, savedJobs: [{ id: "existing" }] };
+  const s = readStudio(p);
+  s.resumes.push(emptyResume("r"));
+  const next = writeStudio(p, s);
+  assert.deepEqual(next.savedJobs, p.savedJobs);
+  assert.equal(p[STUDIO_KEY], undefined);
+  assert.throws(
+    () => writeStudio({ ...p, other: "x".repeat(45000) }, s),
+    /Nothing was saved/,
+  );
+  assert.equal(p[STUDIO_KEY], undefined);
+});
+test("explicit guest merge deduplicates IDs with account priority and refuses over-limit imports", () => {
+  const a = readStudio({}),
+    b = readStudio({});
+  a.resumes = [{ ...emptyResume("same"), name: "Account" }];
+  b.resumes = [{ ...emptyResume("same"), name: "Guest" }, emptyResume("new")];
+  const merged = mergeStudio(a, b);
+  assert.equal(merged.resumes.length, 2);
+  assert.equal(merged.resumes.find((x) => x.id === "same").name, "Account");
+  b.resumes = Array.from({ length: 5 }, (_, i) => emptyResume("g" + i));
+  assert.throws(() => mergeStudio(a, b), /exceed/);
+});
+test("unsupported imported career versions and duplicate resume IDs never silently replace data", () => {
+  assert.throws(
+    () => readStudio({ [STUDIO_KEY]: { version: 9 } }),
+    /Unsupported/,
+  );
+  const s = readStudio({});
+  s.resumes = [emptyResume("a"), emptyResume("a")];
+  assert.throws(() => readStudio({ [STUDIO_KEY]: s }), /Duplicate/);
+});
+import {
+  PRACTICE_QUESTIONS,
+  validatePractice,
+} from "../lib/interview-practice.mjs";
+test("interview material is static and saved exercises require bounded answers and real timing metadata", () => {
+  assert.ok(new Set(PRACTICE_QUESTIONS.map((x) => x.topic)).size === 5);
+  const p = {
+    id: "p",
+    questionId: "js-closure",
+    answer: "My answer",
+    seconds: 42,
+    updatedAt: new Date().toISOString(),
+  };
+  assert.equal(validatePractice(p).source, "static-practice");
+  assert.throws(
+    () => validatePractice({ ...p, answer: "" }),
+    /Write an answer/,
+  );
+  assert.throws(() => validatePractice({ ...p, seconds: -1 }), /duration/);
+  assert.throws(
+    () => validatePractice({ ...p, questionId: "fake-ai" }),
+    /Invalid practice/,
+  );
+  const studio = readStudio({});
+  studio.practices = [p];
+  assert.equal(readStudio(writeStudio({}, studio)).practices[0].seconds, 42);
+});
