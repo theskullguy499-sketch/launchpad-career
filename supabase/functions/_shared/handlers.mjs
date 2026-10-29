@@ -1,3 +1,4 @@
+import { boundedJson, BodyError } from "./request-body.mjs";
 import { providerDescription } from "./job-text.mjs";
 const production = "https://theskullguy499-sketch.github.io";
 const clean = (value, max = 200) =>
@@ -43,9 +44,11 @@ export function normalizeJobs(payload) {
 }
 function extractOutput(data) {
   if (typeof data.output_text === "string") return data.output_text;
-  return (data.output || [])
-    .flatMap((item) => item.content || [])
-    .filter((item) => item.type === "output_text")
+  return (Array.isArray(data.output) ? data.output : [])
+    .flatMap((item) => (Array.isArray(item?.content) ? item.content : []))
+    .filter(
+      (item) => item?.type === "output_text" && typeof item.text === "string",
+    )
     .map((item) => item.text)
     .join("\n");
 }
@@ -97,17 +100,9 @@ export function makeHandler(
       });
       if (kind === "reminder-worker")
         return await reminderWorker(req, admin, env, request, now, respond);
-      if (Number(req.headers.get("content-length") || 0) > 12000)
-        return respond({ error: "Request too large." }, 413);
-      const raw = await req.text();
-      if (raw.length > 12000)
-        return respond({ error: "Request too large." }, 413);
-      let body;
-      try {
-        body = raw ? JSON.parse(raw) : {};
-      } catch {
-        return respond({ error: "Invalid JSON." }, 400);
-      }
+      const body = await boundedJson(req, 12000);
+      if (!body || typeof body !== "object" || Array.isArray(body))
+        return respond({ error: "Send a JSON request object." }, 400);
       if (kind === "job-explorer")
         return await jobExplorer(admin, request, now, respond);
       const authorization = req.headers.get("Authorization") || "";
@@ -187,7 +182,9 @@ export function makeHandler(
           respond,
         );
       return respond({ error: "Unknown service." }, 404);
-    } catch {
+    } catch (error) {
+      if (error instanceof BodyError)
+        return respond({ error: error.message }, error.status);
       return respond(
         {
           error:
@@ -205,16 +202,20 @@ async function jobExplorer(admin, request, now, respond) {
     .eq("provider", "remotive")
     .maybeSingle();
   if (cached.error) throw cached.error;
-  let row = cached.data;
-  if (
-    row?.payload &&
-    now().getTime() - Date.parse(row.fetched_at) < 6 * 3600000
-  )
+  const row = cached.data;
+  const age = row ? now().getTime() - Date.parse(row.fetched_at) : NaN;
+  const reusable =
+    !!row?.payload &&
+    Array.isArray(row.payload.jobs) &&
+    Number.isFinite(age) &&
+    age >= 0 &&
+    age <= 48 * 3600000;
+  if (reusable && age < 6 * 3600000)
     return respond({ ...row.payload, fetchedAt: row.fetched_at, stale: false });
   const reservation = await admin.rpc("reserve_job_refresh");
   if (reservation.error) throw reservation.error;
   if (!reservation.data) {
-    if (row?.payload)
+    if (reusable)
       return respond({
         ...row.payload,
         fetchedAt: row.fetched_at,
@@ -237,7 +238,7 @@ async function jobExplorer(admin, request, now, respond) {
       },
     );
     if (!response.ok) throw new Error("Provider unavailable");
-    const jobs = normalizeJobs(await response.json());
+    const jobs = normalizeJobs(await boundedJson(response, 8_000_000));
     const payload = {
       jobs,
       source: "Remotive",
@@ -251,7 +252,7 @@ async function jobExplorer(admin, request, now, respond) {
     if (saved.error) throw saved.error;
     return respond({ ...payload, fetchedAt, stale: false });
   } catch {
-    if (row?.payload)
+    if (reusable)
       return respond({
         ...row.payload,
         fetchedAt: row.fetched_at,
@@ -295,15 +296,6 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
       },
       403,
     );
-  const usage = await admin.rpc("reserve_ai_usage", { owner_id: user.id });
-  if (usage.error)
-    return respond(
-      {
-        error:
-          "The AI request allowance is exhausted, your plan is ineligible, or onboarding is incomplete. Check Billing and your profile before retrying.",
-      },
-      429,
-    );
   const consent = body.consent || {};
   const context = {};
   if (
@@ -330,6 +322,15 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
     return respond(
       { error: "Selected context is too large. Share fewer details." },
       400,
+    );
+  const usage = await admin.rpc("reserve_ai_usage", { owner_id: user.id });
+  if (usage.error)
+    return respond(
+      {
+        error:
+          "The AI request allowance is exhausted, your plan is ineligible, or onboarding is incomplete. Check Billing and your profile before retrying.",
+      },
+      429,
     );
   const model = env("OPENAI_MODEL") || "gpt-4.1-mini";
   const payload = {
@@ -390,27 +391,48 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
         },
       },
     };
-  const response = await request("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(25000),
-  });
-  if (!response.ok)
-    return respond(
+  // Reservations count attempts, including provider failures. Never promise a refund
+  // that the atomic quota RPC has not made; do not automatically retry paid calls.
+  const failedAttempt = (message) =>
+    respond(
       {
         error:
-          "The AI provider could not respond. Check provider availability, budget and server-side configuration.",
+          message +
+          " One AI usage attempt was counted. Check Billing before retrying.",
+        usageAttempted: true,
       },
       502,
     );
+  let providerResult;
+  try {
+    const response = await request("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(25000),
+    });
+    if (!response.ok)
+      return failedAttempt(
+        "The AI provider could not respond. Check provider availability, budget and server-side configuration.",
+      );
+    providerResult = await boundedJson(response, 256000);
+    if (
+      !providerResult ||
+      typeof providerResult !== "object" ||
+      Array.isArray(providerResult)
+    )
+      return failedAttempt("The AI provider returned an invalid response.");
+  } catch {
+    return failedAttempt(
+      "The AI provider response was unavailable, too large or invalid.",
+    );
+  }
   const allowance = await admin.rpc("commercial_ai_allowance", {
     owner_id: user.id,
   });
-  const providerResult = await response.json();
   let costWarning;
   if (
     Number.isInteger(providerResult.usage?.input_tokens) &&
@@ -430,10 +452,7 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
       "Token usage was not supplied by the provider; cost reporting is incomplete.";
   const output = extractOutput(providerResult);
   if (!output || output.length > 20000)
-    return respond(
-      { error: "The AI provider returned no usable response." },
-      502,
-    );
+    return failedAttempt("The AI provider returned no usable response.");
   let plan;
   if (body.intent === "roadmap") {
     try {
@@ -450,13 +469,32 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
       )
         throw new Error();
     } catch {
-      return respond(
-        { error: "The AI roadmap was not valid. No milestones were changed." },
-        502,
+      return failedAttempt(
+        "The AI roadmap was not valid. No milestones were changed.",
       );
     }
   }
-  let warning = costWarning;
+  const daily =
+    !allowance.error &&
+    Number.isInteger(allowance.data?.dailyRemaining) &&
+    allowance.data.dailyRemaining >= 0
+      ? allowance.data.dailyRemaining
+      : null;
+  const monthly =
+    !allowance.error &&
+    Number.isInteger(allowance.data?.monthlyRemaining) &&
+    allowance.data.monthlyRemaining >= 0
+      ? allowance.data.monthlyRemaining
+      : null;
+  let warning =
+    [
+      costWarning,
+      daily === null
+        ? "Remaining allowance could not be verified. Check Billing before retrying."
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined;
   if (consent.history === true) {
     const id = crypto.randomUUID();
     const saved = await client.from("ai_planning_history").insert({
@@ -483,7 +521,9 @@ async function aiCoach(body, user, client, admin, env, request, now, respond) {
     plan,
     provider: "OpenAI",
     model,
-    remaining: Math.max(0, 10 - Number(usage.data)),
+    remaining: daily,
+    dailyRemaining: daily,
+    monthlyRemaining: monthly,
     warning,
   });
 }

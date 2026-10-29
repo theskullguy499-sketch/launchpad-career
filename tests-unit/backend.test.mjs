@@ -40,6 +40,8 @@ function harness(options = {}) {
         const result = options.rpc(name, args);
         if (result !== undefined) return result;
       }
+      if (name === "commercial_ai_allowance")
+        return { data: { dailyRemaining: 9, monthlyRemaining: 24 } };
       if (name === "reserve_ai_usage")
         return options.limit ? { error: { message: "limit" } } : { data: 1 };
       if (name === "load_workspace")
@@ -164,6 +166,7 @@ test("AI uses the official endpoint with bounded costs and no context/history wi
   const body = await response.json();
   assert.equal(body.provider, "OpenAI");
   assert.equal(body.remaining, 9);
+  assert.equal(body.monthlyRemaining, 24);
   assert.equal(h.requests[0][0], "https://api.openai.com/v1/responses");
   const sent = JSON.parse(h.requests[0][1].body);
   assert.equal(sent.store, false);
@@ -364,4 +367,126 @@ test("scheduled email digests use the verified opt-in, private outbox and stable
         c[2].status === "sent",
     ),
   );
+});
+test("streamed request limits count UTF-8 bytes and reject primitives before provider or quota access", async () => {
+  for (const body of [
+    "null",
+    "[]",
+    '"text"',
+    JSON.stringify({ prompt: "界".repeat(5000) }),
+  ]) {
+    const h = harness();
+    const req = new Request("https://test.supabase.co/functions/v1/ai-coach", {
+      method: "POST",
+      body,
+      headers: {
+        Origin: "https://theskullguy499-sketch.github.io",
+        Authorization: "Bearer token",
+      },
+    });
+    const r = await h.handler("ai-coach")(req);
+    assert.equal(r.status, body.includes("界") ? 413 : 400);
+    assert.equal(h.requests.length, 0);
+    assert.ok(!h.calls.some((c) => c[0] === "reserve_ai_usage"));
+  }
+});
+test("invalid consented AI context is rejected before reserving credits", async () => {
+  const h = harness({
+    rpc: (name) =>
+      name === "load_workspace"
+        ? {
+            data: {
+              profile: { display_name: "x".repeat(13000) },
+              goals: [],
+              milestones: [],
+              aiHistory: [],
+            },
+          }
+        : undefined,
+  });
+  const r = await h.handler("ai-coach")(
+    request({ prompt: "Help me plan", consent: { profile: true } }),
+  );
+  assert.equal(r.status, 400);
+  assert.ok(!h.calls.some((c) => c[0] === "reserve_ai_usage"));
+  assert.equal(h.requests.length, 0);
+});
+test("AI remaining credits follow canonical server allowance, and missing allowance is never invented", async () => {
+  for (const error of [false, true]) {
+    const h = harness({
+      rpc: (name) =>
+        name === "commercial_ai_allowance"
+          ? error
+            ? { error: { message: "unavailable" } }
+            : { data: { dailyRemaining: 2, monthlyRemaining: 71 } }
+          : undefined,
+    });
+    const r = await h.handler("ai-coach")(
+      request({ prompt: "Help me practice" }),
+    );
+    assert.equal(r.status, 200);
+    const result = await r.json();
+    assert.equal(result.remaining, error ? null : 2);
+    assert.equal(result.monthlyRemaining, error ? null : 71);
+    if (error) assert.match(result.warning, /could not be verified/);
+  }
+});
+test("jobs older than 48 hours or future-dated cache entries are not served during an outage", async () => {
+  for (const fetched_at of [
+    "2026-10-20T12:00:00Z",
+    "2027-10-20T12:00:00Z",
+    "invalid",
+  ]) {
+    const h = harness({
+      cache: { fetched_at, payload: { jobs: [{ id: "old" }] } },
+      reserve: false,
+    });
+    const r = await h.handler("job-explorer")(request());
+    assert.equal(r.status, 503);
+    assert.equal((await r.json()).jobs, undefined);
+  }
+  const h = harness({
+    cache: {
+      fetched_at: "2026-10-25T12:00:00Z",
+      payload: { jobs: [{ id: "sourced-cache" }] },
+    },
+    reserve: false,
+  });
+  const r = await h.handler("job-explorer")(request());
+  assert.equal(r.status, 200);
+  assert.equal((await r.json()).stale, true);
+});
+test("AI provider failures disclose counted attempts without leaking errors or retrying", async () => {
+  for (const fetch of [
+    () => {
+      throw new Error("PRIVATE_PROVIDER_DETAIL");
+    },
+    () => new Response("not JSON"),
+    () => new Response("null"),
+    () => new Response(JSON.stringify({ output: { unexpected: true } })),
+    () =>
+      new Response(
+        JSON.stringify({
+          output: [
+            null,
+            { content: [null, { type: "output_text", text: 42 }] },
+          ],
+        }),
+      ),
+    () => new Response(JSON.stringify({ output_text: "x".repeat(300000) })),
+    () => new Response("{}", { status: 503 }),
+  ]) {
+    const h = harness({ fetch });
+    const r = await h.handler("ai-coach")(
+      request({ prompt: "Help me prepare" }),
+    );
+    assert.equal(r.status, 502);
+    const body = await r.json();
+    assert.equal(body.usageAttempted, true);
+    assert.match(body.error, /attempt was counted/);
+    assert.ok(!body.error.includes("PRIVATE_PROVIDER_DETAIL"));
+    assert.equal(h.requests.length, 1);
+    assert.equal(h.calls.filter((c) => c[0] === "reserve_ai_usage").length, 1);
+    assert.ok(!h.calls.some((c) => c[0] === "ai_planning_history"));
+  }
 });

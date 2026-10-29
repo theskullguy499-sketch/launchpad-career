@@ -743,6 +743,9 @@ window.addEventListener("launchpad:auth", () => {
   draw();
   if (window.launchpadSession && !$("#billingView").hidden) refresh();
 });
+window.addEventListener("launchpad:ai-usage", () => {
+  if (window.launchpadSession) refresh();
+});
 window.addEventListener("launchpad:navigate", (event) => {
   if (event.detail === "billing") {
     loadCatalog();

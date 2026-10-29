@@ -758,3 +758,91 @@ test("unconfigured job service gives actionable English guidance and retains gue
   await add(page, "Guest remains available");
   await expect(page.locator("td strong")).toHaveText("Guest remains available");
 });
+test("AI quota labels use server balances, preserve unknown values and explain counted failures", async ({
+  page,
+}) => {
+  let mode = "known",
+    calls = 0;
+  const { PLANS } = await import("../lib/plans.mjs");
+  await configure(page, {
+    service: (r, path) => {
+      if (path.endsWith("/billing"))
+        return r.fulfill({
+          json: {
+            enabled: true,
+            environment: "sandbox",
+            catalog: PLANS,
+            configured: false,
+            entitlement: {
+              plan: "premium",
+              environment: "sandbox",
+              enabled: true,
+              catalog: PLANS,
+              limits: PLANS.premium,
+              aiRemaining: 71,
+            },
+            subscriptions: [],
+            usage: [],
+          },
+        });
+      if (!path.endsWith("/ai-coach"))
+        return r.fulfill({
+          status: 503,
+          json: { error: "Test service unavailable" },
+        });
+      calls++;
+      return mode === "failed"
+        ? r.fulfill({
+            status: 502,
+            json: {
+              error:
+                "The AI provider could not respond. One AI usage attempt was counted. Check Billing before retrying.",
+              usageAttempted: true,
+            },
+          })
+        : r.fulfill({
+            json: {
+              provider: "Mocked API for automated test",
+              response: "Local test response, not real AI.",
+              dailyRemaining: mode === "known" ? 2 : null,
+              monthlyRemaining: mode === "known" ? 71 : null,
+              remaining: null,
+            },
+          });
+    },
+  });
+  await page.goto("/");
+  await login(page);
+  await expect(page.locator("#syncStatus")).toContainText(
+    "Cloud workspace loaded",
+  );
+  await nav(page, "coach");
+  await page.fill("#coachPrompt", "Help me prepare for an interview");
+  await page.getByRole("button", { name: "Ask coach" }).click();
+  await expect(page.locator("#coachStatus")).toContainText(
+    "2 requests remaining today",
+  );
+  await expect(page.locator("#coachStatus")).toContainText(
+    "71 monthly credits remaining",
+  );
+  await expect(page.locator("#coachCreditBalance")).toContainText(
+    "71 monthly AI requests remaining",
+  );
+  mode = "unknown";
+  await page.getByRole("button", { name: "Ask coach" }).click();
+  await expect(page.locator("#coachStatus")).toContainText(
+    "Remaining allowance could not be verified",
+  );
+  await expect(page.locator("#coachStatus")).not.toContainText("0 requests");
+  mode = "failed";
+  await page.getByRole("button", { name: "Ask coach" }).click();
+  await expect(page.locator("#coachStatus")).toContainText(
+    "One AI usage attempt was counted",
+  );
+  await expect(page.getByRole("button", { name: "Ask coach" })).toBeEnabled();
+  await expect(page.locator("#coachForm")).not.toHaveAttribute(
+    "aria-busy",
+    "true",
+  );
+  expect(calls).toBe(3);
+});
