@@ -1,3 +1,5 @@
+import { careerPreferences57 } from "./lib/workspace57.mjs";
+import { renderExperience57, clearExperience57 } from "./experience57.js";
 import { readStudio } from "./lib/career-studio.mjs";
 import { renderIntelligence55, clearIntelligence55 } from "./intelligence55.js";
 import { renderInterview55, clearInterview55 } from "./interview55.js";
@@ -116,7 +118,7 @@ if (Intl.supportedValuesOf) {
   $("#currency").value = "USD";
 }
 const screens = {
-  home: `<div class="landing-hero"><div class="landing-brand"><img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /></div><span class="release-badge">LAUNCHPAD 5.6 · CONTROLLED RELEASE CANDIDATE</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, build an honest resume, practise interviews and turn your career goals into a plan you can follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>Preparation with purpose.</h2><p>Build resume versions, practise with clearly labelled interview material and follow your own roadmap.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. Live jobs, AI and cloud access depend on backend configuration and account permissions. Paddle checkout remains Sandbox-only for controlled testing.</p><div id="landingLinks" class="button-row"></div></div>`,
+  home: `<div class="landing-hero"><div class="landing-brand"><img class="brand-on-light" src="assets/brand/launchpad-lockup-light.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /><img class="brand-on-dark" src="assets/brand/launchpad-lockup-dark.svg" width="300" height="85" alt="Launchpad — Your Career, Higher." /></div><span class="release-badge">LAUNCHPAD 5.7 · YOUR CAREER WORKSPACE</span><h1>Your Career,<br><em>Higher.</em></h1><p class="intro-copy">Turn international career ambitions into a clear next step. Track opportunities, build an honest resume, practise interviews and turn your career goals into a plan you can follow.</p><div id="landingActions" class="button-row"></div><div class="value-grid"><article><span>01 / ORGANIZE</span><h2>Every opportunity, in focus.</h2><p>A detailed application tracker, a Kanban pipeline, and follow-ups that stay connected.</p></article><article><span>02 / BUILD</span><h2>Preparation with purpose.</h2><p>Build resume versions, practise with clearly labelled interview material and follow your own roadmap.</p></article><article><span>03 / OWN</span><h2>Your data. Your choice.</h2><p>Start locally as a guest. Choose when to import records into a verified account workspace.</p></article></div></div><div class="panel section-pad"><h2>Built for a considered next chapter</h2><p>Explore a curated company directory and, when configured, sourced remote jobs and a private-by-default AI coach. Live jobs, AI and cloud access depend on backend configuration and account permissions. Paddle checkout remains Sandbox-only for controlled testing.</p><div id="landingLinks" class="button-row"></div></div>`,
   dashboard: `<div class="screen-heading"><div><p class="eyebrow">YOUR NEXT CHAPTER</p><h1>Small steps.<br><em>Higher ambitions.</em></h1><p class="intro-copy">A clear view of what matters next, based on your own activity.</p></div><div id="dashboardActions" class="button-row"></div></div><div id="onboardingCard" class="panel section-pad"></div><div id="dashboardMetrics" class="metrics-grid"></div><div class="split-grid"><section class="panel section-pad"><div class="section-head"><h2>Upcoming & overdue</h2><button id="refreshReminders" class="button button-outline" type="button">Refresh</button></div><p class="helper">In-app reminders update while Launchpad is open. Background/email delivery requires a configured scheduler.</p><div id="reminderList"></div></section><section class="panel section-pad"><div class="section-head"><h2>Your tasks</h2><button id="addTaskBtn" class="button button-primary" type="button">Add task</button></div><div id="taskList"></div></section></div><section class="panel section-pad"><h2>Favorite employers</h2><div id="dashboardCompanies" class="directory-grid"></div></section>`,
   companies: `<div class="screen-heading"><div><p class="eyebrow">RESEARCH WITH INTENT</p><h1>Find your<br><em>next employer.</em></h1><p class="intro-copy">A curated directory, not a worldwide catalog or a claim that these companies are hiring. Website links are curated; availability has not been live-verified. Headquarters and career-page links are omitted until verified.</p></div><button id="addCompanyBtn" class="button button-primary" type="button">Add a company</button></div><div class="panel section-pad"><div class="explorer-filters"><label>Search companies<input id="companySearch" type="search" placeholder="Company or industry" /></label><label>Industry<select id="companyIndustry"><option value="all">All industries</option></select></label><label>Country (verified or user supplied)<input id="companyCountry" type="search" placeholder="Country, if known" /></label><label class="check-label"><input type="checkbox" id="favoritesOnly" /> Favorites only</label></div><p id="companyCount" class="helper" role="status"></p><div id="companyList" class="directory-grid"></div></div>`,
   jobs: `<div class="screen-heading"><div><p class="eyebrow">SOURCED OPPORTUNITIES</p><h1>A real opening.<br><em>A considered move.</em></h1><p class="intro-copy">Search retrieved vacancies from Remotive through the configured backend. This source covers remote roles, is delayed by 24 hours, and is not a complete jobs database. Listings remain accessible to guests; no signup is required to view them.</p></div></div><form id="jobSearchForm" class="panel section-pad"><div class="explorer-filters"><label>Job title<input id="jobTitle" type="search" maxlength="100" placeholder="e.g. Frontend developer" /></label><label>Country or region<input id="jobCountry" maxlength="100" placeholder="e.g. Brazil or Worldwide" /></label><label>Company<input id="jobCompany" maxlength="100" /></label><label>Technology keyword<input id="jobStack" maxlength="100" placeholder="e.g. JavaScript" /></label><label>Experience (title text match)<select id="jobExperience"><option value="">All levels</option><option>Junior</option><option>Senior</option><option>Lead</option><option>Intern</option></select></label><label>Arrangement<select id="jobRemote"><option>Remote</option></select></label><label class="check-label"><input type="checkbox" id="jobSalary" /> Salary provided</label></div><button class="button button-primary" type="submit">Find opportunities</button><p id="jobStatus" class="helper" role="status">No job source has been contacted. Search to check the configured service. No sample vacancies are shown.</p><a href="https://remotive.com/" target="_blank" rel="noopener noreferrer">Job data source: Remotive</a></form><div id="jobResults" class="directory-grid"></div>`,
@@ -320,6 +322,7 @@ function editor(title, fields, value, save) {
 }
 let activeScope = null;
 function clearPrivateView() {
+  clearExperience57();
   clearIntelligence55();
   clearCareer55();
   clearInterview55();
@@ -482,6 +485,8 @@ window.launchpadWorkspace = {
       )
         throw new Error("Invalid backup settings.");
     if (extras.preferences) readStudio(extras.preferences);
+    if (extras.preferences?.careerPreferences57 !== undefined)
+      careerPreferences57(extras.preferences.careerPreferences57);
     await store.update((next) => {
       next.applications = applications;
       next.completed = completed;
@@ -495,6 +500,8 @@ window.launchpadWorkspace = {
       ])
         if (extras[key] !== undefined) next[key] = extras[key];
     });
+    clearExperience57();
+    renderAll();
   },
 };
 window.addEventListener("launchpad:auth", (event) => {
@@ -750,6 +757,7 @@ function renderAll() {
     rerender: renderAll,
     editMilestone: milestoneEditor,
   });
+  renderExperience57({data:snapshot,scope:store.mode+":"+(store.owner?.id||"guest"),mode:store.mode,busy:store.busy,update:change=>store.update(change)});
 }
 function renderOnboarding() {
   const c = $("#onboardingCard");
@@ -1660,8 +1668,11 @@ $("#privacyActions").append(
       confirm(
         "Permanently clear guest opportunities, plans, tasks, favorites and profile from this browser? Export a JSON backup first. Account cloud data will not be deleted.",
       )
-    )
+    ) {
       await store.clearGuest();
+      clearExperience57();
+      renderAll();
+    }
   }),
   action("Export all personal data", async () =>
     download("launchpad-personal-data.json", await store.exportAll()),

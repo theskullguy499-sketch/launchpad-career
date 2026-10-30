@@ -1,5 +1,9 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "experience57.js",
+  "lib/workspace57.mjs",
+  "styles/experience57.css",
+  "assets/orbit57.svg",
   "intelligence55.js",
   "lib/career-intelligence.mjs",
   "job-fit55.js",
