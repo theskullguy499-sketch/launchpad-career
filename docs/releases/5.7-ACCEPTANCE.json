@@ -1,0 +1,60 @@
+{
+  "branch": "feat/launchpad-5.7",
+  "base": "499f0ac1405c5953de0d2fd2098b6c8d368e4d3f",
+  "testedCodeCommit": "e517d61173bedf8c3fcb8fa98e49e20183ee56fb",
+  "verifiedAt": "2026-10-30T21:52:47.365Z",
+  "environment": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "browser": "Chromium 154.0.8037.57",
+    "platform": "Debian 13",
+    "ciMode": true
+  },
+  "local": {
+    "install": "PASS",
+    "build": "PASS",
+    "buildCheck": "PASS",
+    "publicAudit": "PASS",
+    "test": {
+      "status": "PASS",
+      "total": 262,
+      "build": 8,
+      "database": 3,
+      "backend": 76,
+      "sourceBrowser": 162,
+      "builtBrowser": 13,
+      "failures": 0,
+      "skips": 0,
+      "retries": 0
+    },
+    "edgeBundles": 6,
+    "dependencyAudit": {
+      "status": "PASS",
+      "reportedVulnerabilities": 0
+    },
+    "publicFiles": 84,
+    "publicAuthConfigured": false,
+    "aggregateArtifactBytes": 1138015,
+    "buildManifestSha256": "73f7e898c06c065c10aa4d603bee460c95b9939a8ead8a9a419ff9a0308b4e11",
+    "screenshots": {
+      "count": 78,
+      "issues": 0,
+      "matchingArtifact": true
+    }
+  },
+  "remote": {
+    "supabaseAuthMailboxes": "NOT TESTED",
+    "publishedRlsAndSync": "NOT TESTED",
+    "remotive": "NOT TESTED",
+    "openAi": "NOT TESTED",
+    "paddleSandboxPurchase": "NOT TESTED",
+    "hostedGitHubActions": "NOT RUN"
+  },
+  "release": {
+    "payingCustomers": "NO-GO",
+    "reason": "Live integration acceptance and owner legal/commercial approvals outstanding"
+  },
+  "merged": false,
+  "deployed": false,
+  "secretsChanged": false
+}

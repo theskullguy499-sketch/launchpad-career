@@ -1,4 +1,4 @@
-# Launchpad 5.6 — Commercial Readiness Release Candidate
+# Launchpad 5.7 — Premium Workspace Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -7,7 +7,14 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
 
-## Current 5.6 handoff
+## Current 5.7 handoff
+
+Branch: **`feat/launchpad-5.7`**, based on 5.6 commit `499f0ac`.
+An application-wide visual evolution preserves the original controllers and data: coherent light/dark components, globe discovery hero, actual activity chart, preparation counts, explicit analytics definitions and consent-aware career preferences.
+See [release/audit/test report](docs/LAUNCHPAD_5_7_RELEASE_REPORT.md), [all-screen before/after gallery](docs/screenshots/5.7/README.md) and [Windows CMD / Staging / rollback guide](docs/releases/5.7-STAGING.md).
+No merge, deployment, backend migration, secrets, legal flags or real billing activation is included. Live integrations remain **NOT TESTED** here; this is a controlled-validation candidate, **not a GO for paid production**.
+
+## Previous 5.6 handoff
 
 Branch: **`feat/launchpad-5-6-launch-readiness`**, based on reviewed 5.5 commit `4e02d55`.
 Bounded HTTP/provider reads, limited stale job fallback, server-derived AI balances, explicit counted-attempt failures and a public-artifact release gate preserve the existing features and data.
