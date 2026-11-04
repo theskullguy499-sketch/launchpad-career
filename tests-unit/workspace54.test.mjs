@@ -102,3 +102,18 @@ test("company links reject embedded credentials and executable protocols without
   assert.equal(safeCompanyLink("https://example.com"), "https://example.com/");
   assert.equal(safeCompanyLink("http://example.com"), "http://example.com/");
 });
+test("rolling calendar windows use their explicit clock across month boundaries", () => {
+  const apps = [
+    { id: "before", applicationDate: "2026-10-05" },
+    { id: "start", applicationDate: "2026-10-06" },
+    { id: "today", applicationDate: "2026-11-04" },
+    { id: "future", applicationDate: "2026-11-05" },
+    { id: "undated", createdAt: "2026-11-03" },
+  ];
+  assert.deepEqual(
+    periodApplications(apps, "30", new Date("2026-11-04T12:00:00Z")).map(
+      (a) => a.id,
+    ),
+    ["start", "today"],
+  );
+});

@@ -135,6 +135,8 @@ test("roadmap stage and text filtering preserve all existing goals and completio
 test("analytics period excludes undated tracking timestamps and displays only recorded monthly data", async ({
   page,
 }) => {
+  // This fixture has fixed October dates; keep the rolling-window assertion deterministic.
+  await page.clock.setFixedTime(new Date("2026-10-29T12:00:00Z"));
   await seedWorkspace54(page);
   await page.goto("/#analytics");
   await expect(
