@@ -1,0 +1,57 @@
+{
+  "version": "5.8.0-rc.1",
+  "branch": "feat/launchpad-5.8",
+  "base": "7e412e0641b11498c27147127707a4cadf424cdc",
+  "testedCodeCommit": "648a3077c6ec20f52260348f88a4ca20127334e5",
+  "verifiedAtUTC": "2026-11-04T18:14:30.304616+00:00",
+  "environment": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "browser": "Chromium 154.0.8037.57",
+    "os": "Debian 13",
+    "ciMode": true
+  },
+  "checks": {
+    "npmCi": "PASS",
+    "build": "PASS",
+    "buildCheck": "PASS",
+    "npmTest": "PASS",
+    "publicAudit": "PASS",
+    "npmAuditKnownVulnerabilities": 0,
+    "hostedActions": "NOT RUN"
+  },
+  "tests": {
+    "build": 8,
+    "databasePGlite": 3,
+    "backendAndModels": 84,
+    "sourcePlaywright": 176,
+    "builtPlaywright": 13,
+    "total": 284,
+    "failed": 0
+  },
+  "artifact": {
+    "publicFiles": 88,
+    "publicBytes": 1168856,
+    "publicAuthConfigured": false,
+    "manifestSha256": "ec400212aa9aa263ac2bbb07b31ba90500ec89c2d5a22c95aba37e1759fb231e"
+  },
+  "screenshots": {
+    "count": 102,
+    "issues": 0,
+    "artifactHashMatches": true,
+    "integrationMode": "Labelled local fixtures; mocked auth/jobs/billing; no AI or provider calls"
+  },
+  "external": {
+    "supabaseEmailSMTP": "NOT TESTED",
+    "deployedRLSAndSync": "NOT TESTED",
+    "remotive": "NOT TESTED",
+    "openAI": "NOT TESTED",
+    "paddleSandbox": "NOT TESTED",
+    "new58ReferenceComparison": "NOT VERIFIED"
+  },
+  "acceptPayingCustomers": "NO-GO",
+  "deploymentPerformed": false,
+  "mergePerformed": false,
+  "secretsChanged": false,
+  "realChargesEnabled": false
+}

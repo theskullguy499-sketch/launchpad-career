@@ -1,4 +1,4 @@
-# Launchpad 5.7 — Premium Workspace Release Candidate
+# Launchpad 5.8 — Premium SaaS Evolution Release Candidate
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -7,7 +7,14 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
 
-## Current 5.7 handoff
+## Current 5.8 handoff
+
+Branch: **`feat/launchpad-5.8`**, based on 5.7 `7e412e0`.
+Navy/indigo shared surfaces, a transparent saved-resume checklist, retrieved skill-overlap recommendations, private session-only viewed jobs, consented resume/job draft preparation and clearly isolated demos extend the existing product. Routing and mobile detail-scroll fixes preserve existing Auth and workspace behavior.
+See the [audit/phase/test report](docs/LAUNCHPAD_5_8_RELEASE_REPORT.md), [102 real before/after captures](docs/screenshots/5.8/README.md) and [Windows CMD/local/Staging guide](docs/releases/5.8-STAGING.md).
+No application publication, merge, secrets, backend migration or real-charge activation is included. Live integrations and exact comparison to a new 5.8 screenshot remain unverified. This is a controlled-review candidate, not approval to accept paying customers.
+
+## Previous 5.7 handoff
 
 Branch: **`feat/launchpad-5.7`**, based on 5.6 commit `499f0ac`.
 An application-wide visual evolution preserves the original controllers and data: coherent light/dark components, globe discovery hero, actual activity chart, preparation counts, explicit analytics definitions and consent-aware career preferences.
