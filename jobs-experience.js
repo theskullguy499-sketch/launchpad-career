@@ -1,4 +1,5 @@
-import {jobFitPanel} from "./job-fit55.js";
+import { t58 } from "./lib/i18n58.mjs";
+import { jobFitPanel } from "./job-fit55.js";
 // Jobs presentation uses only the current workspace and retrieved source records.
 import { companyIdentity, icon } from "./premium.js";
 import { jobKey, reportedArrangement } from "./lib/job-discovery.mjs";
@@ -250,7 +251,9 @@ function renderDetails() {
   // Lookup is restricted to the active snapshot; URL text never fetches arbitrary URLs.
   const job =
     key.length <= 300
-      ? [...context.jobs, ...context.saved].find((j) => jobKey(j) === key)
+      ? [...context.jobs, ...context.saved, ...(context.recent || [])].find(
+          (j) => jobKey(j) === key,
+        )
       : null;
   if (!job) {
     root.append(
@@ -495,8 +498,12 @@ function renderDetails() {
     rail.append(company);
   }
   layout.append(main, rail);
-  root.append(layout, jobFitPanel(job,context.data));
-  if (changed) root.focus({ preventScroll: true });
+  root.append(layout, jobFitPanel(job, context.data));
+  context.onViewed?.(job, changed);
+  if (changed) {
+    root.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
 }
 export function renderJobExperience(next) {
   context = next;
@@ -522,6 +529,29 @@ export function renderJobExperience(next) {
   );
   select.value = [...select.options].some((o) => o.value === value)
     ? value
+    : "";
+  const arrangementSelect = $("#jobRemote"),
+    previousArrangement = arrangementSelect.value;
+  const supplied = new Set(
+    [...context.jobs, ...context.saved, ...(context.recent || [])].map(
+      reportedArrangement,
+    ),
+  );
+  const labels = {
+    Remote: "arrangementRemote",
+    Hybrid: "arrangementHybrid",
+    "On-site": "arrangementOnsite",
+  };
+  arrangementSelect.replaceChildren(
+    new Option(t58("arrangementAll"), ""),
+    ...Object.keys(labels)
+      .filter((value) => value === "Remote" || supplied.has(value))
+      .map((value) => new Option(t58(labels[value]), value)),
+  );
+  arrangementSelect.value = [...arrangementSelect.options].some(
+    (o) => o.value === previousArrangement,
+  )
+    ? previousArrangement
     : "";
   const chips = $("#jobFilterChips");
   chips.replaceChildren();

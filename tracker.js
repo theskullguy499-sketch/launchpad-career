@@ -779,13 +779,21 @@
       if (active) button.setAttribute("aria-current", "page");
       else button.removeAttribute("aria-current");
     });
-    if (!location.hash || routes.some((route) => location.hash === "#" + route))
-      location.hash = current;
+    // Direct navigation must leave a prior page's query behind. Hash-driven
+    // navigation keeps the requested query. Preserve unknown auth fragments
+    // until the authentication controller has had a chance to handle them.
+    const hashRoute = location.hash.slice(1).split("?")[0];
+    if (!location.hash || routes.includes(hashRoute)) {
+      const destination = routes.includes(route) ? view : current;
+      if (location.hash !== "#" + destination) location.hash = destination;
+    }
     // A navigation click updates immediately; its later hashchange must not
     // render the same screen again and overwrite edits made in the meantime.
     // Still update visibility above when platform.js adds its screens at startup.
     if (activeView === current) return;
     activeView = current;
+    // A new page starts at its header; same-page edits and section queries keep position.
+    window.scrollTo({ top: 0, behavior: "auto" });
     window.dispatchEvent(
       new CustomEvent("launchpad:navigate", { detail: current }),
     );
