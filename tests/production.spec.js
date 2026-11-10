@@ -152,3 +152,6 @@ test('integrated Pages build keeps premium navigation and pricing while authenti
  await expect(page.locator('#dashboardPlanStatus')).toContainText('Guest workspace');
  expect(checks.failures).toEqual([]);
 });
+test('5.9 public demo works from the built Pages prefix without auth or record writes',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/launchpad-career/#home');await expect(page.locator('#publicDemoEntry59')).toBeVisible();const before=await page.evaluate(()=>JSON.stringify(localStorage));await page.getByRole('button',{name:'Explore public demo',exact:true}).click();const dialog=page.locator('#portfolioDemo59');await dialog.getByRole('button',{name:'2. Applications',exact:true}).click();await dialog.getByRole('button',{name:'Move sample to Interview',exact:true}).click();await expect(dialog).toContainText('No records were saved');await page.keyboard.press('Escape');expect(await page.evaluate(()=>JSON.stringify(localStorage))).toBe(before);expect(errors).toEqual([]);
+});

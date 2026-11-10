@@ -55,12 +55,17 @@ exports.career55State = () => {
   };
   return data;
 };
-exports.seedCareer55 = (page) =>
-  page.addInitScript((data) => {
-    localStorage.setItem(
-      "launchpad-opportunities-v1",
-      JSON.stringify(data.applications),
-    );
-    const { applications, aiHistory, revision, ...extra } = data;
-    localStorage.setItem("launchpad-workspace-v4", JSON.stringify(extra));
-  }, exports.career55State());
+exports.seedCareer55 = (page, { once = false } = {}) =>
+  page.addInitScript(
+    ({ data, once }) => {
+      if (once && sessionStorage.getItem("career55-fixture-seeded")) return;
+      localStorage.setItem(
+        "launchpad-opportunities-v1",
+        JSON.stringify(data.applications),
+      );
+      const { applications, aiHistory, revision, ...extra } = data;
+      localStorage.setItem("launchpad-workspace-v4", JSON.stringify(extra));
+      if (once) sessionStorage.setItem("career55-fixture-seeded", "true");
+    },
+    { data: exports.career55State(), once },
+  );

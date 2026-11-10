@@ -43,7 +43,7 @@ function panel(title, id) {
   p.append(el("h2", null, title));
   return p;
 }
-function showDemo58(kind) {
+export function showDemo58(kind) {
   previousFocus = document.activeElement;
   dialog.replaceChildren();
   const header = el("div", "dialog-head");

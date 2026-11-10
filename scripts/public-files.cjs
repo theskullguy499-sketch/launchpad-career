@@ -1,5 +1,8 @@
 // Only these browser inputs may be served or deployed. Backend/config secrets stay out.
 module.exports = [
+  "experience59.js",
+  "lib/public-beta.mjs",
+  "styles/public-beta.css",
   "experience58.js",
   "lib/i18n58.mjs",
   "lib/career58.mjs",

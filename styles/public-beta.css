@@ -1,0 +1,219 @@
+/* 5.9: shared, readable surfaces and a strictly isolated public preview. */
+.beta59-panel {
+  margin-block: 20px;
+  min-width: 0;
+}
+.beta59-entry {
+  background: linear-gradient(125deg, var(--surface), var(--wash57));
+  border-inline-start: 4px solid var(--horizon-violet);
+}
+.beta59-entry > p {
+  max-width: 70ch;
+}
+.beta59-panel h2 {
+  font-size: clamp(1.12rem, 1.7vw, 1.45rem);
+  letter-spacing: -0.025em;
+}
+.beta59-action-grid,
+.beta59-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.beta59-action,
+.beta59-demo-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 18px;
+  min-width: 0;
+}
+.beta59-action h3 {
+  font-size: 1.03rem;
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+.beta59-action {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+.beta59-action .button {
+  margin-top: auto;
+}
+.beta59-action p {
+  line-height: 1.65;
+  margin-bottom: 18px;
+}
+.beta59-action:nth-child(2) {
+  border-top: 3px solid var(--horizon-violet);
+}
+.beta59-action:nth-child(3) {
+  border-top: 3px solid var(--horizon-mint);
+}
+.beta59-dialog {
+  width: min(960px, calc(100vw - 28px));
+  max-height: calc(100dvh - 32px);
+  padding: 26px;
+  overflow: auto;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+}
+.beta59-dialog::backdrop {
+  background: #08152bd9;
+}
+.beta59-dialog .dialog-head {
+  gap: 20px;
+  align-items: center;
+}
+.beta59-dialog h2 {
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+  line-height: 1.2;
+}
+.beta59-notice {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--horizon-mint);
+  border-radius: 12px;
+  background: var(--wash57);
+  font-weight: 650;
+  line-height: 1.6;
+}
+.beta59-demo-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.beta59-demo-nav .button {
+  min-height: 44px;
+  font-size: 0.87rem;
+  padding: 9px 12px;
+}
+.beta59-demo-nav .button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+.beta59-example {
+  min-height: 300px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--surface), var(--wash57));
+  margin: 18px 0;
+  overflow-wrap: anywhere;
+}
+.beta59-example h3 {
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  letter-spacing: -0.035em;
+}
+.beta59-example p,
+.beta59-example li {
+  line-height: 1.75;
+}
+.beta59-demo-card h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+.beta59-demo-application {
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: var(--wash57);
+  border-radius: 12px;
+}
+.beta59-demo-paper {
+  max-width: 600px;
+  background: var(--surface);
+  padding: 26px;
+  margin: 20px auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.beta59-modern {
+  border-top: 8px solid var(--horizon-violet);
+  border-radius: 18px;
+}
+.beta59-coverage {
+  font-size: clamp(1.15rem, 2vw, 1.65rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+.beta59-source-quote {
+  margin: 10px 0;
+  padding: 14px 18px;
+  border-inline-start: 3px solid var(--horizon-violet);
+  background: var(--wash57);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#sourceFacts59 .job-facts {
+  grid-template-columns: minmax(130px, 0.7fr) minmax(0, 1.3fr);
+}
+#sourceFacts59 dd {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+#preparation59,
+#resumeExport59,
+#practiceCoverage59 {
+  scroll-margin-top: 100px;
+}
+@media (max-width: 768px) {
+  .beta59-action-grid {
+    grid-template-columns: 1fr;
+  }
+  .beta59-dialog {
+    padding: 18px;
+  }
+  .beta59-example {
+    padding: 18px;
+  }
+  .beta59-demo-grid {
+    grid-template-columns: 1fr;
+  }
+  .beta59-dialog .dialog-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .beta59-dialog > .button-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .beta59-dialog > .button-row .button {
+    flex: 1;
+  }
+  #sourceFacts59 .job-facts {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  #sourceFacts59 dd {
+    margin: 0 0 12px;
+  }
+  .beta59-action p {
+    margin-top: 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .beta59-action {
+    transition:
+      box-shadow 0.18s ease,
+      border-color 0.18s ease;
+  }
+  .beta59-action:focus-within {
+    box-shadow: 0 8px 24px #0b2d6b12;
+    border-color: var(--horizon-violet);
+  }
+}
+/* Populated activity feeds exposed two inherited small-text contrast failures. */
+body:not(.dark) .status-pill.status-Interview {
+  color: #794a0b;
+  background: #fff3d9;
+}
+body:not(.dark) .status-pill.status-Offer,
+body:not(.dark) .status-pill.status-Hired {
+  color: #116747;
+  background: #e1f9ee;
+}
