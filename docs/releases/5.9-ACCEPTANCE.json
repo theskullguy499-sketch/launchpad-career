@@ -1,0 +1,64 @@
+{
+  "version": "5.9.0-beta.1",
+  "branch": "feat/launchpad-5.9-public-beta",
+  "baseCommit": "47839edf737c9313bffcd4b42abd52d6cccda834",
+  "testedCodeCommit": "2e6c695e27f5ea4caf74eba01def9d9bd886b967",
+  "verifiedAtUTC": "2026-11-10T19:19:44.759771+00:00",
+  "environment": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "chromium": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+    "mode": "CI=true, Debian 13, two Playwright workers"
+  },
+  "checks": {
+    "npmCi": "PASS",
+    "build": "PASS",
+    "buildCheck": "PASS",
+    "publicArtifactGate": "PASS",
+    "npmTest": "PASS",
+    "dependencyAuditKnownVulnerabilities": 0,
+    "targetedBrowserCases": 14,
+    "skipped": 0
+  },
+  "completeSuite": {
+    "build": 8,
+    "databasePGlite": 3,
+    "backendAndModels": 93,
+    "sourcePlaywright": 190,
+    "builtPlaywright": 14,
+    "total": 308,
+    "failed": 0
+  },
+  "artifact": {
+    "publicFiles": 91,
+    "publicBytes": 1194526,
+    "manifestSha256": "6a22abc8e909789a39691edbc05bee4ce43a8f3fc143ffa99835a1f50497a29b",
+    "publicAuthConfigured": false
+  },
+  "captures": {
+    "count": 146,
+    "errors": 0,
+    "assetFailures": 0,
+    "overflowCases": 0,
+    "artifactHashMatches": true,
+    "mode": "Labelled local test fixtures; mocked Auth/jobs/billing, no real provider calls"
+  },
+  "external": {
+    "supabaseEmailSMTP": "NOT VERIFIED",
+    "deployedRLSAndCrossDeviceSync": "NOT VERIFIED",
+    "remotive": "NOT VERIFIED",
+    "aiProvider": "NOT VERIFIED",
+    "paddleSandboxPurchase": "NOT VERIFIED",
+    "hostedGitHubActions": "NOT RUN",
+    "stagingDeployment": "NOT RUN"
+  },
+  "recommendation": {
+    "localCodeAndPortfolioReview": "GO",
+    "publicAccountBeta": "BLOCKED pending live account isolation, email and operator gates",
+    "payingCustomers": "NO-GO"
+  },
+  "mergePerformed": false,
+  "deploymentPerformed": false,
+  "secretsChanged": false,
+  "realChargesEnabled": false
+}

@@ -1,4 +1,4 @@
-# Launchpad 5.8 — Premium SaaS Evolution Release Candidate
+# Launchpad 5.9 — Public Beta & Portfolio Readiness
 
 **Your Career, Higher.** An international career workspace that builds on the original HTML/CSS/JavaScript Launchpad app without discarding its tracker or guest records.
 
@@ -7,7 +7,14 @@ Production address remains https://theskullguy499-sketch.github.io/launchpad-car
 The inherited 5.0 commercial layer includes sandbox-prepared Paddle billing, server-enforced cloud/AI entitlements, customer billing/usage UI and restricted business metrics. **Live charges are disabled by default. No real sandbox purchase, mailbox delivery or staging deployment is claimed.** Start with [commercial setup](docs/commercial/SETUP.md), [deployment](docs/commercial/DEPLOYMENT.md) and [release evidence](docs/commercial/RELEASE.md).
 
 
-## Current 5.8 handoff
+## Current 5.9 handoff
+
+Branch: **`feat/launchpad-5.9-public-beta`**, based on 5.8 `47839ed`.
+A clearly isolated six-section public demo reuses the existing jobs/coach tours. Workspace preparation actions, saved resume text export, topic-scoped interview practice and literal international source facts add useful functionality without new runtime dependencies or changes to Auth, RLS or billing gates. Shared status contrast and mobile tour navigation are corrected.
+See the [audit, implementation and verification report](docs/LAUNCHPAD_5_9_RELEASE_REPORT.md), [real before/after gallery](docs/screenshots/5.9/README.md) and [Windows CMD / free demo / optional Staging guide](docs/releases/5.9-BETA.md).
+No merge, deployment, secret or real-charge activation is included. Live integrations remain unverified; code review and a local demo are not production/account/payment approval.
+
+## Previous 5.8 handoff
 
 Branch: **`feat/launchpad-5.8`**, based on 5.7 `7e412e0`.
 Navy/indigo shared surfaces, a transparent saved-resume checklist, retrieved skill-overlap recommendations, private session-only viewed jobs, consented resume/job draft preparation and clearly isolated demos extend the existing product. Routing and mobile detail-scroll fixes preserve existing Auth and workspace behavior.
